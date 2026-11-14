@@ -21,7 +21,7 @@ locked dependencies, tests, documentation, and production packages.
 | Optimized Linux Tauri build | Passed, embedded frontend/fonts; all linked runtime libraries found on CachyOS |
 | Linux extracted portable archive native smoke | Passed: launched outside checkout from `/tmp`, actual titled desktop window, portable English/light settings retained, normal window close exited 0; no Vite/source/runtime development files |
 | Debian and RPM | Built; package metadata/runtime dependencies, desktop icon/entry, licenses/setup and absence of development/user data checked. No installation/runtime on Debian/Fedora claimed |
-| Windows optimized MSVC x64 cross-build | Passed, embedded frontend; replaceable minimal LGPL FFmpeg tools separately cross-built. Package PE/DLL/resource/internal-checksum checks passed. Windows runner smoke is tracked in release notes |
+| Windows optimized MSVC x64 cross-build | Passed, embedded frontend; replaceable minimal LGPL FFmpeg tools separately cross-built. Package PE/DLL/resource/internal-checksum checks passed. Published ZIP checksums, bundled probe/conversion/decode (320×240, ten frames), and native HWND creation/5-second survival passed on Windows Server 2025 AMD64; rendered UI/interactive use/USB unverified |
 | Firmware production build | Passed for `cyd_optimized_input_aligned`; fresh image build-verified only |
 
 A stale Python test named the older production environment. It was corrected to
@@ -59,7 +59,9 @@ libudev and external FFmpeg/FFprobe 8+ are required. The executable uses glibc 2
 symbols, with additional requirements imposed by installed GUI libraries. Debian/RPM
 formats are build-verified only; no clean-distro or architecture-wide support claim.
 Windows requires WebView2. Interactive Windows/physical USB acceptance remains open;
-the release notes identify any narrower post-publication Windows runner smoke results.
+the narrower Windows Server 2025 runner smoke is recorded in
+[its audit](RELEASE_AUDIT_WINDOWS.md) and
+[sanitized evidence](evidence/windows-release-runtime-smoke.json).
 
 AppImage built after an initial linuxdeploy failure and a verbose retry. It is not
 uploaded because bundling many system libraries requires a separate corresponding-
@@ -67,7 +69,9 @@ source/redistribution qualification. Debian/RPM do not bundle those system libra
 The packaging-only Tauri rerun emitted a bundle-type/updater warning; no updater is
 implemented, so runtime does not depend on this marker. Existing firmware dependency
 warnings and Windows SDK/FFmpeg compiler warnings are retained in the detailed audits.
-A dedicated Rust advisory scanner was unavailable; Clippy/tests and the npm/Gitleaks
+The initial staged whitespace check reported preserved Markdown hard breaks,
+third-party notice whitespace and Windows CRLF scripts; authoritative/vendor notices
+were not reformatted to remove these reports. A dedicated Rust advisory scanner was unavailable; Clippy/tests and the npm/Gitleaks
 checks above were run, without claiming a Rust advisory-database scan.
 
 Firmware is distributed as complete project source and pinned build instructions,

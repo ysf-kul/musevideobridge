@@ -68,20 +68,35 @@ codec DLL or proprietary codec download is required by these tools.
 - Python compilation, actionlint 1.7.12 and PowerShell parsing of all workflow
   scripts passed.
 
-## Windows runtime boundary
+## Newly completed Windows runner smoke
 
-This is a snapshot of checks completed at packaging time. The published release
-notes record subsequent Windows runner smoke results. No Windows machine or Wine
-runtime was available during local packaging. Local
-cross-builds and import inspection do not prove startup, conversion, serial
-communication, interactive controls or physical playback on Windows.
+After publication, [GitHub Actions run 43594244747](https://github.com/ysf-kul/musevideobridge/actions/runs/43594244747)
+passed on **Microsoft Windows Server 2025 Datacenter, AMD64**. It tested the exact
+published portable ZIP with the SHA-256 listed above, using source commit
+`c4999f64f626968ecfb227f2807781533355e231`. Sanitized results are preserved in
+[Windows runtime evidence](evidence/windows-release-runtime-smoke.json).
 
-`.github/workflows/windows-release-smoke.yml` downloads the actual published ZIP,
-verifies both checksum manifests, runs bundled FFprobe and the complete conversion
-filters plus decoding verification, provisions WebView2 if necessary, and requires
-the packaged desktop to create a native window and remain running on
-`windows-latest`. Its result is separate evidence after publication. It cannot
-verify physical USB, user-observed rendering or interactive controls.
+The workflow downloaded the public release archive and verified the release and
+internal checksums. Bundled FFprobe inspected the generated H.264 MP4 fixture.
+Bundled FFmpeg executed the progressive preserve-aspect conversion path: 25 FPS,
+320×240 scaling/reset-SAR, YUV420 preparation, aligned padding, qscale 8 and
+optimized-Huffman MJPEG encoding. It decoded the prepared stream successfully;
+FFprobe confirmed all ten output frames at 320×240. Crop and interlaced conversion
+paths were not exercised by this progressive fixture.
+
+The packaged Muse executable created a native Windows window with a nonzero
+`MainWindowHandle` and remained running for five seconds afterward with WebView2
+available on the runner. Application stdout/stderr were empty. This establishes a
+Windows runner startup smoke, rather than a review of rendered window contents or
+interactive workflows. Settings persistence, physical USB, serial connection,
+transfers, interactive controls and user-observed playback were not tested.
+Windows 10/11 remain intended targets requiring their own runtime qualification;
+the tested operating system was Windows Server 2025.
+
+No Windows machine or Wine runtime was available during local packaging. The
+cross-build and package results above remain separate from this later runner
+evidence. The immutable v0.3.0 source tag records the packaging-time snapshot;
+this post-publication evidence is documented on the repository's main branch.
 
 Previously measured Linux-connected CYD results remain separate: full 320×240,
 approximately 29.80 sustained actual FPS over five active minutes, 25 full-region

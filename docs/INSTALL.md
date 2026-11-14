@@ -47,8 +47,11 @@ these are troubleshooting options, not general requirements.
 
 Windows 10/11 x64 and the official
 [Microsoft WebView2 Evergreen Runtime](https://developer.microsoft.com/en-us/microsoft-edge/webview2/)
-are required. Execution on a Windows machine is **not yet verified**; the optimized
-MSVC cross-build and packaged resources are verified.
+are required. The optimized MSVC cross-build and packaged resources are verified. The published
+ZIP passed native window creation and bundled conversion/decode on a Windows Server
+2025 AMD64 runner. **Windows 10/11 interactive use, rendered UI, settings persistence
+and physical USB are not yet verified**. See
+[the Windows audit](RELEASE_AUDIT_WINDOWS.md) for the narrower runner scope.
 
 1. Compare SHA-256 with PowerShell: `Get-FileHash .\Muse-Video-Bridge-0.3.0-Windows-x64-portable.zip -Algorithm SHA256`.
 2. Extract the complete ZIP to a writable folder.

@@ -1,0 +1,22 @@
+{
+  "release_url": "https://github.com/ysf-kul/musevideobridge/releases/tag/v0.3.0",
+  "tag": "v0.3.0",
+  "source_commit": "c4999f64f626968ecfb227f2807781533355e231",
+  "new_download_reverification": "all six release archives downloaded from GitHub and passed SHA256SUMS.txt",
+  "public_repository_http": 200,
+  "public_release_http": 200,
+  "tagged_setup_http": 200,
+  "windows_ci_run": "https://github.com/ysf-kul/musevideobridge/actions/runs/43594244747",
+  "local_native_smoke": {
+    "artifact": "Muse-Video-Bridge-0.3.0-Linux-x86_64.tar.gz",
+    "new_native_launch": true,
+    "cwd": "/tmp",
+    "source_or_vite_required": false,
+    "window_title": "WM_NAME(STRING) = \"Muse Video Bridge\"",
+    "close_exit_code": 0,
+    "portable_settings_preserved": true,
+    "hardware_connected": false,
+    "platform": "CachyOS Linux x86_64",
+    "graphics": "X11 software rendering in existing VM"
+  }
+}
