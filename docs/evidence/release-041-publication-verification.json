@@ -1,0 +1,57 @@
+{
+  "tag": "v0.4.1",
+  "source_commit": "4dddcbfebcbed187bf41c880058ee68219851f71",
+  "release_url": "https://github.com/ysf-kul/musevideobridge/releases/tag/v0.4.1",
+  "published_at": "2026-11-14T23:34:53Z",
+  "prerelease": true,
+  "downloaded_assets_verified": 8,
+  "checksum_asset_verified": true,
+  "windows_internal_checksums": "passed",
+  "windows_exe_sha256": "36f5dbb465895cd908e7fffa68253457328347848f6005b8a9f1778e1af45e75",
+  "assets": [
+    {
+      "name": "AppImage-runtime-sources.tar.gz",
+      "bytes": 10966291,
+      "sha256": "ec0f443cff7b32c619e3585321c866601f31ec31a5110a788b364ce76180438e"
+    },
+    {
+      "name": "FFmpeg-source.tar.gz",
+      "bytes": 17330649,
+      "sha256": "4270bde68c027b376899f26f7973e213aeaa5ddb6fef8a352e0d6ee457766c67"
+    },
+    {
+      "name": "Muse-Video-Bridge-0.4.1-Linux-amd64.deb",
+      "bytes": 4097002,
+      "sha256": "cee1125c8fbfabff8e7eeae52edc81e94914247aa0582048ebc5cd11ea12de42"
+    },
+    {
+      "name": "Muse-Video-Bridge-0.4.1-Linux-x86_64.AppImage",
+      "bytes": 4409848,
+      "sha256": "3532d043485c6474f77fbab4d30b536f18ba5cd587dd8d64e020c2bf2264df6f"
+    },
+    {
+      "name": "Muse-Video-Bridge-0.4.1-Linux-x86_64.rpm",
+      "bytes": 4216720,
+      "sha256": "54671c58d4a59d3fbb0dc7632a07ccf82993c06ab9fa4137a59e9e751c8909b8"
+    },
+    {
+      "name": "Muse-Video-Bridge-0.4.1-Linux-x86_64.tar.gz",
+      "bytes": 4096844,
+      "sha256": "661198097492da8a0e10545be61d71ae174196f410da40000ca287e94b9acd9b"
+    },
+    {
+      "name": "Muse-Video-Bridge-0.4.1-Windows-x64-portable.zip",
+      "bytes": 12894485,
+      "sha256": "760b94be222f2f3bfea49862ffe16ad29f20eab70ab8b13fb53a9396112c8962"
+    },
+    {
+      "name": "Muse-Video-Bridge-0.4.1-dependency-sources.tar.gz",
+      "bytes": 78053493,
+      "sha256": "02b4b5cb0bbb25644c5e7c852bcd4462cc6e4d931edaf24935547848c03d3ad5"
+    }
+  ],
+  "windows_runtime_run": "https://github.com/ysf-kul/musevideobridge/actions/runs/43653973671",
+  "previous_releases": "preserved",
+  "windows_runtime_conclusion": "success",
+  "windows_runtime_evidence": "windows-release-041-runtime-smoke.json"
+}

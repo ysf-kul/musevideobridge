@@ -171,6 +171,18 @@ Paused state and seek position are not persisted; transitions rehash media and
 may show honest preparation gaps. The release is a **pre-release** with these
 limits, not a claim that every Windows USB or SD failure is diagnosed.
 
+## Published-package verification
+
+[v0.4.1](https://github.com/ysf-kul/musevideobridge/releases/tag/v0.4.1) was
+published as a pre-release. All eight archive/source assets and SHA256SUMS.txt
+were downloaded again and verified, including the Windows internal checksums and
+exact fresh executable. The [Windows Server 2025 runner smoke](https://github.com/ysf-kul/musevideobridge/actions/runs/43653973671)
+passed bundled MP4 inspection, conversion/decode, native window creation and
+five-second survival. This is a narrow Windows runtime smoke, not physical USB or
+Windows 10/11 interactive acceptance. See [publication evidence](evidence/release-041-publication-verification.json)
+and [Windows runtime evidence](evidence/windows-release-041-runtime-smoke.json).
+The version tag and earlier releases are preserved.
+
 ## Use the repair
 
 Install the 0.4.1 desktop and matching firmware. **Updating the desktop alone

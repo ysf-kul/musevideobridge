@@ -32,7 +32,7 @@ The [v0.4.0 verification report](docs/QUEUE_VERIFICATION_REPORT.md) is historica
   and FFmpeg/FFprobe 8+ with scale `reset_sar` support are required.
 - **Windows x64:** portable ZIP with conversion tools. Requires Windows 10/11
   and Microsoft's WebView2 Runtime. Optimized MSVC cross-build and package contents
-  are verified; the published v0.4.0 package's window creation and bundled
+  are verified; the published v0.4.1 package's window creation and bundled
   conversion/decode passed on a Windows Server 2025 runner. Windows 10/11
   interactive acceptance and physical USB remain unverified.
 - Other Linux distributions/architectures and macOS are not qualified.
