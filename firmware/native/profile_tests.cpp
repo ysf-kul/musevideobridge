@@ -83,7 +83,8 @@ class Painter : public mvb::Painter {
   Clock &clock_;
   mvb::DisplayProfile profile_;
 public:
-  int begin_calls = 0, end_calls = 0, rows = 0;
+  int begin_calls = 0, end_calls = 0, rows = 0, overlay_calls = 0;
+  bool overlay_playing = false, overlay_previous = false, overlay_next = false;
   bool fail_row = false, fail_completion = false;
   explicit Painter(Clock &clock) : clock_(clock) {}
   void begin_frame() override {
@@ -104,6 +105,10 @@ public:
   mvb::DisplayProfile display_profile() const override { return profile_; }
   void clear(mvb::Rect) override {}
   void waiting(bool, bool, const char *) override {}
+  void controls(bool playing, bool previous, bool next) override {
+    ++overlay_calls; overlay_playing = playing;
+    overlay_previous = previous; overlay_next = next;
+  }
 };
 class Output : public mvb::Output {
 public:
@@ -183,6 +188,9 @@ void startup_preemption(const std::vector<uint8_t> &bytes, bool hash_phase) {
     auto status = requests.command("{\"method\":\"get_status\"}");
     if (status["result"]["state"] == "loading" &&
         status["result"]["validation_total_bytes"].isNull() != hash_phase) {
+      assert(status["result"]["preparation"]["stage"] ==
+             (hash_phase ? "loading_video" : "preparing_playback"));
+      assert(status["result"]["preparation"]["percent"].isNull() != hash_phase);
       reached = true; break;
     }
   }
@@ -195,6 +203,58 @@ void startup_preemption(const std::vector<uint8_t> &bytes, bool hash_phase) {
   assert(valid["ok"] == true && valid["result"]["state"] == "receiving");
   assert(storage.original_bytes() == bytes);
 }
+void touchscreen(const std::vector<uint8_t> &bytes) {
+  Clock clock;
+  Storage storage(clock, bytes); Runtime runtime(clock); Painter painter(clock); Output output;
+  mvb::Engine engine(storage, painter, runtime, output); engine.begin();
+  Requests requests(engine, output);
+  for (int i = 0; i < 10000; ++i) {
+    engine.tick();
+    if (requests.command("{\"method\":\"get_status\"}")["result"]["state"] == "playing") break;
+  }
+  engine.touch(160, 208); engine.tick(); // Reveal consumes the first press.
+  assert(painter.overlay_calls == 1 && painter.overlay_playing);
+  engine.touch(160, 208); engine.tick();
+  auto paused = requests.command("{\"method\":\"get_status\"}");
+  assert(paused["result"]["state"] == "paused" && !painter.overlay_playing);
+  assert(!painter.overlay_previous && !painter.overlay_next);
+  int mode_overlays = painter.overlay_calls;
+  assert(requests.command("{\"method\":\"set_loop_mode\",\"mode\":\"loop_queue\"}")["ok"] == true);
+  engine.tick();
+  assert(painter.overlay_calls == mode_overlays + 1);
+  assert(painter.overlay_previous && painter.overlay_next && !painter.overlay_playing);
+  assert(requests.command("{\"method\":\"set_loop_mode\",\"mode\":\"play_once\"}")["ok"] == true);
+  engine.tick();
+  assert(!painter.overlay_previous && !painter.overlay_next);
+  int transform_overlays = painter.overlay_calls;
+  assert(requests.command("{\"method\":\"set_position\",\"x\":1,\"y\":0}")["ok"] == true);
+  engine.tick();
+  assert(painter.overlay_calls == transform_overlays + 1);
+  auto position = paused["result"]["position_us"].as<uint64_t>();
+  int overlays = painter.overlay_calls;
+  clock.advance(1000000); engine.tick();
+  assert(painter.overlay_calls == overlays);
+  assert(requests.command("{\"method\":\"get_status\"}")["result"]["position_us"] == position);
+  requests.command("{\"method\":\"resume\"}"); engine.tick();
+  assert(painter.overlay_playing);
+  // Touch actions must not consume the host's protocol sequence numbers.
+  assert(requests.command("{\"method\":\"pause\"}")["ok"] == true);
+  clock.advance(4000001); engine.tick();
+  engine.touch(160, 208); engine.tick(); // Hidden: reveal, still paused.
+  assert(requests.command("{\"method\":\"get_status\"}")["result"]["state"] == "paused");
+  JsonDocument queue, state = requests.command("{\"method\":\"get_playback_state\"}");
+  queue["method"] = "set_queue";
+  queue["expected_queue_revision"] = state["result"]["queue_revision"];
+  auto ids = queue["ids"].to<JsonArray>();
+  for (size_t i = 0; i < mvb::Playlist::Capacity; ++i)
+    ids.add(std::string(64, "0123456789ab"[i]));
+  std::string command;
+  serializeJson(queue, command);
+  assert(requests.command(command.c_str())["ok"] == true);
+  state = requests.command("{\"method\":\"get_playback_state\"}");
+  assert(state["ok"] == true && state["result"]["queue"].size() == mvb::Playlist::Capacity);
+  assert(measureJson(state) <= mvb::MaxPayload);
+}
 } // namespace
 int main(int argc, char **argv) {
   assert(argc == 2);
@@ -203,5 +263,6 @@ int main(int argc, char **argv) {
   std::vector<uint8_t> bytes((std::istreambuf_iterator<char>(file)), {});
   run(bytes, false, false); run(bytes, true, false); run(bytes, false, true);
   startup_preemption(bytes, true); startup_preemption(bytes, false);
+  touchscreen(bytes);
   std::puts("PASS: injected callback/completion failures never count; nested timing attribution and offscreen clipping. No hardware performance measurements.");
 }

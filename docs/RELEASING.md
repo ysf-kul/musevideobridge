@@ -22,7 +22,7 @@ npm ci
 cargo vendor --locked /tmp/mvb-vendor
 python3 packaging/collect_dependency_notices.py --vendor /tmp/mvb-vendor
 mkdir -p release-artifacts
-tar -czf release-artifacts/Muse-Video-Bridge-0.3.0-dependency-sources.tar.gz -C /tmp mvb-vendor
+tar -czf release-artifacts/Muse-Video-Bridge-0.4.0-dependency-sources.tar.gz -C /tmp mvb-vendor
 ```
 
 The collector includes extra locked build/other-target dependency notices for
@@ -88,6 +88,12 @@ Build without external codec libraries/GPL/nonfree/network flags:
 python3 packaging/build_ffmpeg_windows.py --source /path/ffmpeg-source.tar.gz --toolchain /path/llvm-mingw --output /tmp/mvb-ffmpeg-build
 python3 packaging/build_windows_release.py --help
 ```
+
+When the conversion tools are unchanged, `packaging/repackage_windows_release.py`
+can retain them from a previous production ZIP after verifying its external and
+complete internal checksums. Supply the freshly built desktop, previous published
+ZIP/SHA-256, exact FFmpeg source asset, current dependency notices, and a new output
+directory. This records reuse provenance and supplies the same corresponding source.
 
 Use the packager's required arguments to select the freshly optimized MSVC app,
 build/install/source directories, exact source archive, toolchain and dependency

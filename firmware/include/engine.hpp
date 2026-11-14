@@ -1,6 +1,7 @@
 #pragma once
 #include "frame_prefetch.hpp"
 #include "new_jpeg.hpp"
+#include "playlist.hpp"
 #include "render.hpp"
 #include "rom_jpeg.hpp"
 #include "timing.hpp"
@@ -218,6 +219,142 @@ class Engine {
   char upload_digest_[65]{}, partial_[96]{}, journal_[96]{};
   File *writer_ = nullptr;
   bool finalizing_ = false;
+  Playlist playlist_;
+  bool queue_initialized_ = false, load_autoplay_ = true;
+  bool controls_visible_ = false, controls_dirty_ = false;
+  uint64_t controls_until_ = 0, last_state_event_ = 0, last_preparation_draw_ = 0;
+  uint32_t sent_revision_ = UINT32_MAX, sent_queue_revision_ = UINT32_MAX;
+  const char *drawn_stage_ = nullptr;
+  int drawn_percent_ = -2;
+
+  const char *preparation_stage() const {
+    if (work_ == Work::ResumeHash) return "resuming_upload";
+    if (!std::strcmp(upload_state_, "receiving")) return "uploading";
+    if (work_ == Work::UploadHash || work_ == Work::ExistingHash)
+      return "verifying_upload";
+    if (work_ == Work::UploadIndex || work_ == Work::UploadFrames)
+      return "validating_video";
+    if (work_ == Work::LoadHash) return "loading_video";
+    if (work_ == Work::LoadIndex) return "preparing_playback";
+    if (!std::strcmp(state_, "error") || !std::strcmp(upload_state_, "error"))
+      return "error";
+    return file_ && video_.ready ? "ready" : "waiting";
+  }
+  int preparation_percent() const {
+    uint64_t done = 0, total = 0;
+    if (!std::strcmp(upload_state_, "receiving")) {
+      done = accepted_; total = upload_size_;
+    } else if (work_ == Work::ResumeHash) {
+      done = work_offset_; total = checkpointed_;
+    } else if (work_ == Work::LoadHash || work_ == Work::UploadHash ||
+               work_ == Work::ExistingHash) {
+      done = work_offset_; total = file_ ? file_->size() : 0;
+    }
+    return total ? int(std::min(uint64_t(100), done * 100 / total)) : -1;
+  }
+  void preparation_status(JsonObject r) {
+    r["stage"] = preparation_stage();
+    int percent = preparation_percent();
+    if (percent >= 0) r["percent"] = percent;
+    else r["percent"] = nullptr;
+    r["transfer_id"] = transfer_id_;
+    r["video_id"] = transfer_active() ? upload_digest_ : digest_;
+  }
+  int adjacent_position(int direction) {
+    int position = playlist_.position;
+    if (position < 0) return -1;
+    for (size_t i = 0; i < playlist_.count; ++i) {
+      position += direction;
+      if (position < 0 || position >= int(playlist_.count)) {
+        if (playlist_.mode != LoopMode::Queue) return -1;
+        position = direction > 0 ? 0 : int(playlist_.count) - 1;
+      }
+      char path[96];
+      std::snprintf(path, sizeof(path), "/muse-video/%s.mvb", playlist_.ids[position]);
+      if (storage_.exists(path)) return position;
+    }
+    return -1;
+  }
+  void queue_status(JsonObject r, bool order) {
+    r["queue_revision"] = playlist_.revision;
+    r["queue_position"] = playlist_.position;
+    r["loop_mode"] = loop_name(playlist_.mode);
+    const int current = playlist_.position;
+    const int previous = adjacent_position(-1), next = adjacent_position(1);
+    if (current >= 0) r["current_video_id"] = playlist_.ids[current];
+    else r["current_video_id"] = nullptr;
+    if (previous >= 0) r["previous_video_id"] = playlist_.ids[previous];
+    else r["previous_video_id"] = nullptr;
+    if (next >= 0) r["next_video_id"] = playlist_.ids[next];
+    else r["next_video_id"] = nullptr;
+    if (order) {
+      auto ids = r["queue"].to<JsonArray>();
+      for (size_t i = 0; i < playlist_.count; ++i) ids.add(playlist_.ids[i]);
+    }
+  }
+  // Serialization occurs on state changes/queries, never on frame completion.
+  [[gnu::noinline]] void playback_snapshot(JsonObject r, bool order = true) {
+    queue_status(r, order);
+    r["state"] = state_;
+    r["state_revision"] = revision_;
+    r["playhead_generation"] = generation_;
+    r["content_sha256"] = digest_[0] ? digest_ : nullptr;
+    if (has_frame_) {
+      r["frame_index"] = current_frame_;
+      r["frame_pts_us"] = video_.header.fps.pts(current_frame_);
+    } else {
+      r["frame_index"] = nullptr; r["frame_pts_us"] = nullptr;
+    }
+    r["position_us"] = timeline_.position(runtime_.now());
+    preparation_status(r["preparation"].to<JsonObject>());
+  }
+  bool select_queue(int position, bool autoplay) {
+    if (position < 0 || position >= int(playlist_.count) || transfer_active())
+      return false;
+    char path[96];
+    std::snprintf(path, sizeof(path), "/muse-video/%s.mvb", playlist_.ids[position]);
+    if (!storage_.exists(path)) return false;
+    playlist_.position = position;
+    load_autoplay_ = autoplay;
+    return begin_load(path);
+  }
+  bool adjacent_video(int direction, bool autoplay) {
+    // State snapshots and controls use the same available-file search.
+    return select_queue(adjacent_position(direction), autoplay);
+  }
+  bool playback_action(const char *method) {
+    if (!video_.ready || work_ != Work::None || !file_ || transfer_active())
+      return false;
+    invalidate_warmup();
+    uint64_t now = runtime_.now();
+    if (!std::strcmp(method, "pause")) {
+      benchmark_finished_ = now;
+      timeline_.pause(now);
+      state_ = "paused";
+    } else if (!std::strcmp(method, "stop")) {
+      prefetched_valid_ = current_record_valid_ = false;
+      timeline_.stop(); state_ = "stopped"; has_frame_ = false;
+      ++generation_;
+      painter_.clear({0, 0, 320, 240});
+    } else {
+      if (!std::strcmp(method, "restart") || !std::strcmp(state_, "ended") ||
+          !std::strcmp(state_, "stopped")) {
+        prefetched_valid_ = current_record_valid_ = false;
+        timeline_.stop(); ++generation_;
+        // Startup diagnostics retain this pointer beyond the command's stack.
+        if (!prepare_first_record(!std::strcmp(method, "restart") ? "restart" : "play_from_end_or_stop", now)) return false;
+        now = runtime_.now();
+      }
+#ifdef MVB_FIRST_FRAME_PRELOAD
+      else if (!startup_record_pending()) startup_ = {};
+#endif
+      timeline_.start(now); state_ = "playing";
+      fps_start_ = now; fps_count_ = 0; actual_fps_ = 0; fps_available_ = false;
+      reset_benchmark();
+    }
+    controls_dirty_ = controls_visible_;
+    return true;
+  }
 
   bool transfer_active() const {
     return !std::strcmp(upload_state_, "receiving") ||
@@ -537,7 +674,9 @@ class Engine {
     if (renderer_.native_blocks && t.rotation == 0 &&
         t.width == renderer_.source_width &&
         t.height == renderer_.source_height)
-      painter_.begin_image(clipped(t));
+      { auto region = clipped(t);
+        region.h = std::max(0, std::min(region.h, renderer_.viewport_height - region.y));
+        painter_.begin_image(region); }
     else
       painter_.begin_frame();
   }
@@ -662,6 +801,7 @@ class Engine {
     std::snprintf(blocked_, sizeof(blocked_), "%s", current_);
     has_frame_ = false;
     waiting_dirty_ = true;
+    ++revision_;
     event_error(error_);
   }
   void upload_failure(const char *code) {
@@ -675,6 +815,7 @@ class Engine {
       writer_ = nullptr;
     }
     waiting_dirty_ = true;
+    ++revision_;
     event_error(code);
   }
   void json_frame(uint8_t kind, uint32_t sequence, JsonDocument &doc,
@@ -730,6 +871,9 @@ class Engine {
   }
   void status(JsonObject r) {
     r["state"] = state_;
+    // Order is sent separately so full hardware telemetry stays bounded.
+    r["queue_revision"] = playlist_.revision;
+    preparation_status(r["preparation"].to<JsonObject>());
     if (work_ == Work::LoadHash) {
       r["validation_bytes"] = work_offset_;
       r["validation_total_bytes"] = file_ ? file_->size() : 0;
@@ -797,6 +941,7 @@ class Engine {
     r["size"] = upload_size_;
     r["sha256"] = upload_digest_;
     r["chunk_bytes"] = 1024;
+    preparation_status(r["preparation"].to<JsonObject>());
     if (upload_error_)
       r["error"] = upload_error_;
     else
@@ -806,8 +951,10 @@ class Engine {
     close_file();
     reset_qualified_media_decoder();
     file_ = storage_.read_file(path);
-    if (!file_)
+    if (!file_) {
+      failure("sd_open_failed");
       return false;
+    }
     std::snprintf(current_, sizeof(current_), "%s", path);
     digest_[0] = 0;
     has_frame_ = false;
@@ -815,6 +962,9 @@ class Engine {
     state_ = "loading";
     timeline_.stop();
     generation_++;
+    revision_++;
+    controls_visible_ = false;
+    renderer_.viewport_height = 240;
     waiting_dirty_ = true;
     if (file_->size() > 2147483647 || !runtime_.hash_begin()) {
       failure("invalid_container");
@@ -853,10 +1003,14 @@ class Engine {
     } else
       startup_ = {};
 #endif
-    timeline_.start(runtime_.now());
+    if (load_autoplay_) timeline_.start(runtime_.now());
     reset_benchmark();
-    state_ = "playing";
+    state_ = load_autoplay_ ? "playing" : "paused";
     work_ = Work::None;
+    playlist_.append(digest_);
+    playlist_.position = playlist_.find(digest_);
+    queue_initialized_ = true;
+    if (!load_autoplay_) redraw_ = true;
 #ifdef MVB_FIRST_FRAME_PRELOAD
     if (!first_frame_preload_selected_)
 #endif
@@ -870,6 +1024,7 @@ class Engine {
     actual_fps_ = 0;
     fps_available_ = false;
     revision_++;
+    if (!load_autoplay_) render_frame(0, false);
   }
   bool apply_qualified_video_defaults() {
     default_decoder_fallback_ = default_prefetch_fallback_ = nullptr;
@@ -949,6 +1104,8 @@ class Engine {
         cmd["size"].as<uint64_t>() > 2147483647 ||
         cmd["container_version"] != 1)
       return fail("invalid_parameter");
+    if (playlist_.count == Playlist::Capacity && playlist_.find(hash) < 0)
+      return fail("queue_full");
     if (std::strcmp(upload_state_, "none") &&
         std::strcmp(upload_state_, "cancelled") &&
         std::strcmp(upload_state_, "error") &&
@@ -965,6 +1122,9 @@ class Engine {
     has_frame_ = false;
     digest_[0] = 0;
     waiting_dirty_ = true;
+    revision_++;
+    controls_visible_ = false;
+    renderer_.viewport_height = 240;
     // Recovery belongs to one identified digest. Never acquire ownership of a
     // foreign legacy journal when beginning a different video.
     upload_owned_ = false;
@@ -1191,8 +1351,16 @@ class Engine {
         upload_failure("digest_mismatch");
         return;
       }
-      if (work_ == Work::LoadHash)
+      if (work_ == Work::LoadHash) {
+        char expected[65]{};
+        if (std::strlen(current_) == 80 && !std::strncmp(current_, "/muse-video/", 12)) {
+          std::memcpy(expected, current_ + 12, 64);
+          if (digest_valid(expected) && std::strcmp(hash, expected)) {
+            failure("digest_mismatch"); return;
+          }
+        }
         std::snprintf(digest_, 65, "%s", hash);
+      }
       if (!video_.begin(file_)) {
         if (work_ == Work::LoadHash)
           failure(video_.error);
@@ -1304,6 +1472,9 @@ class Engine {
     if (!storage_.remove_owned(journal_)) {
       upload_error_ = "checkpoint_cleanup_failed";
     }
+    playlist_.append(upload_digest_);
+    playlist_.position = playlist_.find(upload_digest_);
+    load_autoplay_ = true;
     begin_load(final);
   }
   bool fetch_frame(uint32_t index, size_t &length,
@@ -1732,7 +1903,7 @@ public:
           is("get_pipeline_profile") || is("get_display_info") ||
           is("get_serial_diagnostics") || is("get_recovery_info") ||
           is("upload_status") || is("get_playback_defaults") ||
-          is("get_startup_profile") ||
+          is("get_startup_profile") || is("get_playback_state") ||
           is("get_loop_diagnostics") || is("set_loop_options") || is("subscribe")))
       invalidate_warmup();
     if (is("hello")) {
@@ -1743,7 +1914,7 @@ public:
         reject(f.sequence, "unsupported_version");
         return;
       }
-      result["firmware_version"] = "0.2.1";
+      result["firmware_version"] = "0.4.0";
       result["protocol_major"] = 1;
       result["container_version"] = 1;
       result["configured_board"] = "ESP32-2432S028R-one-USB";
@@ -1758,6 +1929,8 @@ public:
       caps["index_cache_bytes"] = 64 * 24;
       caps["baud_rates"][0] = runtime_.configured_baud();
       caps["serial_upload"] = true;
+      caps["playback_queue"] = true;
+      caps["queue_capacity"] = Playlist::Capacity;
       caps["arbitrary_rotation"] = false;
       caps["max_jpeg_bytes"] = MaxJpeg;
       caps["max_file_bytes"] = 2147483647;
@@ -2238,7 +2411,11 @@ public:
           return;
         }
         if (!next->prepare(jpeg_payload_, length, renderer_, runtime_, false,
-                           painter_.big_endian())) {
+                           painter_.big_endian()
+#ifdef MVB_QUALIFIED_FAST_DEFAULTS
+                           , painter_.output_leases_available()
+#endif
+                           )) {
           reject(f.sequence, "unsupported_configuration",
                  "Block decoder preparation failed or insufficient workspace");
           return;
@@ -2277,6 +2454,83 @@ public:
       }
       telemetry_ms_ = cmd["telemetry_interval_ms"].as<unsigned>();
       result["telemetry_interval_ms"] = telemetry_ms_;
+    }
+#ifdef MVB_TEST_TOUCH
+    else if (is("test_touch")) {
+      if (!cmd["x"].is<int>() || !cmd["y"].is<int>()) {
+        reject(f.sequence, "invalid_parameter"); return;
+      }
+      touch(cmd["x"].as<int>(), cmd["y"].as<int>());
+      result["state_revision"] = revision_;
+    }
+#endif
+    else if (is("get_playback_state")) {
+      playback_snapshot(result);
+    } else if (is("set_loop_mode")) {
+      const char *mode = cmd["mode"].as<const char *>();
+      if (!mode || (std::strcmp(mode, "play_once") && std::strcmp(mode, "loop_current") &&
+                    std::strcmp(mode, "loop_queue"))) {
+        reject(f.sequence, "invalid_parameter"); return;
+      }
+      playlist_.mode = !std::strcmp(mode, "loop_current") ? LoopMode::Current
+                       : !std::strcmp(mode, "loop_queue") ? LoopMode::Queue : LoopMode::Once;
+      ++playlist_.revision; ++revision_;
+      controls_dirty_ = controls_visible_;
+      result["state_revision"] = revision_;
+    } else if (is("set_queue")) {
+      if (transfer_active() || work_ != Work::None) {
+        reject(f.sequence, "busy"); return;
+      }
+      if (!cmd["expected_queue_revision"].is<uint32_t>() ||
+          cmd["expected_queue_revision"].as<uint32_t>() != playlist_.revision) {
+        reject(f.sequence, "queue_conflict", "Refresh the device queue before editing"); return;
+      }
+      auto ids = cmd["ids"].as<JsonArrayConst>();
+      if (!cmd["ids"].is<JsonArrayConst>() || ids.size() > Playlist::Capacity) {
+        reject(f.sequence, "invalid_parameter"); return;
+      }
+      Playlist candidate;
+      candidate.mode = playlist_.mode;
+      for (JsonVariantConst value : ids) {
+        const char *id = value.as<const char *>();
+        char path[96];
+        if (!digest_valid(id) || value.as<JsonString>().size() != 64 || candidate.find(id) >= 0) {
+          reject(f.sequence, "invalid_parameter"); return;
+        }
+        std::snprintf(path, sizeof(path), "/muse-video/%s.mvb", id);
+        if (!storage_.exists(path)) { reject(f.sequence, "video_unavailable"); return; }
+        candidate.append(id);
+      }
+      char active[65]{};
+      if (playlist_.position >= 0) std::memcpy(active, playlist_.ids[playlist_.position], 65);
+      bool autoplay = timeline_.running();
+      int previous_position = playlist_.position;
+      candidate.position = candidate.find(active);
+      candidate.revision = playlist_.revision + 1;
+      playlist_ = candidate;
+      queue_initialized_ = true;
+      if (playlist_.position < 0) {
+        if (playlist_.count) {
+          if (!select_queue(std::min(std::max(0, previous_position), int(playlist_.count)-1), autoplay))
+            failure("video_unavailable");
+        } else {
+          close_file(); timeline_.stop(); state_ = "idle"; digest_[0] = 0;
+          has_frame_ = false; ++generation_; waiting_dirty_ = true;
+          controls_visible_ = false; renderer_.viewport_height = 240;
+        }
+      }
+      ++revision_; controls_dirty_ = controls_visible_;
+      result["queue_revision"] = playlist_.revision;
+      result["state_revision"] = revision_;
+    } else if (is("next_video") || is("previous_video") || (is("select_video") && !cmd["video_id"].isNull())) {
+      if (transfer_active() || work_ != Work::None) { reject(f.sequence, "busy"); return; }
+      bool ok = false;
+      if (is("select_video")) {
+        const char *id = cmd["video_id"].as<const char *>();
+        ok = digest_valid(id) && select_queue(playlist_.find(id), true);
+      } else ok = adjacent_video(is("next_video") ? 1 : -1, timeline_.running());
+      if (!ok) { reject(f.sequence, "video_unavailable"); return; }
+      result["state_revision"] = revision_;
     } else if (is("begin_upload")) {
       // A long startup hash must not prevent the owner's USB upload. Reading
       // validation can be stopped without changing the existing SD file.
@@ -2428,6 +2682,9 @@ public:
         reject(f.sequence, "invalid_parameter");
         return;
       }
+      if (playlist_.count == Playlist::Capacity && playlist_.find(hash) < 0) {
+        reject(f.sequence, "queue_full"); return;
+      }
       if (work_ == Work::LoadHash || work_ == Work::LoadIndex) {
         close_file();
         work_ = Work::None;
@@ -2448,44 +2705,11 @@ public:
         return;
       }
       uint64_t now = runtime_.now();
-      if (is("pause")) {
-        benchmark_finished_ = now;
-        timeline_.pause(now);
-        state_ = "paused";
-      } else if (is("stop")) {
-        prefetched_valid_ = current_record_valid_ = false;
-        timeline_.stop();
-        state_ = "stopped";
-        has_frame_ = false;
-        generation_++;
-        painter_.clear({0, 0, 320, 240});
-      } else if (is("play") || is("resume") || is("restart")) {
-        if (is("restart") || !std::strcmp(state_, "ended") ||
-            !std::strcmp(state_, "stopped")) {
-          prefetched_valid_ = current_record_valid_ = false;
-          timeline_.stop();
-          generation_++;
-#ifdef MVB_FIRST_FRAME_PRELOAD
-          if (!prepare_first_record(
-                  is("restart") ? "restart" : "play_from_end_or_stop", now)) {
-            reject(f.sequence, error_ ? error_ : "io_error");
-            return;
-          }
-          if (first_frame_preload_selected_)
-            now = runtime_.now(); // Verified preparation completed before anchor.
-#endif
+      if (is("pause") || is("stop") || is("play") || is("resume") || is("restart")) {
+        if (!playback_action(method)) {
+          reject(f.sequence, error_ ? error_ : "no_video");
+          return;
         }
-#ifdef MVB_FIRST_FRAME_PRELOAD
-        else if (!startup_record_pending())
-          startup_ = {}; // Resume keeps its existing playhead; no fresh read.
-#endif
-        timeline_.start(now);
-        state_ = "playing";
-        fps_start_ = now;
-        fps_count_ = 0;
-        actual_fps_ = 0;
-        fps_available_ = false;
-        reset_benchmark();
       } else if (is("seek")) {
         if (!cmd["position_us"].is<uint64_t>()) {
           reject(f.sequence, "invalid_parameter");
@@ -2593,6 +2817,7 @@ public:
         redraw_ = has_frame_;
       }
       revision_++;
+      controls_dirty_ = controls_visible_;
       result["state_revision"] = revision_;
       result["playhead_generation"] = generation_;
       result["state"] = state_;
@@ -2605,6 +2830,25 @@ public:
       return;
     }
     json_frame(2, f.sequence, reply, true, request_crc);
+  }
+  // Called on a debounced physical press by the adapter, on the engine thread.
+  void touch(int x, int y) {
+    if (x < 0 || x >= 320 || y < 0 || y >= 240 || !file_ ||
+        work_ != Work::None || transfer_active()) return;
+    controls_until_ = runtime_.now() + 4000000;
+    if (!controls_visible_) {
+      invalidate_warmup();
+      controls_visible_ = controls_dirty_ = true;
+      renderer_.viewport_height = 176;
+      return;
+    }
+    if (y < 184 || y >= 232) return;
+    bool changed = false;
+    if (x >= 8 && x < 104) changed = adjacent_video(-1, timeline_.running());
+    else if (x >= 112 && x < 208)
+      changed = playback_action(timeline_.running() ? "pause" : "play");
+    else if (x >= 216 && x < 312) changed = adjacent_video(1, timeline_.running());
+    if (changed) { ++revision_; controls_dirty_ = controls_visible_; }
   }
   void tick() {
     uint64_t now = runtime_.now();
@@ -2638,7 +2882,7 @@ public:
         failure("video_unavailable");
         blocked_[0] = 0;
       }
-      if (!file_ && (std::strcmp(upload_state_, "receiving")) &&
+      if (!file_ && !queue_initialized_ && (std::strcmp(upload_state_, "receiving")) &&
           (std::strcmp(upload_state_, "verifying"))) {
         char path[96];
         if (storage_.mounted() &&
@@ -2656,6 +2900,14 @@ public:
         benchmark_finished_ = runtime_.now();
         timeline_.pause(runtime_.now());
         state_ = "ended";
+        ++revision_;
+        if (playlist_.mode == LoopMode::Current ||
+            (playlist_.mode == LoopMode::Queue && playlist_.count == 1)) {
+          if (playback_action("restart")) ++revision_;
+        } else if (adjacent_video(1, true)) {
+          // Play Once advances without wrapping; Loop Queue wraps at the end.
+        }
+        controls_dirty_ = controls_visible_;
       }
     }
     if (redraw_ && work_ == Work::None && file_ && has_frame_) {
@@ -2669,9 +2921,42 @@ public:
       fps_count_ = 0;
       fps_available_ = true;
     }
-    if (waiting_dirty_ && (!file_ || work_ != Work::None)) {
-      painter_.waiting(storage_.mounted(), connected_, error_);
+    if (controls_visible_ && now >= controls_until_) {
+      invalidate_warmup();
+      controls_visible_ = false; renderer_.viewport_height = 240;
+      painter_.clear({0, 176, 320, 64});
+      if (has_frame_ && !timeline_.running()) redraw_ = true;
+    }
+    if (controls_visible_ && controls_dirty_ && work_ == Work::None) {
+      painter_.controls(timeline_.running(), adjacent_position(-1) >= 0,
+                        adjacent_position(1) >= 0);
+      controls_dirty_ = false;
+    }
+    const char *stage = preparation_stage();
+    const int percent = preparation_percent();
+    if (now - last_preparation_draw_ >= 250000 &&
+        (waiting_dirty_ || stage != drawn_stage_ || percent != drawn_percent_)) {
+      last_preparation_draw_ = now;
+      drawn_stage_ = stage; drawn_percent_ = percent;
+      if (!std::strcmp(stage, "waiting") || !std::strcmp(stage, "error"))
+        painter_.waiting(storage_.mounted(), connected_, error_ ? error_ : upload_error_);
+      else if (std::strcmp(stage, "ready")) painter_.preparation(stage, percent);
       waiting_dirty_ = false;
+      if (connected_) {
+        JsonDocument doc; doc["event"] = "preparation";
+        preparation_status(doc["preparation"].to<JsonObject>());
+        doc["state_revision"] = revision_;
+        json_frame(3, 0, doc);
+      }
+    }
+    if (connected_ && (sent_revision_ != revision_ || sent_queue_revision_ != playlist_.revision) &&
+        now - last_state_event_ >= 100000) {
+      last_state_event_ = now;
+      bool order_changed = sent_queue_revision_ != playlist_.revision;
+      sent_revision_ = revision_; sent_queue_revision_ = playlist_.revision;
+      JsonDocument doc; doc["event"] = "playback_state";
+      playback_snapshot(doc["playback"].to<JsonObject>(), order_changed);
+      json_frame(3, 0, doc);
     }
     if (connected_ && !transfer_active() &&
         now - last_telemetry_ >= uint64_t(telemetry_ms_) * 1000) {

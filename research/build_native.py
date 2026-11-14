@@ -27,7 +27,7 @@ def main():
     subprocess.run([*common, str(root / "firmware/native/core_tests.cpp"), "-o", str(output / "core-tests")], check=True)
     subprocess.run([str(output / "core-tests")], check=True)
     subprocess.run([
-        *common, "-D__LINUX__", "-DNO_SIMD", "-include", str(root / "firmware/include/jpeg_portable.hpp"),
+        *common, "-DMVB_TEST_TOUCH", "-D__LINUX__", "-DNO_SIMD", "-include", str(root / "firmware/include/jpeg_portable.hpp"),
         "-I", str(dependency / "ArduinoJson/src"), "-I", str(dependency / "JPEGDEC/src"),
         str(root / "firmware/native/simulator.cpp"), str(dependency / "JPEGDEC/src/JPEGDEC.cpp"),
         "-lcrypto", "-Wno-unused-parameter", "-Wno-unused-variable", "-Wno-sign-compare",

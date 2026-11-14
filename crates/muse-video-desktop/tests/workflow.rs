@@ -84,6 +84,24 @@ fn real_conversion_preview_guard_and_safe_export() {
         .starts_with(&[255, 216]));
     assert_eq!(app.frame(0, "wrong").unwrap_err().code, "preview_mismatch");
     assert!(app.frame(artifact.header.frames, &artifact.sha256).is_err());
+    app.select(&source).unwrap();
+    app.convert(Options {
+        qscale: 12,
+        ..Options::default()
+    })
+    .unwrap();
+    assert_eq!(job(&app)["stage"], "complete");
+    let second = app.snapshot().media.unwrap().artifact.unwrap();
+    assert_eq!(app.snapshot().prepared.len(), 2);
+    assert_ne!(second.sha256, artifact.sha256);
+    assert!(app
+        .frame(3, &artifact.sha256)
+        .unwrap()
+        .starts_with(&[255, 216]));
+    assert!(app
+        .frame(3, &second.sha256)
+        .unwrap()
+        .starts_with(&[255, 216]));
     let card = root.path().join("card");
     fs::create_dir(&card).unwrap();
     fs::write(card.join("unrelated.txt"), b"preserve").unwrap();

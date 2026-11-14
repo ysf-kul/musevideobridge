@@ -455,11 +455,15 @@ impl<T: Read + Write> Client<T> {
                 }
                 let mut status =
                     self.request(json!({"method":"upload_status","transfer_id":id}))?;
+                let preparation = &status["preparation"];
+                let stage = preparation["stage"].as_str().unwrap_or("verifying_upload");
+                // Only the SHA pass has a byte denominator. Frame/index/codec
+                // checks continue after all bytes have been hashed.
                 progress(
                     &sink,
-                    "verifying_upload",
-                    status["verified_bytes"].as_u64().unwrap_or(0),
-                    Some(size),
+                    stage,
+                    preparation["percent"].as_u64().unwrap_or(0),
+                    preparation["percent"].as_u64().map(|_| 100),
                 );
                 match status["state"].as_str() {
                     Some("complete") => {
@@ -471,6 +475,39 @@ impl<T: Read + Write> Client<T> {
                             || status["sha256"].as_str() != Some(digest.as_str())
                         {
                             return Err(Error::new("verification_failed", format!("Transfer completion metadata did not match {digest}, {size} bytes: {status}")));
+                        }
+                        // Publication is not playback readiness. Keep the job
+                        // alive through the device's real loading pass.
+                        loop {
+                            cancel.check()?;
+                            let playback = self.request(json!({"method":"get_status"}))?;
+                            let preparation = &playback["preparation"];
+                            let stage = preparation["stage"]
+                                .as_str()
+                                .unwrap_or("preparing_playback");
+                            progress(
+                                &sink,
+                                stage,
+                                preparation["percent"].as_u64().unwrap_or(0),
+                                preparation["percent"].as_u64().map(|_| 100),
+                            );
+                            if playback["content_sha256"] == digest
+                                && ["playing", "paused", "stopped", "ended"]
+                                    .contains(&playback["state"].as_str().unwrap_or(""))
+                            {
+                                status["playback"] = playback;
+                                break;
+                            }
+                            if playback["state"] == "error" {
+                                return Err(Error::new(
+                                    playback["error"].as_str().unwrap_or("verification_failed"),
+                                    "Playback preparation failed",
+                                ));
+                            }
+                            if Instant::now() > deadline {
+                                return Err(Error::new("timeout", "Playback preparation"));
+                            }
+                            thread::sleep(Duration::from_millis(100));
                         }
                         let newly_confirmed_bytes = size - initial_offset;
                         status["host_transfer"] = json!({

@@ -1,4 +1,5 @@
 #pragma once
+constexpr int MC_DATUM = 4, TL_DATUM = 0;
 // Delayed host peripheral for the actual TftPainter class. No SPI/FPS claims.
 #include "dma_ownership.hpp"
 #include "messages.hpp"
@@ -184,11 +185,17 @@ public:
       }
   }
   uint8_t readcommand8(int, int index) { return index == 2 ? 0x93 : 0x41; }
-  void setTextColor(uint16_t, uint16_t) {}
+  void setTextColor(uint16_t, uint16_t = 0) {}
+  void setTextDatum(int) {}
+  void fillRoundRect(int x, int y, int w, int h, int, uint16_t color) {
+    fillRect(x, y, w, h, color);
+  }
+  void drawString(const char *, int, int) {}
   void setTextFont(int) {}
   void setCursor(int, int) {}
   void setTextWrap(bool) {}
   void print(const char *) {}
+  void print(int) {}
 };
 struct Storage {
   uint32_t clock_hz() { return 20000000; }

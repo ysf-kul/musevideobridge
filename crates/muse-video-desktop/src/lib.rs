@@ -31,6 +31,7 @@ pub struct Media {
 pub struct Snapshot {
     pub settings: Settings,
     pub media: Option<Media>,
+    pub prepared: Vec<Media>,
     pub device: Value,
     pub job: Value,
     pub startup_error: Option<Error>,
@@ -42,6 +43,8 @@ struct State {
     job: Option<Cancellation>,
     preview: Option<Video<File>>,
     destination: Option<PathBuf>,
+    prepared_paths: std::collections::HashMap<String, PathBuf>,
+    preview_digest: Option<String>,
 }
 #[derive(Clone)]
 pub struct App {
@@ -72,6 +75,7 @@ impl App {
             snapshot: Snapshot {
                 settings,
                 media: None,
+                prepared: Vec::new(),
                 device: json!({"connection":"disconnected"}),
                 job: Value::Null,
                 startup_error: error,
@@ -81,6 +85,8 @@ impl App {
             job: None,
             preview: None,
             destination: None,
+            prepared_paths: std::collections::HashMap::new(),
+            preview_digest: None,
         }));
         let weak = Arc::downgrade(&state);
         let external = emitter.clone();
@@ -168,6 +174,7 @@ impl App {
         state.source = Some(fs::canonicalize(path)?);
         state.artifact = None;
         state.preview = None;
+        state.preview_digest = None;
         state.destination = None;
         state.snapshot.media = Some(media.clone());
         Ok(media)
@@ -268,12 +275,23 @@ impl App {
             {
                 let mut s = app.state.lock().unwrap();
                 s.preview = Some(preview);
+                s.preview_digest = Some(artifact.sha256.clone());
                 s.artifact = Some(output.join("video.mvb"));
                 if let Some(m) = s.snapshot.media.as_mut() {
                     m.artifact = Some(artifact.clone());
                 }
+                let prepared = s.snapshot.media.clone().unwrap();
+                s.snapshot.prepared.retain(|m| {
+                    m.artifact
+                        .as_ref()
+                        .is_none_or(|a| a.sha256 != artifact.sha256)
+                });
+                s.snapshot.prepared.push(prepared);
+                s.prepared_paths
+                    .insert(artifact.sha256.clone(), output.join("video.mvb"));
             }
             (app.emit)("media", serde_json::to_value(app.snapshot().media)?);
+            (app.emit)("prepared", serde_json::to_value(app.snapshot().prepared)?);
             Ok(serde_json::to_value(artifact)?)
         })
     }
@@ -298,8 +316,21 @@ impl App {
         })
     }
     pub fn upload(&self) -> Result<()> {
+        self.upload_video(None)
+    }
+    pub fn upload_video(&self, video_id: Option<String>) -> Result<()> {
         let _operation = self.operations.lock().unwrap();
-        let source = self.artifact()?;
+        let source = match video_id {
+            Some(id) => self
+                .state
+                .lock()
+                .unwrap()
+                .prepared_paths
+                .get(&id)
+                .cloned()
+                .ok_or_else(|| Error::new("invalid_container", "Unknown prepared video"))?,
+            None => self.artifact()?,
+        };
         self.start_job("upload", move |app, cancel, sink| {
             app.device.upload(source, cancel, sink)
         })
@@ -324,17 +355,15 @@ impl App {
     }
     pub fn frame(&self, index: u32, digest: &str) -> Result<Vec<u8>> {
         let mut s = self.state.lock().unwrap();
-        let artifact = s
-            .snapshot
-            .media
-            .as_ref()
-            .and_then(|m| m.artifact.as_ref())
-            .ok_or_else(|| Error::new("invalid_container", "No prepared preview"))?;
-        if artifact.sha256 != digest {
-            return Err(Error::new(
+        let path = s.prepared_paths.get(digest).cloned().ok_or_else(|| {
+            Error::new(
                 "preview_mismatch",
-                "Device video differs from local prepared video",
-            ));
+                "Device video has no local prepared preview",
+            )
+        })?;
+        if s.preview_digest.as_deref() != Some(digest) {
+            s.preview = Some(Video::open(File::open(path)?, &self.lifetime)?);
+            s.preview_digest = Some(digest.to_owned());
         }
         s.preview
             .as_mut()
@@ -357,6 +386,12 @@ impl App {
             "set_rotation",
             "set_fps",
             "get_status",
+            "get_playback_state",
+            "set_queue",
+            "set_loop_mode",
+            "select_video",
+            "next_video",
+            "previous_video",
         ]
         .contains(&method)
         {

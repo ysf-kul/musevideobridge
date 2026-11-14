@@ -445,3 +445,59 @@ dd {
     scroll-behavior: auto !important;
   }
 }
+/* Queue controls reuse the application's Material surfaces and control tokens. */
+.queue-panel {
+  background: var(--color-surface);
+  border: 1px solid var(--color-outline-variant);
+  border-radius: var(--shape-large);
+  padding: var(--space-4);
+  margin-bottom: var(--space-4);
+}
+.queue-heading,
+.video-queue li,
+.prepared-videos li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+.queue-heading h2,
+.queue-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+.queue-actions {
+  flex-wrap: wrap;
+}
+.video-queue,
+.prepared-videos {
+  list-style: none;
+  padding: 0;
+  margin: var(--space-3) 0;
+}
+.video-queue li,
+.prepared-videos li {
+  padding: var(--space-3);
+  border-radius: var(--shape-medium);
+  border: 1px solid var(--color-outline-variant);
+  margin-block: var(--space-2);
+}
+.video-queue li.active {
+  background: var(--color-primary-container);
+}
+.queue-name {
+  display: grid;
+  gap: var(--space-1);
+  min-width: 0;
+  flex: 1 1 12rem;
+}
+.queue-name strong,
+.prepared-videos li > span {
+  overflow-wrap: anywhere;
+}
+.queue-name span,
+.supporting {
+  color: var(--color-on-surface-variant);
+}

@@ -1,6 +1,27 @@
 # USB Serial protocol — implemented version 1
 
-Desktop 0.3.0 / firmware 0.2.0. The implemented Phase 2 command contract is preserved
+The queue firmware extension (firmware 0.3.0) retains v1 framing and adds a
+`playback_queue` HELLO capability and `queue_capacity`. Clients must refresh device
+state after HELLO rather than replay previous queue or loop settings. Details and
+progress measurements are in [QUEUE_AND_PLAYBACK.md](QUEUE_AND_PLAYBACK.md).
+
+| Method | Parameters / result |
+| --- | --- |
+| `get_playback_state` | Device-owned queue, IDs, position, playback/mode/preparation, revisions/generation |
+| `set_queue` | `ids` array (0..12 unique verified-media hashes), `expected_queue_revision`; small revision receipt |
+| `select_video` | `video_id` selects an existing queue entry; legacy `sha256` selection remains available |
+| `next_video`, `previous_video` | Navigate with device-owned order and mode, preserving paused/running intent |
+| `set_loop_mode` | `mode`: `play_once`, `loop_current`, or `loop_queue` |
+
+`playback_state` events contain a `playback` snapshot; order is omitted when
+unchanged. `preparation` events contain actual stage and nullable integer `percent`.
+`get_status`, telemetry, and `upload_status` also expose `preparation`. A successful
+upload publication can precede loading completion; clients wait for loaded playback
+state and matching content ID before reporting readiness. `queue_conflict` means
+refresh and review the new order; never overwrite blindly. Queue/mode are volatile
+device session state, reconstructed from actual boot state after restart.
+
+Historical Phase 2/3 baseline: desktop 0.3.0 / firmware 0.2.0. The Phase 2 command contract is preserved
 and integrated by Phase 3, with reliability corrections dated 2026-11-12. The older
 Muse application's wire protocol is incompatible. The corrections have host
 regression coverage; the native Linux desktop workflow completed a 3327948-byte

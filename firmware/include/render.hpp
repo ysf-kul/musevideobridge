@@ -56,6 +56,8 @@ public:
   }
   virtual void clear(Rect) = 0;
   virtual void waiting(bool card, bool connected, const char *error) = 0;
+  virtual void preparation(const char *, int) {}
+  virtual void controls(bool, bool, bool) {}
 };
 inline Rect clipped(const Transform &t) {
   int l = std::max(0, t.x), r = std::min(320, t.x + t.width),
@@ -116,6 +118,7 @@ public:
   Transform transform;
   bool native_blocks = true;
   int source_width = 0, source_height = 0;
+  int viewport_height = 240;
   explicit TileRenderer(Painter &p) : painter_(p) {}
   bool direct_output_eligible() const {
     return native_blocks && transform.valid() && source_width > 0 &&
@@ -134,6 +137,9 @@ public:
     return painter_.release_output_lease(lease);
   }
   bool submit_output_lease(int y, int height, PixelLease &lease) {
+    if (transform.y + y >= viewport_height)
+      return painter_.release_output_lease(lease);
+    height = std::min(height, viewport_height - transform.y - y);
     return direct_output_eligible() && y >= 0 && height > 0 &&
            y + height <= source_height &&
            painter_.leased_block(transform.x, transform.y + y, source_width,
@@ -157,7 +163,7 @@ public:
       int left = std::max(0, transform.x + x);
       int top = std::max(0, transform.y + y);
       int right = std::min(320, transform.x + x + used);
-      int bottom = std::min(240, transform.y + y + height);
+      int bottom = std::min(viewport_height, transform.y + y + height);
       if (left >= right || top >= bottom)
         return true;
       const uint16_t *start =
@@ -194,7 +200,7 @@ public:
     int r = std::min(lower_sample(u1, rw, transform.width), 320 - transform.x);
     int top = std::max(lower_sample(v0, rh, transform.height), -transform.y);
     int bottom =
-        std::min(lower_sample(v1, rh, transform.height), 240 - transform.y);
+        std::min(lower_sample(v1, rh, transform.height), viewport_height - transform.y);
     if (l >= r || top >= bottom)
       return true;
     for (int dy = top; dy < bottom; dy++) {

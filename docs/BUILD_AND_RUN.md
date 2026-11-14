@@ -1,6 +1,6 @@
 # Build, run and verification
 
-> For public v0.3.0 downloads, use [INSTALL.md](INSTALL.md). Production packaging
+> For public v0.4.0 pre-release downloads, use [INSTALL.md](INSTALL.md). Production packaging
 > and dependency notices are in [RELEASING.md](RELEASING.md); current release checks
 > are in [RELEASE_VERIFICATION.md](RELEASE_VERIFICATION.md). The phase-era
 > platform/private-kit descriptions below are retained as historical context.

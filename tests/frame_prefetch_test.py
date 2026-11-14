@@ -77,6 +77,9 @@ void blocked_lifetime(bool coalesced, bool release) {
   const size_t capacity = video.header.max_jpeg + 19;
   assert(worker.configure(capacity));
   auto *allocation = worker.buffer();
+#ifdef MVB_ALIGN_COMPRESSED_RECORDS
+  assert((reinterpret_cast<uintptr_t>(allocation) & 15) == 0);
+#endif
   assert(worker.configure(capacity) && worker.buffer() == allocation);
   std::vector<uint8_t> current(capacity, 0xa5);
   file.block = true;
@@ -268,7 +271,7 @@ def renamed_adapter(path):
 
 @unittest.skipUnless(CXX, "A C++ compiler is required")
 class FramePrefetchTests(unittest.TestCase):
-    def compile_run(self, source, *, engine=False, enabled=True, sanitizer="address,undefined"):
+    def compile_run(self, source, *, engine=False, enabled=True, aligned=False, sanitizer="address,undefined"):
         dependency = ROOT / "firmware/.pio/libdeps/cyd_ili9341"
         with tempfile.TemporaryDirectory(prefix="muse-prefetch-") as directory:
             directory = Path(directory)
@@ -296,6 +299,8 @@ class FramePrefetchTests(unittest.TestCase):
                        str(directory / "driver.cpp"), "-o", str(executable)]
             if enabled:
                 command.append("-DMVB_FRAME_PREFETCH")
+            if aligned:
+                command.append("-DMVB_ALIGN_COMPRESSED_RECORDS")
             if engine:
                 if not (dependency / "JPEGDEC/src/JPEGDEC.cpp").is_file():
                     self.skipTest("Install the pinned PlatformIO dependencies")
@@ -310,6 +315,9 @@ class FramePrefetchTests(unittest.TestCase):
 
     def test_actual_container_blocked_read_join_release_and_buffer_ownership(self):
         self.compile_run(WORKER_SOURCE)
+
+    def test_aligned_slot_preserves_container_reads_join_release_and_ownership(self):
+        self.compile_run(WORKER_SOURCE, aligned=True)
 
     def test_actual_codec_engine_controls_retained_redraw_upload_and_failure_cleanup(self):
         self.compile_run(ENGINE_SOURCE, engine=True)

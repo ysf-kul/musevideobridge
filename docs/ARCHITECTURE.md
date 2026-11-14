@@ -82,6 +82,11 @@ allow another upload while preserving a different legacy recovery. Full publicat
 requires verified size/SHA-256 and container/frame integrity. The native Linux app
 has completed this workflow with the microSD inside the connected ESP32.
 
+The queue/playback extension makes the firmware authoritative for queue order,
+current video, playback mode and preparation. The desktop retains a separate
+prepared-artifact registry for conversion/preview ownership. See
+[QUEUE_AND_PLAYBACK.md](QUEUE_AND_PLAYBACK.md) for synchronization and state contracts.
+
 ## Live synchronization
 
 A transform contains X/Y, final rotated width/height, quarter-turn angle and aspect lock.

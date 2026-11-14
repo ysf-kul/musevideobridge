@@ -16,6 +16,48 @@ use std::{
     time::{Duration, Instant},
 };
 pub type Emitter = Arc<dyn Fn(&str, Value) + Send + Sync>;
+fn merge_playback(status: &mut Value, playback: &Value) {
+    let current = status["state_revision"].as_u64().unwrap_or(0);
+    let generation = status["playhead_generation"].as_u64().unwrap_or(0);
+    if playback["state_revision"].as_u64().unwrap_or(0) < current
+        || playback["playhead_generation"].as_u64().unwrap_or(0) < generation
+    {
+        return;
+    }
+    if let (Some(status), Some(playback)) = (status.as_object_mut(), playback.as_object()) {
+        for (key, value) in playback {
+            status.insert(key.clone(), value.clone());
+        }
+    }
+}
+fn refresh<T: Read + Write>(
+    c: &mut Client<T>,
+    confirmed: &mut Value,
+    queue: bool,
+) -> Result<Value> {
+    let mut status = c.request(json!({"method":"get_telemetry"}))?;
+    if queue
+        && (confirmed["queue"].is_null()
+            || status["queue_revision"] != confirmed["queue_revision"]
+            || status["state_revision"] != confirmed["state_revision"])
+    {
+        let playback = c.request(json!({"method":"get_playback_state"}))?;
+        merge_playback(&mut status, &playback);
+    } else if queue {
+        for key in [
+            "queue",
+            "queue_position",
+            "loop_mode",
+            "current_video_id",
+            "previous_video_id",
+            "next_video_id",
+        ] {
+            status[key] = confirmed[key].clone();
+        }
+    }
+    *confirmed = status.clone();
+    Ok(status)
+}
 trait Transport: Read + Write + Send {}
 impl<T: Read + Write + Send> Transport for T {}
 pub enum Message {
@@ -47,6 +89,8 @@ impl Device {
         let worker = thread::spawn(move || {
             let mut client: Option<Client<Box<dyn Transport>>> = None;
             let mut next_status = Instant::now();
+            let mut confirmed = Value::Null;
+            let mut queue_supported = false;
             let disconnected = |code: &str, error: Option<Error>| {
                 emit(
                     "device",
@@ -77,7 +121,21 @@ impl Device {
                             serial::open_port(&port, 115200)
                                 .map(|c| c.map_transport(|io| Box::new(io) as Box<dyn Transport>))
                         };
-                        let result=opened.and_then(|mut c|{let hello=c.hello()?;let status=c.request(json!({"method":"get_telemetry"}))?;emit("device",json!({"connection":"connected","port":port,"hello":hello,"status":status,"session":c.session,"host_diagnostics":c.diagnostics(),"received_at_ms":now_ms()}));client=Some(c);next_status=Instant::now()+Duration::from_secs(1);Ok(())});
+                        let result = opened.and_then(|mut c| {
+                            let hello = c.hello()?;
+                            queue_supported = hello["capabilities"]["playback_queue"] == true;
+                            confirmed = Value::Null;
+                            let status = refresh(&mut c, &mut confirmed, queue_supported)?;
+                            emit(
+                                "device",
+                                json!({"connection":"connected","port":port,
+                                "hello":hello,"status":status,"session":c.session,
+                                "host_diagnostics":c.diagnostics(),"received_at_ms":now_ms()}),
+                            );
+                            client = Some(c);
+                            next_status = Instant::now() + Duration::from_secs(1);
+                            Ok(())
+                        });
                         if let Err(e) = result {
                             disconnected("disconnected", Some(e));
                         }
@@ -104,7 +162,7 @@ impl Device {
                 if let Some(c) = client.as_mut() {
                     let result = (|| {
                         if Instant::now() >= next_status {
-                            let status = c.request(json!({"method":"get_telemetry"}))?;
+                            let status = refresh(c, &mut confirmed, queue_supported)?;
                             emit(
                                 "device",
                                 json!({"connection":"connected","status":status,"session":c.session,"received_at_ms":now_ms()}),
@@ -119,6 +177,13 @@ impl Device {
                                     json!({"frame":e,"session":c.session,"received_at_ms":now_ms()}),
                                 ),
                                 Some("telemetry") => {}
+                                Some("playback_state") => {
+                                    merge_playback(&mut confirmed, &e["playback"]);
+                                    emit(
+                                        "device",
+                                        json!({"connection":"connected","status":confirmed,"session":c.session,"received_at_ms":now_ms()}),
+                                    );
+                                }
                                 Some("error") => emit("device_error", e),
                                 _ => {}
                             }

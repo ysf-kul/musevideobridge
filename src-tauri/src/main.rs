@@ -95,8 +95,8 @@ fn export(app: tauri::State<App>, destination: String) -> Result<()> {
     app.export(destination.into(), false)
 }
 #[tauri::command]
-fn upload(app: tauri::State<App>) -> Result<()> {
-    app.upload()
+fn upload(app: tauri::State<App>, video_id: Option<String>) -> Result<()> {
+    app.upload_video(video_id)
 }
 #[tauri::command]
 fn cancel(app: tauri::State<App>) {

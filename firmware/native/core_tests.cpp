@@ -2,6 +2,7 @@
 #include "render.hpp"
 #include "timing.hpp"
 #include "wire.hpp"
+#include "playlist.hpp"
 #include <cassert>
 #include <cstdio>
 #include <limits>
@@ -298,6 +299,26 @@ public:
   void waiting(bool, bool, const char *) override {}
 };
 int main() {
+  mvb::Playlist queue;
+  char a[65], b[65], c[65];
+  std::memset(a, 'a', 64); a[64] = 0;
+  std::memset(b, 'b', 64); b[64] = 0;
+  std::memset(c, 'c', 64); c[64] = 0;
+  assert(queue.adjacent(1) == -1 && queue.after_end() == -1);
+  assert(queue.append(a) && queue.append(b) && queue.append(c));
+  assert(queue.append(b) && queue.count == 3 && queue.revision == 3);
+  queue.position = 0;
+  assert(queue.adjacent(-1) == -1 && queue.after_end() == 1);
+  queue.position = 2;
+  assert(queue.adjacent(1) == -1 && queue.adjacent(-1) == 1);
+  queue.mode = mvb::LoopMode::Current;
+  assert(queue.after_end() == 2 && queue.adjacent(1) == -1);
+  queue.mode = mvb::LoopMode::Queue;
+  assert(queue.after_end() == 0);
+  queue.position = 0;
+  assert(queue.adjacent(-1) == 2);
+  queue.count = 1;
+  assert(queue.adjacent(1) == 0 && queue.adjacent(-1) == 0);
   FILE *temporary = std::tmpfile();
   assert(temporary && std::fwrite("verified", 1, 8, temporary) == 8);
   assert(mvb::sync_file(temporary));

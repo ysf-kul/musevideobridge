@@ -105,6 +105,8 @@ void boot(const std::string &fault) {
         assert(opt["decoder"] == "new_jpeg");
         if (fault != "direct_oom" && fault != "dma_oom") {
           assert(allocations == 0); // Header preflight never reserves redundant RGB output.
+          assert(r.command("{\"method\":\"set_decoder_options\",\"decoder\":\"new_jpeg\",\"max_mcus\":32,\"native_blocks\":true}")["ok"] == true);
+          assert(allocations == 0); // Reconfiguration also preflights owned display leases.
           assert(hardware["zero_copy_direct_submissions"].as<unsigned>() > 0);
           assert(warm_status(r)["result"]["decoder_owned_bytes"].as<unsigned>() == sizeof(mvb::NewJpeg));
         }

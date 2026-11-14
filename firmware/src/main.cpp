@@ -3,6 +3,7 @@
 #include "engine.hpp"
 #include "messages.hpp"
 #include "theme.hpp"
+#include "touch.hpp"
 #include <Arduino.h>
 #ifdef MVB_USE_IDF_SDSPI
 #include "idf_sd.hpp"
@@ -485,6 +486,7 @@ public:
   }
 } storage;
 
+mvb::CydTouch touch;
 class TftPainter : public mvb::Painter {
   TFT_eSPI tft_;
   mvb::RenderOptions options_;
@@ -1284,6 +1286,37 @@ public:
     if (r.w > 0 && r.h > 0)
       tft_.fillRect(r.x, r.y, r.w, r.h, TFT_BLACK);
   }
+  void preparation(const char *stage, int percent) override {
+    if (dma_completion_unknown_ || integrity_active_) return;
+    tft_.fillScreen(mvb::theme::surface);
+    tft_.setTextColor(mvb::theme::on_surface, mvb::theme::surface);
+    tft_.setTextFont(2);
+    tft_.setCursor(mvb::theme::margin, mvb::theme::title_y);
+    tft_.print("Muse Video Bridge");
+    tft_.setCursor(mvb::theme::margin, mvb::theme::message_y);
+    tft_.print(!std::strcmp(stage, "uploading") ? "Receiving video"
+               : !std::strcmp(stage, "verifying_upload") ? "Verifying video"
+               : "Preparing video");
+    tft_.setCursor(mvb::theme::margin, mvb::theme::instructions_y);
+    if (percent >= 0) { tft_.print(percent); tft_.print("%"); }
+    else tft_.print("Please wait");
+  }
+  void controls(bool playing, bool previous, bool next) override {
+    if (dma_completion_unknown_ || integrity_active_) return;
+    tft_.fillRect(0, 176, 320, 64, mvb::theme::surface);
+    const char *labels[] = {"Previous", playing ? "Pause" : "Play", "Next"};
+    const bool enabled[] = {previous, true, next};
+    tft_.setTextFont(2);
+    tft_.setTextDatum(MC_DATUM);
+    for (int i = 0; i < 3; ++i) {
+      int x = 8 + i * 104;
+      tft_.fillRoundRect(x, 184, 96, 48, 12,
+                        enabled[i] ? mvb::theme::primary : mvb::theme::surface);
+      tft_.setTextColor(enabled[i] ? mvb::theme::surface : mvb::theme::on_surface);
+      tft_.drawString(labels[i], x + 48, 208);
+    }
+    tft_.setTextDatum(TL_DATUM);
+  }
   void waiting(bool card, bool connected, const char *error) override {
     if (dma_completion_unknown_ || integrity_active_)
       return;
@@ -1436,6 +1469,13 @@ public:
     r["reply_queue_drops"] = reply_drops.load();
     r["event_queue_drops"] = event_drops.load();
     r["last_sd_errno"] = sd_errno.load();
+    // Raw contact diagnostics are queried explicitly, not sent with each frame.
+    r["last_accepted_touch"] = nullptr;
+    if (touch.contacts_accepted()) {
+      auto contact = r["last_accepted_touch"].to<JsonObject>();
+      contact["z1"] = touch.accepted_z1(); contact["z2"] = touch.accepted_z2();
+      contact["x"] = touch.accepted_x(); contact["y"] = touch.accepted_y();
+    }
   }
   void display_info(JsonObject r) override { painter.info(r); }
   uint32_t configured_baud() const override { return MVB_UART_BAUD; }
@@ -1446,6 +1486,8 @@ public:
   void telemetry(JsonObject r) override {
     constexpr uint32_t caps = MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT;
     r["simulator"] = false;
+    r["touch_contacts_sampled"] = touch.contacts_sampled();
+    r["touch_contacts_accepted"] = touch.contacts_accepted();
     r["free_heap_bytes"] = heap_caps_get_free_size(caps);
     r["minimum_free_heap_bytes"] = heap_caps_get_minimum_free_size(caps);
     r["largest_free_block_bytes"] = heap_caps_get_largest_free_block(caps);
@@ -1557,6 +1599,7 @@ void setup() {
       uart_errors.fetch_add(1);
   });
   painter.begin();
+  touch.begin();
   if (!mvb::crc_contract_self_test()) {
     painter.waiting(false, false, "crc_self_test_failed");
     return;
@@ -1586,6 +1629,8 @@ void loop() {
     delay(100);
     return;
   }
+  int touch_x = 0, touch_y = 0;
+  if (touch.poll(touch_x, touch_y)) engine->touch(touch_x, touch_y);
   static mvb::Frame frame;
   int count = 4;
   while (count-- && xQueueReceive(inbound, &frame, 0) == pdTRUE)

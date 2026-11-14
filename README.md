@@ -13,9 +13,13 @@ third-party components retain their [own licenses](THIRD_PARTY.md).
 
 Get the versioned desktop downloads and **SHA256SUMS.txt** from
 [GitHub Releases](https://github.com/ysf-kul/musevideobridge/releases).
+**[v0.4.0 pre-release](https://github.com/ysf-kul/musevideobridge/releases/tag/v0.4.0)** adds synchronized queues, loop modes and real preparation progress.
+Touch controls remain experimental: unattended diagnostics have accepted contacts
+and briefly shown the overlay; physical calibration and display checks are unverified.
+
 See [installation and USB setup](docs/INSTALL.md),
 [source build instructions](docs/BUILD_AND_RUN.md), and
-[release verification](docs/RELEASE_VERIFICATION.md).
+[v0.4.0 feature and release verification](docs/QUEUE_VERIFICATION_REPORT.md).
 
 - **Linux x86-64:** AppImage, portable `.tar.gz`, `.deb`, and `.rpm`. The optimized native
   application is runtime-tested on CachyOS; Debian/RPM packaging is build-verified,
@@ -23,7 +27,7 @@ See [installation and USB setup](docs/INSTALL.md),
   and FFmpeg/FFprobe 8+ with scale `reset_sar` support are required.
 - **Windows x64:** portable ZIP with conversion tools. Requires Windows 10/11
   and Microsoft's WebView2 Runtime. Optimized MSVC cross-build and package contents
-  are verified; Published-package window creation and bundled conversion/decode passed on a
+  are verified; the previously published package's window creation and bundled conversion/decode passed on a
   Windows Server 2025 runner. Windows 10/11 interactive acceptance and physical USB
   remain unverified.
 - Other Linux distributions/architectures and macOS are not qualified.
@@ -38,7 +42,13 @@ See [installation and USB setup](docs/INSTALL.md),
 4. Select the device's USB serial port and connect. Choose **Send over USB**.
    Progress counts acknowledged bytes; the ESP32 checks file size and SHA-256
    before making the transferred video available for playback.
-5. Play, pause, resume, stop, restart, seek, or adjust position, size, scale,
+5. Manage the device queue, select an entry, reorder/remove entries, and use next/previous.
+   Choose Play Once, Loop Current, or Loop Queue. Queue order/mode reset on device
+   restart; reconnection always reads actual device state.
+6. Tap the CYD to reveal Previous, Play/Pause, and Next controls for four seconds.
+   Physical panel mapping and touch/visual acceptance remain unverified for this
+   feature update. See [queue behavior and verification](docs/QUEUE_AND_PLAYBACK.md).
+7. Play, pause, resume, stop, restart, seek, or adjust position, size, scale,
    quarter-turn rotation, and target FPS. Telemetry separates target and actual FPS.
 
 Explicit cancellation cleans only the confirmed upload's incomplete files.
@@ -61,7 +71,8 @@ The previous native Linux desktop also converted, cancelled, resent, verified,
 and played a 2,444,120-byte video over 115200-baud USB with the microSD installed.
 See the [hardware report](docs/REAL_HARDWARE_PERFORMANCE_REPORT.md) and
 [native USB acceptance](docs/NATIVE_DESKTOP_USB_E2E.md) for methods and limits.
-No hardware is connected during the final software release audit.
+The queue/touch feature audit uses the connected CYD; its new measurements and
+qualification limits are recorded in [QUEUE_VERIFICATION_REPORT.md](docs/QUEUE_VERIFICATION_REPORT.md).
 
 ## Build and test
 

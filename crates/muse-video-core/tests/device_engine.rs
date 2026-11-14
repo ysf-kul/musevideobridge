@@ -71,6 +71,202 @@ fn wait_state<T: Read + Write>(client: &mut Client<T>, wanted: &str) -> Value {
     }
 }
 #[test]
+#[ignore = "requires separately built native simulator"]
+fn queue_order_navigation_modes_preparation_and_reconnect_are_device_owned() {
+    let source = tempfile::tempdir().unwrap();
+    let path = video(source.path());
+    let other = source.path().join("other");
+    media::convert(
+        &source.path().join("input.mp4"),
+        &other,
+        &Options {
+            fps: Rate::new(10, 1).unwrap(),
+            qscale: 12,
+            ..Options::default()
+        },
+        &Tools::default(),
+        &Cancellation::default(),
+        None,
+    )
+    .unwrap();
+    let card = tempfile::tempdir().unwrap();
+    let mut client = Client::new(Simulator::spawn(&simulator(), card.path()).unwrap());
+    assert_eq!(
+        client.hello().unwrap()["capabilities"]["playback_queue"],
+        true
+    );
+    let (tx, rx) = std::sync::mpsc::sync_channel(4096);
+    let first = client
+        .upload(&path, &Cancellation::default(), Some(tx))
+        .unwrap();
+    let progress: Vec<_> = rx.try_iter().collect();
+    assert!(progress
+        .iter()
+        .any(|p| p.stage == "uploading" && p.completed > 0 && p.total.is_some()));
+    // The host simulator can finish indeterminate stages between two polls.
+    // If observed, their progress must never carry a fictitious denominator.
+    assert!(progress
+        .iter()
+        .filter(|p| ["validating_video", "preparing_playback"].contains(&p.stage.as_str()))
+        .all(|p| p.total.is_none()));
+    assert_eq!(first["playback"]["preparation"]["stage"], "ready");
+    let second = client
+        .upload(&other.join("video.mvb"), &Cancellation::default(), None)
+        .unwrap();
+    let a = first["sha256"].as_str().unwrap();
+    let b = second["sha256"].as_str().unwrap();
+    assert_ne!(a, b);
+    // This method exists only in the host test build. Production firmware has
+    // no synthetic-touch command. The same engine touch handler drives state.
+    client
+        .request(json!({"method":"test_touch","x":160,"y":208}))
+        .unwrap();
+    client
+        .request(json!({"method":"test_touch","x":160,"y":208}))
+        .unwrap();
+    assert_eq!(
+        client
+            .request(json!({"method":"get_playback_state"}))
+            .unwrap()["state"],
+        "paused"
+    );
+    client
+        .request(json!({"method":"test_touch","x":50,"y":208}))
+        .unwrap();
+    wait_state(&mut client, "paused");
+    assert_eq!(
+        client
+            .request(json!({"method":"get_playback_state"}))
+            .unwrap()["current_video_id"],
+        a
+    );
+    client
+        .request(json!({"method":"test_touch","x":160,"y":100}))
+        .unwrap(); // Reveal.
+    client
+        .request(json!({"method":"test_touch","x":270,"y":208}))
+        .unwrap();
+    wait_state(&mut client, "paused");
+    assert_eq!(
+        client
+            .request(json!({"method":"get_playback_state"}))
+            .unwrap()["current_video_id"],
+        b
+    );
+    client.request(json!({"method":"resume"})).unwrap();
+    let state = client
+        .request(json!({"method":"get_playback_state"}))
+        .unwrap();
+    assert_eq!(state["queue"], json!([a, b]));
+    assert_eq!(state["current_video_id"], b);
+    client.request(json!({"method":"pause"})).unwrap();
+    client.request(json!({"method":"previous_video"})).unwrap();
+    wait_state(&mut client, "paused");
+    let state = client
+        .request(json!({"method":"get_playback_state"}))
+        .unwrap();
+    assert_eq!(state["current_video_id"], a);
+    assert_eq!(state["next_video_id"], b);
+    assert!(state["previous_video_id"].is_null());
+    client.request(json!({"method":"next_video"})).unwrap();
+    wait_state(&mut client, "paused");
+    client.request(json!({"method":"set_queue","ids":[b,a],"expected_queue_revision":state["queue_revision"]})).unwrap();
+    let reordered = client
+        .request(json!({"method":"get_playback_state"}))
+        .unwrap();
+    assert_eq!(reordered["queue_position"], 0);
+    assert_eq!(reordered["current_video_id"], b);
+    assert_eq!(client.request(json!({"method":"set_queue","ids":[a,b],"expected_queue_revision":state["queue_revision"]})).unwrap_err().code, "queue_conflict");
+    assert_eq!(client.request(json!({"method":"set_queue","ids":[a,a],"expected_queue_revision":reordered["queue_revision"]})).unwrap_err().code, "invalid_parameter");
+    client
+        .request(json!({"method":"select_video","video_id":a}))
+        .unwrap();
+    wait_state(&mut client, "playing");
+    client
+        .request(json!({"method":"seek","position_us":3900000}))
+        .unwrap();
+    wait_state(&mut client, "ended"); // Play Once stops at the last item.
+    client
+        .request(json!({"method":"set_loop_mode","mode":"loop_current"}))
+        .unwrap();
+    client.request(json!({"method":"restart"})).unwrap();
+    client
+        .request(json!({"method":"seek","position_us":3900000}))
+        .unwrap();
+    thread::sleep(Duration::from_millis(180));
+    let repeat = client
+        .request(json!({"method":"get_playback_state"}))
+        .unwrap();
+    assert_eq!(repeat["current_video_id"], a);
+    assert_eq!(repeat["state"], "playing");
+    assert!(repeat["position_us"].as_u64().unwrap() < 3900000);
+    client
+        .request(json!({"method":"set_loop_mode","mode":"loop_queue"}))
+        .unwrap();
+    client
+        .request(json!({"method":"seek","position_us":3900000}))
+        .unwrap();
+    thread::sleep(Duration::from_millis(200));
+    wait_state(&mut client, "playing");
+    assert_eq!(
+        client
+            .request(json!({"method":"get_playback_state"}))
+            .unwrap()["current_video_id"],
+        b
+    );
+    client.request(json!({"method":"pause"})).unwrap();
+    client.request(json!({"method":"previous_video"})).unwrap();
+    wait_state(&mut client, "paused"); // Loop Queue wraps backwards.
+    let before = client
+        .request(json!({"method":"get_playback_state"}))
+        .unwrap();
+    assert_eq!(before["current_video_id"], a);
+    client.hello().unwrap(); // New handshake never replaces the queue or mode.
+    let after = client
+        .request(json!({"method":"get_playback_state"}))
+        .unwrap();
+    assert_eq!(before["queue"], after["queue"]);
+    assert_eq!(after["loop_mode"], "loop_queue");
+    // An SD file may become unavailable after admission. Advertised neighbors
+    // must match the navigation actions, including a single valid looping item.
+    let unavailable = card.path().join(format!("muse-video/{b}.mvb"));
+    let saved = unavailable.with_extension("unavailable");
+    std::fs::rename(&unavailable, &saved).unwrap();
+    let available = client
+        .request(json!({"method":"get_playback_state"}))
+        .unwrap();
+    assert_eq!(available["next_video_id"], a);
+    assert_eq!(available["previous_video_id"], a);
+    client.request(json!({"method":"next_video"})).unwrap();
+    wait_state(&mut client, "paused");
+    assert_eq!(
+        client
+            .request(json!({"method":"get_playback_state"}))
+            .unwrap()["current_video_id"],
+        a
+    );
+    client
+        .request(json!({"method":"set_loop_mode","mode":"play_once"}))
+        .unwrap();
+    let available = client
+        .request(json!({"method":"get_playback_state"}))
+        .unwrap();
+    assert!(available["next_video_id"].is_null());
+    assert!(available["previous_video_id"].is_null());
+    std::fs::rename(&saved, &unavailable).unwrap();
+    let after = client
+        .request(json!({"method":"get_playback_state"}))
+        .unwrap();
+    client.request(json!({"method":"set_queue","ids":[],"expected_queue_revision":after["queue_revision"]})).unwrap();
+    thread::sleep(Duration::from_millis(2200));
+    let empty = client
+        .request(json!({"method":"get_playback_state"}))
+        .unwrap();
+    assert_eq!(empty["queue"], json!([]));
+    assert_eq!(empty["state"], "idle"); // Discovery cannot undo explicit removal.
+    assert!(card.path().join(format!("muse-video/{a}.mvb")).is_file());
+}
+#[test]
 #[ignore = "requires separately built native profile-tests"]
 fn profiled_engine_counts_only_completed_presentations_and_clips_offscreen_rows() {
     let root = tempfile::tempdir().unwrap();
@@ -761,7 +957,8 @@ fn firmware_rejects_corrupt_header_and_jpeg_tables_without_memory_errors() {
         } else {
             bytes[48] ^= 128;
         }
-        let hash = "b".repeat(64);
+        use sha2::Digest;
+        let hash = format!("{:x}", sha2::Sha256::digest(&bytes));
         fs::write(card.path().join(format!("muse-video/{hash}.mvb")), bytes).unwrap();
         let mut c = Client::new(Simulator::spawn(&simulator(), card.path()).unwrap());
         c.hello().unwrap();

@@ -2,9 +2,13 @@
 
 Download desktop packages and SHA256SUMS.txt from the
 [GitHub Releases page](https://github.com/ysf-kul/musevideobridge/releases).
-Version 0.3.0 is an unsigned first public release. Compare the downloaded archive's
+Version 0.4.0 is an unsigned queue and playback update. Compare the downloaded archive's
 SHA-256 with SHA256SUMS.txt before extracting/installing it. Source is MIT licensed;
 third-party notices and corresponding dependency sources are supplied separately.
+
+Version 0.4.0 is a **pre-release**. Touch controls are experimental: unobserved
+hardware diagnostics registered contacts and temporarily revealed the overlay.
+Physical touch calibration and display appearance have not been verified.
 
 ## Linux x86-64
 
@@ -14,15 +18,15 @@ normal XDG configuration/cache directories under `dev.muse.videobridge`, outside
 the read-only AppImage. Download and compare SHA-256, then run:
 
 ```sh
-chmod +x Muse-Video-Bridge-0.3.0-Linux-x86_64.AppImage
-./Muse-Video-Bridge-0.3.0-Linux-x86_64.AppImage
+chmod +x Muse-Video-Bridge-0.4.0-Linux-x86_64.AppImage
+./Muse-Video-Bridge-0.4.0-Linux-x86_64.AppImage
 ```
 
 If the host does not allow FUSE mounts through `/dev/fuse`, use the runtime's
 extraction fallback (extracts to a temporary directory, then starts the app):
 
 ```sh
-./Muse-Video-Bridge-0.3.0-Linux-x86_64.AppImage --appimage-extract-and-run
+./Muse-Video-Bridge-0.4.0-Linux-x86_64.AppImage --appimage-extract-and-run
 ```
 
 The AppImage runtime's original licenses, exact corresponding sources, patches
@@ -45,8 +49,8 @@ build from source rather than treating this package as compatible.
 
 ```sh
 sha256sum -c SHA256SUMS.txt --ignore-missing
-tar -xzf Muse-Video-Bridge-0.3.0-Linux-x86_64.tar.gz
-cd Muse-Video-Bridge-0.3.0-Linux-x86_64
+tar -xzf Muse-Video-Bridge-0.4.0-Linux-x86_64.tar.gz
+cd Muse-Video-Bridge-0.4.0-Linux-x86_64
 ./Start-App.sh
 ```
 
@@ -76,7 +80,7 @@ ZIP passed native window creation and bundled conversion/decode on a Windows Ser
 and physical USB are not yet verified**. See
 [the Windows audit](RELEASE_AUDIT_WINDOWS.md) for the narrower runner scope.
 
-1. Compare SHA-256 with PowerShell: `Get-FileHash .\Muse-Video-Bridge-0.3.0-Windows-x64-portable.zip -Algorithm SHA256`.
+1. Compare SHA-256 with PowerShell: `Get-FileHash .\Muse-Video-Bridge-0.4.0-Windows-x64-portable.zip -Algorithm SHA256`.
 2. Extract the complete ZIP to a writable folder.
 3. Run `Start-App.cmd` or `Muse Video Bridge.exe`.
 4. Keep `tools`, its FFmpeg DLLs, and `portable-mode.json` beside the application.
@@ -145,13 +149,20 @@ through USB transfer and playback.**
 5. Click **Send over USB** and wait for acknowledged progress and full device size/
    SHA-256 verification. 115200-baud transfer is roughly 9.9 kB/s in prior testing,
    followed by verification time. Transfer pauses playback while writing.
-6. The verified video becomes playable. Use play/pause/resume/stop/restart/seek and
-   position/scale/quarter-turn rotation controls. Target FPS differs from actual FPS.
-7. Explicit **Cancel** removes only that acknowledged upload's incomplete files.
+6. Wait through measured transfer/hash progress and indeterminate playback setup
+   until the device confirms readiness. Manage up to 12 videos in the queue;
+   select, reorder, remove, and use next/previous. Choose Play Once, Loop Current,
+   or Loop Queue. Queue order/mode reset on device restart; reconnect reads real state.
+7. Tap the CYD to show Previous, Play/Pause, and Next for four seconds. Physical
+   touch calibration and display appearance remain unverified. The new queue and
+   touch controls require firmware from v0.4.0; use that tag's firmware source.
+8. Use play/pause/resume/stop/restart/seek and position/scale/quarter-turn rotation
+   controls. Target FPS differs from actual FPS.
+9. Explicit **Cancel** removes only that acknowledged upload's incomplete files.
    After a disconnect/failure, retry the same converted digest to recover a validated
    checkpoint. Connect/disconnect and missing-device errors are shown in the app.
 
 Desktop preview uses local prepared JPEGs and reported frame position. Unknown
 video hashes require matching local conversion; unavailable telemetry is labeled.
 There is no audio playback, arbitrary-angle rotation, or calibrated ESP32 temperature.
-See [release verification](RELEASE_VERIFICATION.md) for the precise tested scope.
+See [feature and release verification](QUEUE_VERIFICATION_REPORT.md) for the precise tested scope.

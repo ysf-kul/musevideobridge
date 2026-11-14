@@ -154,16 +154,33 @@ public:
     if (enabled() && capacity_ >= bytes)
       return true;
     release();
+#ifdef MVB_ALIGN_COMPRESSED_RECORDS
+    // Queue/media changes alter heap placement. Give both reusable compressed
+    // slots the same alignment instead of relying on the allocator's address.
+    const size_t allocation_bytes = (bytes + 15) & ~size_t(15);
+#else
+    const size_t allocation_bytes = bytes;
+#endif
 #if defined(MVB_FRAME_PREFETCH) && defined(ARDUINO_ARCH_ESP32)
     // Preserve an internal reserve for serial, SD, decoders and diagnostics.
     // The second slot is sized from verified compressed-frame metadata.
     if (heap_caps_get_free_size(MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT) <
-        32768 + bytes + StackBytes + 1024)
+        32768 + allocation_bytes + StackBytes + 1024)
       return false;
     buffer_ = static_cast<uint8_t *>(
-        heap_caps_malloc(bytes, MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT));
+#ifdef MVB_ALIGN_COMPRESSED_RECORDS
+        heap_caps_aligned_alloc(16, allocation_bytes, MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT));
+#else
+        heap_caps_malloc(allocation_bytes, MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT));
+#endif
 #elif defined(MVB_FRAME_PREFETCH) && !defined(ARDUINO)
-    buffer_ = new (std::nothrow) uint8_t[bytes];
+#ifdef MVB_ALIGN_COMPRESSED_RECORDS
+    buffer_ = static_cast<uint8_t *>(::operator new[](allocation_bytes, std::align_val_t(16), std::nothrow));
+#else
+    buffer_ = new (std::nothrow) uint8_t[allocation_bytes];
+#endif
+#else
+    (void)allocation_bytes;
 #endif
     if (!buffer_)
       return false;
@@ -234,7 +251,11 @@ public:
     if (buffer_)
       heap_caps_free(buffer_);
 #elif defined(MVB_FRAME_PREFETCH) && !defined(ARDUINO)
+#ifdef MVB_ALIGN_COMPRESSED_RECORDS
+    ::operator delete[](buffer_, std::align_val_t(16));
+#else
     delete[] buffer_;
+#endif
 #endif
     buffer_ = nullptr;
     capacity_ = 0;

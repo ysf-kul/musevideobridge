@@ -126,7 +126,9 @@ fn serve(
                 json!([root.join("card").to_string_lossy(), d])
             }),
             "export" => app.export(root.join("card"), true).map(|_| Value::Null),
-            "upload" => app.upload().map(|_| Value::Null),
+            "upload" => app
+                .upload_video(args["videoId"].as_str().map(str::to_owned))
+                .map(|_| Value::Null),
             "cancel" => {
                 app.cancel();
                 Ok(Value::Null)

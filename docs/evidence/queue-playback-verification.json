@@ -1,0 +1,295 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-15",
+  "status": "implemented; automated and USB hardware checks passed; owner authorized v0.4.0 publication with physical touch/visual acceptance unverified",
+  "firmware": {
+    "environment": "cyd_optimized_input_aligned",
+    "version": "0.3.0",
+    "bytes": 680240,
+    "sha256": "814a2be9ceea7005fc550c2217f114b546a840bd0af6452c4a9f6e72d90dba8b",
+    "flash_scope": "application only at 0x10000; hash verified; full 4194304-byte private backup read and separately digest verified"
+  },
+  "hardware": {
+    "board": "ESP32-2432S028R / classic ESP32 / ILI9341",
+    "resolution": [
+      320,
+      240
+    ],
+    "uart_baud": 115200,
+    "target_fps": 30,
+    "prepared_sha256": "dcbaf2098e9a57a0ac508eb363e12f525b8f4b49f187707b4e6b984847a45356"
+  },
+  "historical_actual_fps": 29.799234457633492,
+  "before": {
+    "runs": 5,
+    "frames": 1800,
+    "active_elapsed_us": 60178466,
+    "actual_fps": 29.9110316304839,
+    "run_fps": [
+      29.56591083,
+      29.99872505,
+      29.99854757,
+      29.99852757,
+      29.99849758
+    ],
+    "dma_ownership_errors_max": 0,
+    "full_checks": 0,
+    "full_check_pixels": 0,
+    "full_check_mismatches": 0,
+    "checks_passed": null,
+    "application_allocations_per_frame": 0
+  },
+  "after": {
+    "qualification": "Final guarded-touch firmware; full-screen completed-draw counts and idle touch counters checked.",
+    "runs": 5,
+    "frames": 1787,
+    "active_elapsed_us": 60079732,
+    "actual_fps": 29.743807778636562,
+    "run_fps": [
+      29.78526984,
+      29.71775129,
+      29.73276738,
+      29.76188992,
+      29.72130656
+    ],
+    "change_vs_historical_percent": -0.18600034533011733,
+    "change_vs_installed_before_percent": -0.5590708268213396,
+    "dma_ownership_errors_max": 0,
+    "full_checks": 5,
+    "full_check_pixels": 384000,
+    "full_check_mismatches": 0,
+    "checks_passed": true,
+    "rendered_pixels": 137241600,
+    "full_screen_pixels_per_completed_frame": 76800,
+    "touch_contacts_sampled_max": 0,
+    "touch_contacts_accepted_max": 0,
+    "application_allocations_per_frame": 0
+  },
+  "automated_tests": {
+    "native_rust_engine_passed": 60,
+    "python_discovered": 122,
+    "python_passed": 109,
+    "python_skipped": 13,
+    "typescript_passed": 6,
+    "browser_workflows_passed": 1,
+    "svelte_errors": 0,
+    "svelte_warnings": 0,
+    "clippy": "passed",
+    "formatters": "passed",
+    "final_dma_focused_tests_passed": 10,
+    "final_qualified_defaults_focused_tests_passed": 8,
+    "final_touch_adapter_sanitizers": "passed",
+    "npm_production_audit_vulnerabilities": 0,
+    "public_source_secret_scan": "no leaks",
+    "linux_standalone_package_smoke_passed": 3,
+    "linux_portable_internal_hashes": "passed",
+    "linux_package_archives": "passed"
+  },
+  "usb_acceptance": {
+    "event": "acceptance_complete",
+    "interfaces": "production desktop backend and real USB firmware",
+    "physical_touch": "unverified",
+    "physical_visual": "unverified",
+    "platform": "Linux",
+    "reconnect_device_restarted": true,
+    "observed_upload_stages": [
+      "complete",
+      "loading_video",
+      "ready",
+      "starting",
+      "uploading",
+      "validating_video",
+      "verifying_upload"
+    ],
+    "completed_uploads": 2,
+    "idle_touch_verified": true,
+    "commands_confirmed": 26,
+    "runner_waits_for_acknowledged_revision": true
+  },
+  "platforms": {
+    "Linux": "CachyOS x86-64: optimized build, native window launch, production backend with real USB acceptance",
+    "Windows": "x64 MSVC optimized cross-build passed; updated Windows runtime and COM hardware unverified"
+  },
+  "limitations": [
+    "Physical touch calibration, physical taps and display appearance unverified by user choice.",
+    "Queue order/mode and prepared preview registrations are session-local.",
+    "Port reopen restarted the connected unit; boot queue/mode were refreshed rather than overwritten.",
+    "One preliminary HELLO-discovery run timed out; later real probes and complete acceptance succeeded.",
+    "Performance is five 12-second runs with gaps; it does not repeat the previous five-minute qualification.",
+    "USB closure/restart and checkpoint recovery covered in automated tests; physical cable interruption unverified."
+  ],
+  "publication": {
+    "new_release_published": false,
+    "website_updated": false,
+    "gate": "Owner requested publication on 2026-11-15 with remaining physical touch/visual limitations disclosed.",
+    "authorized": true,
+    "planned_tag": "v0.4.0",
+    "prerelease": true
+  },
+  "earlier_diagnostic_after": {
+    "runs": 5,
+    "frames": 1787,
+    "active_elapsed_us": 60090326,
+    "actual_fps": 29.738563907940854,
+    "run_fps": [
+      29.77967037,
+      29.71028478,
+      29.71692012,
+      29.72506067,
+      29.76082851
+    ],
+    "dma_ownership_errors_max": 0,
+    "full_checks": 5,
+    "full_check_pixels": 384000,
+    "full_check_mismatches": 0,
+    "checks_passed": true,
+    "application_allocations_per_frame": 0,
+    "qualification": "Before final guarded-touch firmware; superseded by after; diagnostic comparison only."
+  },
+  "test_session_dates": [
+    "2026-11-14",
+    "2026-11-15"
+  ],
+  "local_evidence": {
+    "scope": "Ignored local-only logs; these relative paths are not files bundled with public source.",
+    "final_performance": ".verification/queue-after-confirmed-touch.jsonl",
+    "final_usb_acceptance": ".verification/queue-hardware/final-guarded-confirmed-acceptance.jsonl",
+    "firmware_flash": ".verification/queue-firmware-flash-final-guarded.log",
+    "browser_acceptance": ".verification/queue-browser-tests-confirmed.log",
+    "standalone_package_smoke": ".verification/queue-package-smoke/results.json",
+    "release_040_performance": ".verification/release-040-performance.jsonl",
+    "release_040_usb_acceptance": ".verification/queue-hardware/release-040-acceptance-confirmed.jsonl"
+  },
+  "local_builds": {
+    "Linux": {
+      "path": "target/release/muse-video-bridge",
+      "bytes": 13693952,
+      "sha256": "158fa22ba0f9d0d25a701075c343de3773085c3deebf0317db6b8fb4e76d337e",
+      "optimization": "Cargo release",
+      "version": "0.4.0",
+      "published": false
+    },
+    "Windows": {
+      "path": "target/x86_64-pc-windows-msvc/release/muse-video-bridge.exe",
+      "bytes": 10866176,
+      "sha256": "e3a43c2efbd75d4f275b369be17e37be911e9566162d3eb3dbef7ed9ff4ebb12",
+      "optimization": "Cargo release",
+      "version": "0.4.0",
+      "published": false
+    }
+  },
+  "local_packages": {
+    "directory": ".verification/queue-production-artifacts",
+    "scope": "Unpublished qualification packages retaining internal version 0.3.0; new release version required before publication.",
+    "files": [
+      {
+        "name": "Muse-Video-Bridge-0.3.0-Linux-amd64.deb",
+        "bytes": 4005428,
+        "sha256": "dc699a7321b91cf2cd57f945ae00f646b1c898d8f60906772d14729a6c604b60"
+      },
+      {
+        "name": "Muse-Video-Bridge-0.3.0-Linux-x86_64.AppImage",
+        "bytes": 4332024,
+        "sha256": "7b88a45e58120d8167802d30eeb01e1ff29921ab9a9ada09f5db488d68c62c46"
+      },
+      {
+        "name": "Muse-Video-Bridge-0.3.0-Linux-x86_64.rpm",
+        "bytes": 4125635,
+        "sha256": "1981683bd7ab5d96468035f4420765768bf3647438d7900eaf1de9b5ddc74682"
+      },
+      {
+        "name": "Muse-Video-Bridge-0.3.0-Linux-x86_64.tar.gz",
+        "bytes": 4007692,
+        "sha256": "483467bb562420dcf9a1b25844937ab6db5f13e238b90403220b5b058552da2c"
+      }
+    ],
+    "native_linux_smoke_modes": [
+      "portable",
+      "appimage-direct",
+      "appimage-extract"
+    ],
+    "native_linux_normal_close_exit_codes": [
+      0,
+      0,
+      0
+    ],
+    "Windows_portable_repackaged": false,
+    "clean_Debian_RPM_installation_tested": false
+  },
+  "release_0_4_0": {
+    "desktop_version": "0.4.0",
+    "firmware_version": "0.4.0",
+    "source_dependencies_changed": false,
+    "native_rust_tests_passed": 60,
+    "frontend_tests_passed": 6,
+    "initial_windows_build": "Frontend generation race; resolved by freezing frontend assets for the cross-build.",
+    "Windows_packaging": "Fresh desktop; unchanged conversion tools retained from checksum-verified v0.3.0 production ZIP.",
+    "Windows_runtime": "Pending new published-package runner smoke; interactive/COM tests remain unverified.",
+    "touch_qualification": "Experimental: accepted contacts and temporary overlay observed in a diagnostic run; physical interaction was not observed.",
+    "usb_acceptance": "Later complete acceptance passed with zero idle contacts before and after reconnect; earlier HELLO timeout and idle-contact assertion failure retained in report.",
+    "performance": {
+      "runs_total": 20,
+      "normal_full_screen_runs": 19,
+      "excluded_initial_overlay_runs": 1,
+      "normal_frames": 6781,
+      "normal_active_elapsed_us": 228078266,
+      "normal_actual_fps": 29.73102224479381,
+      "initial_touch_contacts_accepted": 4,
+      "later_additional_touch_contacts": 0,
+      "normal_full_screen_pixels": 520780800,
+      "dma_ownership_errors": 0,
+      "full_readback_checks": 20,
+      "full_readback_pixels": 1536000,
+      "full_readback_mismatches": 0,
+      "qualification": "Initial accepted contacts and overlay prevent idle-touch qualification; later normal full-screen playback is measured separately. Physical interaction was not observed."
+    },
+    "firmware": {
+      "bytes": 680320,
+      "sha256": "598e7bd0db59baa8381487250e2461aacb648e472cfad5f192ab7929b23f7ba3",
+      "application_only_flash": "0x10000; device hash verified"
+    },
+    "assets": [
+      {
+        "name": "AppImage-runtime-sources.tar.gz",
+        "bytes": 10966291,
+        "sha256": "ec0f443cff7b32c619e3585321c866601f31ec31a5110a788b364ce76180438e"
+      },
+      {
+        "name": "FFmpeg-source.tar.gz",
+        "bytes": 17330649,
+        "sha256": "4270bde68c027b376899f26f7973e213aeaa5ddb6fef8a352e0d6ee457766c67"
+      },
+      {
+        "name": "Muse-Video-Bridge-0.4.0-Linux-amd64.deb",
+        "bytes": 4006170,
+        "sha256": "cd768bf8d350f0290a561d502312a942fdfcd90196fb22fefd41ffa41fe0a8ab"
+      },
+      {
+        "name": "Muse-Video-Bridge-0.4.0-Linux-x86_64.AppImage",
+        "bytes": 4336120,
+        "sha256": "00db44cf3c76458c41e3b1f9046adc05982a3f2193babb616a150e32ecfb46f4"
+      },
+      {
+        "name": "Muse-Video-Bridge-0.4.0-Linux-x86_64.rpm",
+        "bytes": 4126004,
+        "sha256": "1806c88129039a8399a24d49d7f6b45a421cb420eacc609be2b1d2688f27d771"
+      },
+      {
+        "name": "Muse-Video-Bridge-0.4.0-Linux-x86_64.tar.gz",
+        "bytes": 4008061,
+        "sha256": "086d79f5f0443c66efd6218f0504c6a233c0fe410b86f8952ac1bfbac3068c63"
+      },
+      {
+        "name": "Muse-Video-Bridge-0.4.0-Windows-x64-portable.zip",
+        "bytes": 12793677,
+        "sha256": "f66c859f7557bc921974ab3028a486b9b677227fb22dbf58e4d06866d55da9a8"
+      },
+      {
+        "name": "Muse-Video-Bridge-0.4.0-dependency-sources.tar.gz",
+        "bytes": 78053493,
+        "sha256": "02b4b5cb0bbb25644c5e7c852bcd4462cc6e4d931edaf24935547848c03d3ad5"
+      }
+    ],
+    "asset_directory": ".verification/release-040-final-artifacts"
+  }
+}

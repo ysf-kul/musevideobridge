@@ -48,6 +48,14 @@ export interface Transform {
   lock_aspect: boolean;
 }
 export interface Status {
+  queue?: string[];
+  queue_revision?: number;
+  queue_position?: number;
+  current_video_id?: string | null;
+  next_video_id?: string | null;
+  previous_video_id?: string | null;
+  loop_mode?: "play_once" | "loop_current" | "loop_queue";
+  preparation?: { stage: string; percent: number | null };
   state: string;
   frame_index: number | null;
   frame_count: number;
@@ -91,6 +99,7 @@ export interface Job {
   result?: unknown;
 }
 export interface Snapshot {
+  prepared?: Media[];
   settings: Settings;
   media: Media | null;
   device: Device;

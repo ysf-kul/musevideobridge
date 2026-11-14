@@ -142,6 +142,68 @@ test("real backend workflow, localization, transforms, reconnect and accessible 
   await page.getByRole("button", { name: "Resume", exact: true }).click();
   await page.getByRole("button", { name: "Stop", exact: true }).click();
   await page.getByRole("button", { name: "Restart", exact: true }).click();
+  await page.getByRole("button", { name: "Pause", exact: true }).click();
+  await page.getByRole("button", { name: "Select video", exact: true }).click();
+  await page.getByLabel("JPEG qscale · lower is higher quality").fill("12");
+  await page.getByLabel("JPEG qscale · lower is higher quality").press("Tab");
+  await page.getByRole("button", { name: "Convert", exact: true }).click();
+  await expect(
+    page.getByText("Prepared and verified", { exact: true }),
+  ).toBeVisible({ timeout: 40000 });
+  await page
+    .getByRole("button", { name: "Send over USB", exact: true })
+    .click();
+  await expect(
+    page.getByRole("button", { name: "Disconnect", exact: true }),
+  ).toBeDisabled();
+  await expect(
+    page.getByText("Transfer verified by the device.", { exact: true }),
+  ).toBeVisible({ timeout: 40000 });
+  const queue = page.locator(".video-queue");
+  await expect(queue.locator("li")).toHaveCount(2);
+  await page.getByRole("button", { name: "Pause", exact: true }).click();
+  await page.getByRole("button", { name: "Previous", exact: true }).click();
+  await expect(queue.locator("li").first()).toHaveClass("active");
+  await expect(
+    page.getByRole("button", { name: "Resume", exact: true }),
+  ).toBeEnabled();
+  await page.getByRole("button", { name: "Next", exact: true }).click();
+  await expect(queue.locator("li").last()).toHaveClass("active");
+  await queue
+    .getByRole("button", { name: "Move up: input.mp4", exact: true })
+    .last()
+    .click();
+  await expect(queue.locator("li").first()).toHaveClass("active");
+  await page
+    .getByLabel("Playback mode", { exact: true })
+    .selectOption("loop_queue");
+  await expect(page.getByLabel("Playback mode", { exact: true })).toHaveValue(
+    "loop_queue",
+  );
+  await expect(queue.locator("li:not(.active) .queue-name span")).toContainText(
+    "Next",
+  );
+  await expect(queue.locator("li:not(.active) .queue-name span")).toContainText(
+    "Previous",
+  );
+  await queue
+    .getByRole("button", { name: "Remove from queue", exact: true })
+    .last()
+    .click();
+  await expect(queue.locator("li")).toHaveCount(1);
+  await page
+    .getByLabel("Playback mode", { exact: true })
+    .selectOption("loop_current");
+  await expect(page.getByLabel("Playback mode", { exact: true })).toHaveValue(
+    "loop_current",
+  );
+  await page
+    .getByLabel("Playback mode", { exact: true })
+    .selectOption("play_once");
+  await expect(page.getByLabel("Playback mode", { exact: true })).toHaveValue(
+    "play_once",
+  );
+  await page.getByRole("button", { name: "Resume", exact: true }).click();
   await page.locator("details.monitor summary").click();
   await expect(
     page.getByText("CPU temperature", { exact: true }),
@@ -212,5 +274,37 @@ test("real backend workflow, localization, transforms, reconnect and accessible 
   await page
     .getByRole("combobox", { name: "Dil", exact: true })
     .selectOption("en");
+  const mode = page.getByLabel("Playback mode", { exact: true });
+  await expect(mode).toBeEnabled();
+  const confirmedMode = await mode.inputValue();
+  await page.evaluate(() => {
+    const bridge = window.__MVB_TEST_BRIDGE__!;
+    const original = bridge.call;
+    bridge.call = async <T>(
+      command: string,
+      args?: Record<string, unknown>,
+    ) => {
+      if (
+        command === "command" &&
+        (args?.value as { method?: string } | undefined)?.method ===
+          "set_loop_mode"
+      ) {
+        bridge.call = original;
+        await original("disconnect");
+      }
+      return original<T>(command, args);
+    };
+  });
+  await mode.selectOption(
+    confirmedMode === "loop_queue" ? "play_once" : "loop_queue",
+  );
+  await expect(
+    page.getByRole("button", { name: "Connect", exact: true }),
+  ).toBeVisible();
+  await expect(mode).toHaveValue(confirmedMode);
+  await expect(page.getByRole("alert")).toBeVisible();
+  await page.getByRole("button", { name: "Connect", exact: true }).click();
+  await expect(mode).toBeEnabled();
+  await expect(mode).toHaveValue("play_once");
   expect(errors).toEqual([]);
 });

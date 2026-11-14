@@ -18,6 +18,7 @@
   import { acceptFrame, acceptStatus, normalize } from "./lib/sync";
   let settings = $state<Settings>({ ...defaults }),
     media = $state<Media | null>(null),
+    prepared = $state<Media[]>([]),
     device = $state<Device>({ connection: "disconnected" }),
     job = $state<Job | null>(null),
     error = $state<Failure | null>(null),
@@ -52,6 +53,7 @@
     toolOpen = $state(false),
     fpsPending = $state(false),
     seekPending = $state(false);
+  let queuePendingRevision = $state<number | null>(null);
   let seekVersion = 0,
     sentSeekVersion = 0,
     seekRevision = 0,
@@ -75,11 +77,75 @@
       ["playing", "paused", "stopped", "ended"].includes(status.state),
   );
   const busy = $derived(Boolean(job?.running) || working);
+  const preparation = $derived(
+    transferring && job
+      ? {
+          stage: job.stage,
+          percent: job.total
+            ? Math.floor(((job.completed ?? 0) / job.total) * 100)
+            : null,
+        }
+      : status?.preparation,
+  );
+  const playbackMedia = $derived(
+    fresh && status?.content_sha256
+      ? (prepared.find((m) => m.artifact?.sha256 === status.content_sha256) ??
+          media)
+      : media,
+  );
+  const queueEnabled = $derived(
+    fresh &&
+      !busy &&
+      queuePendingRevision == null &&
+      !!status?.queue &&
+      !["loading", "error"].includes(status.state),
+  );
+  function videoName(id: string) {
+    return (
+      prepared.find((m) => m.artifact?.sha256 === id)?.filename ??
+      `${id.slice(0, 12)}…`
+    );
+  }
+  async function editQueue(ids: string[]) {
+    await action(async () => {
+      const ack = await bridge.call<{ state_revision: number }>("command", {
+        value: {
+          method: "set_queue",
+          ids,
+          expected_queue_revision: status?.queue_revision,
+        },
+      });
+      queuePendingRevision = ack.state_revision;
+      if (status && status.state_revision >= ack.state_revision)
+        queuePendingRevision = null;
+    });
+  }
+  async function moveVideo(index: number, direction: number) {
+    const ids = [...(status?.queue ?? [])],
+      next = index + direction;
+    if (next < 0 || next >= ids.length) return;
+    [ids[index], ids[next]] = [ids[next], ids[index]];
+    await editQueue(ids);
+  }
+  async function queueControl(
+    method: string,
+    args: Record<string, unknown> = {},
+  ) {
+    await action(async () => {
+      const ack = await bridge.call<{ state_revision: number }>("command", {
+        value: { method, ...args },
+      });
+      queuePendingRevision = ack.state_revision;
+      if (status && status.state_revision >= ack.state_revision)
+        queuePendingRevision = null;
+    });
+  }
   const matching = $derived(
-    !!media?.artifact && media.artifact.sha256 === status?.content_sha256,
+    !!playbackMedia?.artifact &&
+      playbackMedia.artifact.sha256 === status?.content_sha256,
   );
   const previewIndex = $derived(matching ? (status?.frame_index ?? null) : 0);
-  const previewDigest = $derived(media?.artifact?.sha256 ?? null);
+  const previewDigest = $derived(playbackMedia?.artifact?.sha256 ?? null);
   const previewLabel = $derived(
     !fresh && device.status
       ? t(locale, "preview.stale")
@@ -169,6 +235,7 @@
     device = { ...device, ...next };
     if (next.error) fail(next.error);
     if (next.connection && next.connection !== "connected") {
+      queuePendingRevision = null;
       pending = false;
       fpsPending = false;
       seekPending = false;
@@ -178,11 +245,17 @@
       clearTimeout(timer);
     }
     if (next.session != null && prior !== next.session) {
+      queuePendingRevision = null;
       pending = false;
       version++;
       revision = 0;
     }
     if (next.status) {
+      if (
+        queuePendingRevision != null &&
+        next.status.state_revision >= queuePendingRevision
+      )
+        queuePendingRevision = null;
       if (
         !pending ||
         (revision > 0 &&
@@ -268,8 +341,8 @@
       return;
     transform = normalize(
       { ...transform, [key]: value },
-      media?.artifact?.header.width ?? 320,
-      media?.artifact?.header.height ?? 240,
+      playbackMedia?.artifact?.header.width ?? 320,
+      playbackMedia?.artifact?.header.height ?? 240,
       key,
     );
     pending = true;
@@ -316,7 +389,7 @@
     timer = setTimeout(() => void apply(), 100);
   }
   function scale(value: number) {
-    const h = media?.artifact?.header;
+    const h = playbackMedia?.artifact?.header;
     if (!h || !Number.isFinite(value) || value <= 0) return;
     const turn = transform.rotation_deg % 180 !== 0;
     transform = {
@@ -383,7 +456,7 @@
     }
   }
   function reset() {
-    const h = media?.artifact?.header;
+    const h = playbackMedia?.artifact?.header;
     if (!h) return;
     transform = {
       x: Math.floor((320 - h.width) / 2),
@@ -430,6 +503,10 @@
     uploading: "job.uploading",
     resuming_upload: "job.resuming_upload",
     verifying_upload: "job.verifying_upload",
+    validating_video: "job.validating_video",
+    loading_video: "job.loading_video",
+    preparing_playback: "job.preparing_playback",
+    ready: "job.ready",
     complete: "job.complete",
     cancelled: "job.cancelled",
     error: "job.error",
@@ -472,10 +549,12 @@
           "media",
           "job",
           "device_error",
+          "prepared",
         ]) {
           const stop = await bridge.on<unknown>(name, (payload) => {
             if (!alive) return;
             if (name === "device") adopt(payload as Device);
+            else if (name === "prepared") prepared = payload as Media[];
             else if (name === "media") {
               media = payload as Media;
               if (!live && media?.artifact) {
@@ -525,6 +604,7 @@
         if (!alive) return;
         settings = snapshot.settings;
         media = snapshot.media;
+        prepared = snapshot.prepared ?? (media?.artifact ? [media] : []);
         adopt(snapshot.device);
         job = snapshot.job;
         error = snapshot.startup_error;
@@ -653,6 +733,134 @@
         >{t(locale, "error.no_card")}</span
       >{/if}
   </section>
+  <section class="queue-panel" aria-labelledby="queue-title">
+    <div class="queue-heading">
+      <h2 id="queue-title"><Icon name="queue" />{t(locale, "queue.title")}</h2>
+      <label
+        >{t(locale, "queue.mode")}<select
+          aria-label={t(locale, "queue.mode")}
+          value={status?.loop_mode ?? "play_once"}
+          disabled={!queueEnabled}
+          onchange={(event) => {
+            const mode = event.currentTarget.value;
+            event.currentTarget.value = status?.loop_mode ?? "play_once";
+            void queueControl("set_loop_mode", { mode });
+          }}
+        >
+          {#each ["play_once", "loop_current", "loop_queue"] as mode}<option
+              value={mode}>{t(locale, `queue.${mode}` as Key)}</option
+            >{/each}
+        </select></label
+      >
+    </div>
+    <div class="button-row">
+      <button
+        disabled={!queueEnabled || !status?.previous_video_id}
+        onclick={() => queueControl("previous_video")}
+        >{t(locale, "queue.previous")}</button
+      >
+      <button
+        class="primary"
+        disabled={!live || busy}
+        onclick={() => control(status?.state === "paused" ? "resume" : "play")}
+        >{t(
+          locale,
+          status?.state === "paused" ? "playback.resume" : "playback.play",
+        )}</button
+      >
+      <button
+        disabled={!live || busy || status?.state !== "playing"}
+        onclick={() => control("pause")}>{t(locale, "playback.pause")}</button
+      >
+      <button
+        disabled={!queueEnabled || !status?.next_video_id}
+        onclick={() => queueControl("next_video")}
+        >{t(locale, "queue.next")}</button
+      >
+      <button disabled={!live || busy} onclick={() => control("stop")}
+        >{t(locale, "playback.stop")}</button
+      >
+      <button
+        class="text"
+        disabled={!live || busy}
+        onclick={() => control("restart")}
+        >{t(locale, "playback.restart")}</button
+      >
+    </div>
+    {#if preparation && (fresh || transferring)}<p class="notice" role="status">
+        {t(
+          locale,
+          jobs[preparation.stage] ??
+            (preparation.stage === "waiting"
+              ? "device.waiting"
+              : "state.error"),
+        )}
+        {#if preparation.percent != null}
+          — {preparation.percent}%{/if}
+      </p>{/if}
+    {#if status?.queue?.length}<ol class="video-queue">
+        {#each status.queue as id, index (id)}<li
+            class:active={id === status.current_video_id}
+          >
+            <div class="queue-name">
+              <strong title={videoName(id)}>{videoName(id)}</strong><span>
+                {index + 1}{#if id === status.current_video_id}
+                  · {t(locale, "queue.current")}
+                {:else}
+                  {#if id === status.next_video_id}
+                    · {t(locale, "queue.next")}{/if}
+                  {#if id === status.previous_video_id}
+                    · {t(locale, "queue.previous")}{/if}
+                {/if}
+              </span>
+            </div>
+            <div class="queue-actions">
+              <button
+                disabled={!queueEnabled}
+                onclick={() => queueControl("select_video", { video_id: id })}
+                >{t(locale, "queue.select")}</button
+              >
+              <button
+                aria-label={`${t(locale, "queue.up")}: ${videoName(id)}`}
+                disabled={!queueEnabled || index === 0}
+                onclick={() => moveVideo(index, -1)}>↑</button
+              >
+              <button
+                aria-label={`${t(locale, "queue.down")}: ${videoName(id)}`}
+                disabled={!queueEnabled || index === status!.queue!.length - 1}
+                onclick={() => moveVideo(index, 1)}>↓</button
+              >
+              <button
+                class="text"
+                disabled={!queueEnabled}
+                onclick={() =>
+                  editQueue(status!.queue!.filter((entry) => entry !== id))}
+                >{t(locale, "queue.remove")}</button
+              >
+            </div>
+          </li>{/each}
+      </ol>{:else}<p>{t(locale, "queue.empty")}</p>{/if}
+    <p class="supporting">{t(locale, "queue.limit")}</p>
+    {#if prepared.length}<details>
+        <summary>{t(locale, "queue.prepared")} ({prepared.length})</summary>
+        <ul class="prepared-videos">
+          {#each prepared as entry}<li>
+              <span title={entry.filename}>{entry.filename}</span>
+              <button
+                disabled={!fresh ||
+                  busy ||
+                  ((status?.queue?.length ?? 0) >= 12 &&
+                    !status?.queue?.includes(entry.artifact!.sha256)) ||
+                  status?.queue?.includes(entry.artifact!.sha256)}
+                onclick={() =>
+                  action(() =>
+                    bridge.call("upload", { videoId: entry.artifact!.sha256 }),
+                  )}>{t(locale, "queue.add")}</button
+              >
+            </li>{/each}
+        </ul>
+      </details>{/if}
+  </section>
   {#if !media}<section class="empty">
       <div class="empty-icon"><Icon name="image" size={48} /></div>
       <h1>{t(locale, "empty.title")}</h1>
@@ -670,7 +878,7 @@
           >
         </div>
         <Preview
-          {media}
+          media={playbackMedia}
           blank={Boolean(matching && status?.frame_index == null)}
           index={previewIndex}
           digest={previewDigest}
@@ -681,36 +889,11 @@
             {t(locale, "preview.mismatch")}
           </p>{/if}
         <section class="playback" aria-label={t(locale, "playback.state")}>
-          <div class="button-row">
-            <button
-              class="primary"
-              disabled={!live || busy}
-              onclick={() =>
-                control(status?.state === "paused" ? "resume" : "play")}
-              ><Icon name="image" />{t(
-                locale,
-                status?.state === "paused"
-                  ? "playback.resume"
-                  : "playback.play",
-              )}</button
-            ><button
-              disabled={!live || busy || status?.state !== "playing"}
-              onclick={() => control("pause")}
-              >{t(locale, "playback.pause")}</button
-            ><button disabled={!live || busy} onclick={() => control("stop")}
-              >{t(locale, "playback.stop")}</button
-            ><button
-              class="text"
-              disabled={!live || busy}
-              onclick={() => control("restart")}
-              >{t(locale, "playback.restart")}</button
-            >
-          </div>
           <label class="seek"
             >{t(locale, "playback.seek")}<input
               type="range"
               min="0"
-              max={media.artifact?.header.duration_us ?? 1}
+              max={playbackMedia?.artifact?.header.duration_us ?? 1}
               step="100000"
               bind:value={seek}
               disabled={!live || !matching || busy}
@@ -763,8 +946,8 @@
                   step="0.05"
                   value={transform.width /
                     (transform.rotation_deg % 180
-                      ? (media.artifact?.header.height ?? 240)
-                      : (media.artifact?.header.width ?? 320))}
+                      ? (playbackMedia?.artifact?.header.height ?? 240)
+                      : (playbackMedia?.artifact?.header.width ?? 320))}
                   oninput={(e) => scale(e.currentTarget.valueAsNumber)}
                 /></label
               ><label
@@ -941,6 +1124,7 @@
           >{/if}
       </div>
       {#if job.running}<progress
+          aria-label={t(locale, jobs[job.stage] ?? "job.starting")}
           max={job.total ?? 1}
           value={job.total ? job.completed : undefined}
         ></progress>{#if job.total}<small
