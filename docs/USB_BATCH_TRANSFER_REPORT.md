@@ -183,6 +183,12 @@ Windows 10/11 interactive acceptance. See [publication evidence](evidence/releas
 and [Windows runtime evidence](evidence/windows-release-041-runtime-smoke.json).
 The version tag and earlier releases are preserved.
 
+The Muse catalog update passed 22 local unit tests, four product browser cases and
+its production build. The deployment passed all 70 CI browser cases and GitHub
+Pages build/deploy. Live English/Turkish pages returned HTTP 200 with all five
+actual 0.4.1 desktop download URLs; the live screenshot matches the captured
+standalone application. See [website deployment evidence](evidence/website-release-041-deployment.json).
+
 ## Use the repair
 
 Install the 0.4.1 desktop and matching firmware. **Updating the desktop alone

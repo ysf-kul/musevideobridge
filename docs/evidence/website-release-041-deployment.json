@@ -1,0 +1,46 @@
+{
+  "version": "0.4.1",
+  "website_commit": "19368a0e49a0d8c43b4b00af41087f9d83183cd1",
+  "pages_run_url": "https://github.com/ysf-kul/muse/actions/runs/43654117220",
+  "build_conclusion": "success",
+  "deploy_conclusion": "success",
+  "local_unit_tests_passed": 22,
+  "local_product_browser_tests_passed": 4,
+  "production_pages": 9,
+  "live_verified": [
+    {
+      "url": "https://ysf-kul.github.io/muse/software/video-bridge/",
+      "http_status": 200,
+      "bytes": 56820,
+      "sha256": "b566518d35721e315980d1ab789628750e4c2a62d824ea56041281fd7f5f304b"
+    },
+    {
+      "url": "https://ysf-kul.github.io/muse/en/software/video-bridge/",
+      "http_status": 200,
+      "bytes": 56060,
+      "sha256": "4b741cbed4e464cae291b8fa06734fddddf6a99573f312b82a9834dc2438c489"
+    },
+    {
+      "url": "https://ysf-kul.github.io/muse/assets/video-bridge-desktop.webp",
+      "http_status": 200,
+      "bytes": 34206,
+      "sha256": "de2d825f88808d6f702a04ff4c8c6d910127f796bc48e59f576d4f68eaf2e911"
+    },
+    {
+      "url": "https://github.com/ysf-kul/musevideobridge/releases/tag/v0.4.1",
+      "http_status": 200,
+      "bytes": 150496,
+      "sha256": "1138559afcbc0976c5ecb725c5071cdb0fd75769ebe3ea55a3c18a662c85c202"
+    },
+    {
+      "url": "https://github.com/ysf-kul/musevideobridge/blob/v0.4.1/docs/INSTALL.md",
+      "http_status": 200,
+      "bytes": 226926,
+      "sha256": "de98d469d58395d84856113e6bfe75f84391c015101c4891dedf8b0c4c47d7ab"
+    }
+  ],
+  "all_five_desktop_download_links_match": "actual published v0.4.1 asset URLs",
+  "screenshot": "actual native standalone 0.4.1 Linux application; live bytes match catalog source",
+  "scope": "Website CI/runtime on Linux Chromium; does not qualify physical Windows USB or physical touch/display",
+  "ci_browser_tests_passed": 70
+}
