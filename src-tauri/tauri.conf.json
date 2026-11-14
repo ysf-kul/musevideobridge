@@ -1,0 +1,71 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Muse Video Bridge",
+  "version": "0.3.0",
+  "identifier": "dev.muse.videobridge",
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "devUrl": "http://127.0.0.1:1420",
+    "beforeBuildCommand": "npm run build",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "create": false,
+        "title": "Muse Video Bridge",
+        "width": 1160,
+        "height": 860,
+        "minWidth": 600,
+        "minHeight": 600,
+        "zoomHotkeysEnabled": true
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self'; img-src 'self' blob: data:; media-src 'self' blob:; style-src 'self' 'unsafe-inline'; font-src 'self'; connect-src ipc: http://ipc.localhost; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'"
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": [
+      "deb",
+      "rpm"
+    ],
+    "shortDescription": "Muse Video Bridge",
+    "category": "Utility",
+    "icon": [
+      "icons/icon.png",
+      "icons/icon.ico"
+    ],
+    "license": "MIT",
+    "publisher": "ysf-kul",
+    "homepage": "https://github.com/ysf-kul/musevideobridge",
+    "longDescription": "Convert local MP4 for 320x240 ESP32 CYD playback, transfer verified videos over USB serial, and control playback. Local processing without accounts or cloud services.",
+    "linux": {
+      "deb": {
+        "depends": [
+          "libudev1",
+          "ffmpeg (>= 8.0)"
+        ],
+        "files": {
+          "/usr/share/doc/muse-video-bridge/LICENSE": "../LICENSE",
+          "/usr/share/doc/muse-video-bridge/INSTALL.md": "../docs/INSTALL.md",
+          "/usr/share/doc/muse-video-bridge/licenses": "../release-artifacts/dependency-notices"
+        }
+      },
+      "rpm": {
+        "depends": [
+          "webkit2gtk4.1",
+          "gtk3",
+          "systemd-libs",
+          "ffmpeg >= 8.0"
+        ],
+        "files": {
+          "/usr/share/doc/muse-video-bridge/LICENSE": "../LICENSE",
+          "/usr/share/doc/muse-video-bridge/INSTALL.md": "../docs/INSTALL.md",
+          "/usr/share/doc/muse-video-bridge/licenses": "../release-artifacts/dependency-notices"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "status": "seed-catalogs; runtime-service-required-in-phase-2",
+  "default_locale": "tr",
+  "available_locales": ["tr", "en"],
+  "first_run_follows_os_locale": false,
+  "saved_valid_preference_wins": true,
+  "number_locales": { "tr": "tr-TR", "en": "en-US" },
+  "all_application_strings_require_keys": true,
+  "technical_documentation_language": "en"
+}

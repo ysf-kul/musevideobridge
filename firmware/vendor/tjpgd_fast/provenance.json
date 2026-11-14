@@ -1,0 +1,35 @@
+{
+  "source_commit": "1a02bef72a701d4d4d35865c7f006d41e6571da8",
+  "upstream": [
+    {
+      "file": "Espressif_tjpgd_tjpgd.c",
+      "url": "https://raw.githubusercontent.com/espressif/idf-extra-components/1a02bef72a701d4d4d35865c7f006d41e6571da8/esp_jpeg/tjpgd/tjpgd.c",
+      "bytes": 58323,
+      "sha256": "789f62d6c5e7ddc1e09599a67c3686d840a2b27e44c4a33317d59d93b279ce1a"
+    },
+    {
+      "file": "Espressif_tjpgd_tjpgd.h",
+      "url": "https://raw.githubusercontent.com/espressif/idf-extra-components/1a02bef72a701d4d4d35865c7f006d41e6571da8/esp_jpeg/tjpgd/tjpgd.h",
+      "bytes": 3908,
+      "sha256": "3b242db7108427fd64792bb9fa139a59404787385bb94fb1e569695ba84a8b81"
+    },
+    {
+      "file": "Espressif_tjpgd_tjpgdcnf.h",
+      "url": "https://raw.githubusercontent.com/espressif/idf-extra-components/1a02bef72a701d4d4d35865c7f006d41e6571da8/esp_jpeg/tjpgd/tjpgdcnf.h",
+      "bytes": 1601,
+      "sha256": "c70fffd7fbd6a95d5aff7513cf01073a7cecb4b61b4b4a860be5c3780a604be9"
+    }
+  ],
+  "local_changes": [
+    "Prefix public decoder types, results, configuration and entry points to prevent mixing modern software and ROM ABIs.",
+    "Use standard stdint.h on all compilers.",
+    "Nine explicit allocation-pointer casts make unchanged C decoding arithmetic valid in C++ builds.",
+    "Custom configuration: input512/RGB565/scale0/clip1/FASTDECODE2/default-Huffman0."
+  ],
+  "local_sha256": {
+    "tjpgd.c": "1abe234aee59287f5a9461ae9966bc840a25d04f5c57d3394079177ac00e8c49",
+    "tjpgd.h": "64cf0623d3ac4ef5a2e7bc0e2efcf9e070d4ff37e736651b045a088981533d65",
+    "tjpgdcnf.h": "6f26235ecda01f940d7c12f5cc2035131c09778991ca61d32dd805450f1ff262",
+    "LICENSE": "a38259d2990c6b4a0d688bbaf27fb52b7867a9d04677d12600263f8a9814e0f8"
+  }
+}

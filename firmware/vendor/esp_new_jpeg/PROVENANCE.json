@@ -1,0 +1,52 @@
+{
+  "package": "espressif/esp_new_jpeg",
+  "version": "1.0.2",
+  "upstream_repository": "https://github.com/espressif/esp-adf-libs",
+  "upstream_commit": "7162d32381d6e1f8c8cba2ee5edcbfe82bc964b1",
+  "download_date": "2026-11-13",
+  "target": "esp32",
+  "files": [
+    {
+      "file": "UPSTREAM_README.md",
+      "url": "https://raw.githubusercontent.com/espressif/esp-adf-libs/7162d32381d6e1f8c8cba2ee5edcbfe82bc964b1/esp_new_jpeg/README.md",
+      "sha256": "479678a2143c9731913ec61282a0e6edd1f4a52e1b0f88eaf75dc3530f993d32",
+      "size": 12598
+    },
+    {
+      "file": "idf_component.yml",
+      "url": "https://raw.githubusercontent.com/espressif/esp-adf-libs/7162d32381d6e1f8c8cba2ee5edcbfe82bc964b1/esp_new_jpeg/idf_component.yml",
+      "sha256": "af415bea386191b93ec1246478ef2f68deee1db4a7c0620fc87b2ab7a6367060",
+      "size": 424
+    },
+    {
+      "file": "CMakeLists.txt",
+      "url": "https://raw.githubusercontent.com/espressif/esp-adf-libs/7162d32381d6e1f8c8cba2ee5edcbfe82bc964b1/esp_new_jpeg/CMakeLists.txt",
+      "sha256": "742e44bed0ef8fc9d323759e70afbee8e037d4404855e467e202b0b7987a8e42",
+      "size": 310
+    },
+    {
+      "file": "LICENSE",
+      "url": "https://raw.githubusercontent.com/espressif/esp-adf-libs/7162d32381d6e1f8c8cba2ee5edcbfe82bc964b1/esp_new_jpeg/LICENSE",
+      "sha256": "0bf7f2018fffa1caff5ecbf10d79707b218eea4e26b8c705d744de4556552815",
+      "size": 1186
+    },
+    {
+      "file": "include/esp_jpeg_dec.h",
+      "url": "https://raw.githubusercontent.com/espressif/esp-adf-libs/7162d32381d6e1f8c8cba2ee5edcbfe82bc964b1/esp_new_jpeg/include/esp_jpeg_dec.h",
+      "sha256": "136aa1cb155444fb460292b86c6e6ee1c6cc644681c647d268a56bec6aa67d47",
+      "size": 7067
+    },
+    {
+      "file": "include/esp_jpeg_common.h",
+      "url": "https://raw.githubusercontent.com/espressif/esp-adf-libs/7162d32381d6e1f8c8cba2ee5edcbfe82bc964b1/esp_new_jpeg/include/esp_jpeg_common.h",
+      "sha256": "c0852f3a5322af939c8f59fe7ba1ab231a143b6397def11847a7d955bfdb39c6",
+      "size": 6227
+    },
+    {
+      "file": "lib/esp32/libesp_new_jpeg.a",
+      "url": "https://raw.githubusercontent.com/espressif/esp-adf-libs/7162d32381d6e1f8c8cba2ee5edcbfe82bc964b1/esp_new_jpeg/lib/esp32/libesp_new_jpeg.a",
+      "sha256": "42f226866a13580988d9eed2f907da92955ec40f107f47f64460c72310c65d6f",
+      "size": 2397506
+    }
+  ]
+}

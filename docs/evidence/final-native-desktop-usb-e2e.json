@@ -1,0 +1,636 @@
+{
+  "schema_version": 1,
+  "session_date": "2026-11-13",
+  "test_date_local": "2026-11-14",
+  "timezone": "Europe/Istanbul",
+  "outcome": "PASS: final native desktop -> USB -> installed microSD -> full verification -> actual firmware playback and live controls",
+  "platform": "CachyOS Linux VM; actual native Tauri/WebKit app and real CH340-connected ESP32",
+  "simulator": false,
+  "native_app": {
+    "path": "target/debug/muse-video-bridge",
+    "sha256": "a511703a8a8673542cd624d803a0356d3a792657cfe6851bd86f0cd2cd723fd3",
+    "build_command": "npm run tauri -- build --debug --no-bundle",
+    "build_passed": true,
+    "build_log": ".verification/session-2026-11-13/final-native-desktop/final-build.log",
+    "media_source_sha256": "0c91f828cfd2cdd3d0ec574540f935d41b272b9271fa5071df9592353542e114"
+  },
+  "firmware": {
+    "environment": "cyd_optimized_input_aligned",
+    "bytes": 665888,
+    "sha256": "3de1a18fdd0eb993c6fb53a311317ebe62e2b82b07ec634f030d21496483343f",
+    "flash_and_hash_verified_by": "parent hardware task before exclusive serial handoff",
+    "configuration_changed_by_native_test": false,
+    "controller": "ILI9341",
+    "psram_bytes": 0
+  },
+  "automation": {
+    "selection_and_conversion": "Actual XTest mouse/keyboard and native MP4 picker/Convert button",
+    "transfer_and_live_controls": "Single local WebKit inspector clicked actual production DOM buttons and dispatched normal input/change events; production Svelte -> Tauri -> serial handlers unchanged",
+    "reason_for_dom_automation": "VM window was restored through _NET_ACTIVE_WINDOW; XTest pointer events still missed intended controls, so parent explicitly authorized production DOM automation",
+    "device_state": "Existing production snapshot IPC only; no simulated transport, injected device state or direct backend upload calls",
+    "native_close": "Actual WM_DELETE_WINDOW close event"
+  },
+  "native_preparation": {
+    "turkish_first_launch_observed": true,
+    "english_persistent_after_clean_relaunch": true,
+    "themes_and_window_sizes_checked": [
+      "light1160x860",
+      "dark600x700"
+    ],
+    "source": {
+      "path": ".verification/usb-playback/encoding-source/detail-pattern.mp4",
+      "bytes": 35842115,
+      "sha256": "484143c9e5352efa1b64cf52924b41f17f739adc4d3022f4a81685a700a32672",
+      "source_fps": {
+        "numerator": 30,
+        "denominator": 1
+      }
+    },
+    "source_resolution": [
+      640,
+      480
+    ],
+    "source_fps": 30,
+    "prepared_path": ".verification/session-2026-11-13/final-native-desktop/cache/dev.muse.videobridge/job-1794603172407/video.mvb",
+    "prepared_resolution": [
+      320,
+      240
+    ],
+    "prepared_fps": 25,
+    "qscale": 8,
+    "scaling": "bicubic",
+    "optimal_huffman": true,
+    "frames": 300,
+    "duration_seconds": 12,
+    "bytes": 2444120,
+    "sha256": "9c19f630b9b2205dc5c25932c64b377f9b811dd3023dc5d68be73928bdee7fb7",
+    "source_unchanged": true
+  },
+  "workflow": {
+    "port": "/dev/ttyUSB0",
+    "baud": 115200,
+    "native_selected_video": true,
+    "native_convert": true,
+    "production_connect_send_cancel_controls": true,
+    "mounted_card_export_used": false,
+    "sd_remained_inside_device": true,
+    "incremental_sd_write": true,
+    "full_size_and_sha_verified": true,
+    "automatic_playback_after_verified_upload": true,
+    "live_controls_passed": true
+  },
+  "cancellation": {
+    "trigger_snapshot_confirmed_bytes": 105472,
+    "last_sampled_confirmed_bytes_before_terminal": 124928,
+    "minimum_64KiB_met": true,
+    "terminal_job": {
+      "error": {
+        "code": "cancelled",
+        "details": "Operation cancelled"
+      },
+      "id": "1794608401882",
+      "kind": "upload",
+      "running": false,
+      "stage": "cancelled"
+    },
+    "unconfirmed_cleanup_warning": false,
+    "sd_free_bytes_before": 3712376832,
+    "sd_free_bytes_after": 3712376832,
+    "resend_started_from_zero": true,
+    "exact_final_sd_cancel_offset": "not separately recorded; values above are acknowledged progress snapshots",
+    "unrelated_files_removed": false
+  },
+  "transfer_result": {
+    "accepted_offset": 2444120,
+    "checkpointed_offset": 2444120,
+    "chunk_bytes": 1024,
+    "error": null,
+    "host_transfer": {
+      "confirmed_bytes_per_second": 9910.806101578011,
+      "end_to_end_seconds": 262.909876767,
+      "host_diagnostics": {
+        "baud_discovery_attempts": [
+          115200
+        ],
+        "baud_discovery_results": [
+          {
+            "ack_timeout_ms": 3000,
+            "baud": 115200,
+            "connected": true,
+            "diagnostics": {
+              "buffered_receive_bytes": 29,
+              "invalid_wire_frames": 1,
+              "read_calls": 490,
+              "received_bytes": 14945,
+              "response_timeouts": 2,
+              "retry_attempts": 2,
+              "scope": "this_baud_candidate",
+              "write_calls": 3,
+              "written_bytes": 354
+            },
+            "elapsed_ms": 6322.348667,
+            "last_error": null,
+            "max_attempts": 3
+          }
+        ],
+        "buffered_receive_bytes": 0,
+        "configured_uart_baud": 115200,
+        "invalid_wire_frames": 5,
+        "queued_events": 3,
+        "scope": "connection_lifetime",
+        "transport": {
+          "read_calls": 13717,
+          "received_bytes": 367319,
+          "response_timeouts": 2,
+          "retry_attempts": 2,
+          "write_calls": 2652,
+          "written_bytes": 2670271
+        }
+      },
+      "newly_confirmed_bytes": 2444120,
+      "receiving_seconds": 246.611625225,
+      "resumed_offset": 0,
+      "verification_seconds": 15.933068929000001
+    },
+    "sha256": "9c19f630b9b2205dc5c25932c64b377f9b811dd3023dc5d68be73928bdee7fb7",
+    "size": 2444120,
+    "state": "complete",
+    "transfer_id": 800661558,
+    "verified_bytes": 2444120
+  },
+  "device_after_transfer": {
+    "actual_fps": null,
+    "actual_fps_source": "completed_frame_draws",
+    "connected": true,
+    "content_sha256": "9c19f630b9b2205dc5c25932c64b377f9b811dd3023dc5d68be73928bdee7fb7",
+    "decode_us": 27803,
+    "draw_us": 3802,
+    "dropped_frames": 0,
+    "encoded_fps": {
+      "denominator": 1,
+      "numerator": 25
+    },
+    "error": null,
+    "error_count": 0,
+    "frame_count": 300,
+    "frame_index": 1,
+    "frame_pts_us": 40000,
+    "hardware": {
+      "allocator_total_bytes": 289560,
+      "cpu_measurement_window_us": 624145,
+      "cpu_mhz": 240,
+      "cpu_utilization_percent": 52.32109526,
+      "cpu_utilization_scope": "mean_of_both_cores",
+      "cpu_utilization_status": "measured_idle_runtime_delta",
+      "flash_bytes": 4194304,
+      "free_heap_bytes": 34600,
+      "free_psram_bytes": 0,
+      "largest_free_block_bytes": 30708,
+      "minimum_free_heap_bytes": 29576,
+      "psram_bytes": 0,
+      "sd_card_bytes": 3967811584,
+      "sd_free_bytes": 3709927424,
+      "sd_total_bytes": 3957325824,
+      "simulator": false,
+      "soc_sram_bytes": 532480,
+      "temperature_c": null,
+      "temperature_status": "unsupported_calibrated_classic_esp32_sensor",
+      "uptime_us": 331204967,
+      "wifi_rssi_dbm": null,
+      "wifi_status": "disabled"
+    },
+    "late_frames": 2,
+    "playhead_generation": 3,
+    "position_us": 98454,
+    "rate_skipped_frames": 0,
+    "read_us": 16313,
+    "sd_mounted": true,
+    "sd_read_bytes": 7611,
+    "sd_read_bytes_per_second": 466560.4119,
+    "state": "playing",
+    "state_revision": 3,
+    "target_fps": {
+      "denominator": 1,
+      "numerator": 25
+    },
+    "transform": {
+      "height": 240,
+      "lock_aspect": true,
+      "rotation_deg": 0,
+      "width": 320,
+      "x": 0,
+      "y": 0
+    }
+  },
+  "playback_fps": {
+    "source_fps": 30,
+    "prepared_fps": 25,
+    "requested_fps": 25,
+    "actual_fps_sample_median": 24.99748775,
+    "actual_fps_sample_range": [
+      24.91872757,
+      25.49755223
+    ],
+    "scope": "Short-window firmware completed-frame telemetry samples; cached snapshots may repeat. Sustained exact-image FPS and pixel checks are separate parent hardware results.",
+    "samples_evidence": ".verification/session-2026-11-13/final-native-desktop/fps-final-native-samples.json",
+    "requested15_sample_actual_fps": 14.99758539
+  },
+  "native_controls": [
+    {
+      "name": "restart-playing",
+      "evidence": ".verification/session-2026-11-13/final-native-desktop/control-final-restart-playing.json",
+      "captured_at_unix": 1794608863.694,
+      "connection": "connected",
+      "state": "playing",
+      "frame_index": 60,
+      "transform": {
+        "height": 240,
+        "lock_aspect": true,
+        "rotation_deg": 0,
+        "width": 320,
+        "x": 0,
+        "y": 0
+      },
+      "target_fps": {
+        "denominator": 1,
+        "numerator": 25
+      },
+      "actual_fps": 25.38667389,
+      "error": null,
+      "error_count": 0,
+      "playhead_generation": 5
+    },
+    {
+      "name": "paused",
+      "evidence": ".verification/session-2026-11-13/final-native-desktop/control-final-paused.json",
+      "captured_at_unix": 1794608865.698,
+      "connection": "connected",
+      "state": "paused",
+      "frame_index": 102,
+      "transform": {
+        "height": 240,
+        "lock_aspect": true,
+        "rotation_deg": 0,
+        "width": 320,
+        "x": 0,
+        "y": 0
+      },
+      "target_fps": {
+        "denominator": 1,
+        "numerator": 25
+      },
+      "actual_fps": 0,
+      "error": null,
+      "error_count": 0,
+      "playhead_generation": 5
+    },
+    {
+      "name": "size",
+      "evidence": ".verification/session-2026-11-13/final-native-desktop/control-final-size.json",
+      "captured_at_unix": 1794608869.702,
+      "connection": "connected",
+      "state": "paused",
+      "frame_index": 102,
+      "transform": {
+        "height": 120,
+        "lock_aspect": true,
+        "rotation_deg": 0,
+        "width": 160,
+        "x": 0,
+        "y": 0
+      },
+      "target_fps": {
+        "denominator": 1,
+        "numerator": 25
+      },
+      "actual_fps": 0,
+      "error": null,
+      "error_count": 0,
+      "playhead_generation": 5
+    },
+    {
+      "name": "x-position",
+      "evidence": ".verification/session-2026-11-13/final-native-desktop/control-final-x-position.json",
+      "captured_at_unix": 1794608871.703,
+      "connection": "connected",
+      "state": "paused",
+      "frame_index": 102,
+      "transform": {
+        "height": 120,
+        "lock_aspect": true,
+        "rotation_deg": 0,
+        "width": 160,
+        "x": 16,
+        "y": 0
+      },
+      "target_fps": {
+        "denominator": 1,
+        "numerator": 25
+      },
+      "actual_fps": 0,
+      "error": null,
+      "error_count": 0,
+      "playhead_generation": 5
+    },
+    {
+      "name": "y-position",
+      "evidence": ".verification/session-2026-11-13/final-native-desktop/control-final-y-position.json",
+      "captured_at_unix": 1794608873.704,
+      "connection": "connected",
+      "state": "paused",
+      "frame_index": 102,
+      "transform": {
+        "height": 120,
+        "lock_aspect": true,
+        "rotation_deg": 0,
+        "width": 160,
+        "x": 16,
+        "y": 8
+      },
+      "target_fps": {
+        "denominator": 1,
+        "numerator": 25
+      },
+      "actual_fps": 0,
+      "error": null,
+      "error_count": 0,
+      "playhead_generation": 5
+    },
+    {
+      "name": "rotation-90",
+      "evidence": ".verification/session-2026-11-13/final-native-desktop/control-final-rotation-90.json",
+      "captured_at_unix": 1794608875.706,
+      "connection": "connected",
+      "state": "paused",
+      "frame_index": 102,
+      "transform": {
+        "height": 160,
+        "lock_aspect": true,
+        "rotation_deg": 90,
+        "width": 120,
+        "x": 36,
+        "y": -12
+      },
+      "target_fps": {
+        "denominator": 1,
+        "numerator": 25
+      },
+      "actual_fps": 0,
+      "error": null,
+      "error_count": 0,
+      "playhead_generation": 5
+    },
+    {
+      "name": "rotation-180",
+      "evidence": ".verification/session-2026-11-13/final-native-desktop/control-final-rotation-180.json",
+      "captured_at_unix": 1794608877.708,
+      "connection": "connected",
+      "state": "paused",
+      "frame_index": 102,
+      "transform": {
+        "height": 120,
+        "lock_aspect": true,
+        "rotation_deg": 180,
+        "width": 160,
+        "x": 16,
+        "y": 8
+      },
+      "target_fps": {
+        "denominator": 1,
+        "numerator": 25
+      },
+      "actual_fps": 0,
+      "error": null,
+      "error_count": 0,
+      "playhead_generation": 5
+    },
+    {
+      "name": "rotation-270",
+      "evidence": ".verification/session-2026-11-13/final-native-desktop/control-final-rotation-270.json",
+      "captured_at_unix": 1794608882.712,
+      "connection": "connected",
+      "state": "paused",
+      "frame_index": 102,
+      "transform": {
+        "height": 160,
+        "lock_aspect": true,
+        "rotation_deg": 270,
+        "width": 120,
+        "x": 36,
+        "y": -12
+      },
+      "target_fps": {
+        "denominator": 1,
+        "numerator": 25
+      },
+      "actual_fps": 0,
+      "error": null,
+      "error_count": 0,
+      "playhead_generation": 5
+    },
+    {
+      "name": "reset-defaults",
+      "evidence": ".verification/session-2026-11-13/final-native-desktop/control-final-reset-defaults.json",
+      "captured_at_unix": 1794608884.713,
+      "connection": "connected",
+      "state": "paused",
+      "frame_index": 102,
+      "transform": {
+        "height": 240,
+        "lock_aspect": true,
+        "rotation_deg": 0,
+        "width": 320,
+        "x": 0,
+        "y": 0
+      },
+      "target_fps": {
+        "denominator": 1,
+        "numerator": 25
+      },
+      "actual_fps": 0,
+      "error": null,
+      "error_count": 0,
+      "playhead_generation": 5
+    },
+    {
+      "name": "fps15-paused",
+      "evidence": ".verification/session-2026-11-13/final-native-desktop/control-final-fps15-paused.json",
+      "captured_at_unix": 1794608886.715,
+      "connection": "connected",
+      "state": "paused",
+      "frame_index": 102,
+      "transform": {
+        "height": 240,
+        "lock_aspect": true,
+        "rotation_deg": 0,
+        "width": 320,
+        "x": 0,
+        "y": 0
+      },
+      "target_fps": {
+        "denominator": 1,
+        "numerator": 15
+      },
+      "actual_fps": 0,
+      "error": null,
+      "error_count": 0,
+      "playhead_generation": 5
+    },
+    {
+      "name": "resumed15",
+      "evidence": ".verification/session-2026-11-13/final-native-desktop/control-final-resumed15.json",
+      "captured_at_unix": 1794608890.718,
+      "connection": "connected",
+      "state": "playing",
+      "frame_index": 162,
+      "transform": {
+        "height": 240,
+        "lock_aspect": true,
+        "rotation_deg": 0,
+        "width": 320,
+        "x": 0,
+        "y": 0
+      },
+      "target_fps": {
+        "denominator": 1,
+        "numerator": 15
+      },
+      "actual_fps": 14.99758539,
+      "error": null,
+      "error_count": 0,
+      "playhead_generation": 5
+    },
+    {
+      "name": "fps25",
+      "evidence": ".verification/session-2026-11-13/final-native-desktop/control-final-fps25.json",
+      "captured_at_unix": 1794608892.718,
+      "connection": "connected",
+      "state": "playing",
+      "frame_index": 202,
+      "transform": {
+        "height": 240,
+        "lock_aspect": true,
+        "rotation_deg": 0,
+        "width": 320,
+        "x": 0,
+        "y": 0
+      },
+      "target_fps": {
+        "denominator": 1,
+        "numerator": 25
+      },
+      "actual_fps": 14.86815662,
+      "error": null,
+      "error_count": 0,
+      "playhead_generation": 5
+    },
+    {
+      "name": "restored25-playing",
+      "evidence": ".verification/session-2026-11-13/final-native-desktop/control-final-restored25-playing.json",
+      "captured_at_unix": 1794608896.726,
+      "connection": "connected",
+      "state": "playing",
+      "frame_index": 62,
+      "transform": {
+        "height": 240,
+        "lock_aspect": true,
+        "rotation_deg": 0,
+        "width": 320,
+        "x": 0,
+        "y": 0
+      },
+      "target_fps": {
+        "denominator": 1,
+        "numerator": 25
+      },
+      "actual_fps": 25.49711883,
+      "error": null,
+      "error_count": 0,
+      "playhead_generation": 6
+    },
+    {
+      "name": "stopped",
+      "evidence": ".verification/session-2026-11-13/final-native-desktop/control-final-stopped.json",
+      "captured_at_unix": 1794608898.724,
+      "connection": "connected",
+      "state": "stopped",
+      "frame_index": null,
+      "transform": {
+        "height": 240,
+        "lock_aspect": true,
+        "rotation_deg": 0,
+        "width": 320,
+        "x": 0,
+        "y": 0
+      },
+      "target_fps": {
+        "denominator": 1,
+        "numerator": 25
+      },
+      "actual_fps": 0,
+      "error": null,
+      "error_count": 0,
+      "playhead_generation": 7
+    },
+    {
+      "name": "disconnected",
+      "evidence": ".verification/session-2026-11-13/final-native-desktop/control-final-disconnected.json",
+      "captured_at_unix": 1794608900.726,
+      "connection": "disconnected",
+      "state": "stopped",
+      "frame_index": null,
+      "transform": {
+        "height": 240,
+        "lock_aspect": true,
+        "rotation_deg": 0,
+        "width": 320,
+        "x": 0,
+        "y": 0
+      },
+      "target_fps": {
+        "denominator": 1,
+        "numerator": 25
+      },
+      "actual_fps": 0,
+      "error": null,
+      "error_count": 0,
+      "playhead_generation": 7
+    }
+  ],
+  "cleanup": {
+    "native_disconnect_confirmed": true,
+    "serial_descriptors_after_disconnect": [],
+    "serial_descriptor_released": true,
+    "native_window_closed_via": "actual WM_DELETE_WINDOW close event",
+    "native_process_exited": true,
+    "unrelated_files_deleted": false,
+    "user_settings_reset": false,
+    "sd_formatted": false,
+    "native_unified_exec_exit_code": 143,
+    "observer_unified_exec_exit_code": 1,
+    "controls_harness_exit_code": 0,
+    "normal_exit_zero_demonstrated": false
+  },
+  "evidence_files": [
+    ".verification/session-2026-11-13/final-native-desktop/46-final-connected.json",
+    ".verification/session-2026-11-13/final-native-desktop/47-native-before-cancel.json",
+    ".verification/session-2026-11-13/final-native-desktop/48-native-cancelled.json",
+    ".verification/session-2026-11-13/final-native-desktop/49-full-resend-progress.png",
+    ".verification/session-2026-11-13/final-native-desktop/final-native-ui-success.json",
+    ".verification/session-2026-11-13/final-native-desktop/final-native-ui-snapshots.ndjson",
+    ".verification/session-2026-11-13/final-native-desktop/final-native-ui-actions.ndjson",
+    ".verification/session-2026-11-13/final-native-desktop/final-native-ui-action-results.ndjson",
+    ".verification/session-2026-11-13/final-native-desktop/controls-final.json",
+    ".verification/session-2026-11-13/final-native-desktop/controls-final.log",
+    ".verification/session-2026-11-13/final-native-desktop/cleanup-final.json",
+    ".verification/session-2026-11-13/final-native-desktop/preparation-resumed.json"
+  ],
+  "limitations": [
+    "This native acceptance does not independently photograph the physical TFT or qualify visual integrity of every transformation; parent exact-image sustained pixel checks are documented separately.",
+    "Windows runtime/physical USB acceptance remains untested; this is a Linux native runtime result.",
+    "Connection-lifetime final diagnostics include initial discovery and cancelled-upload activity: 2 ACK timeouts/retries, 5 rejected wire frames. They are not transfer-only failure counts.",
+    "Initial read-only observer and XTest restore/focus attempts failed to target the VM window before any serial transfer; production DOM automation then completed the actual workflow.",
+    "GTK file-picker warnings were recorded in resumed-app.log; native selection/conversion completed successfully.",
+    "After verified transfer and confirmed serial disconnection, WM_DELETE_WINDOW teardown ended with native unified exec status143 and observer status1 after WebKit closure. These teardown statuses are disclosed separately from the successful controls harness (exit0); normal app exit0 was not demonstrated."
+  ]
+}

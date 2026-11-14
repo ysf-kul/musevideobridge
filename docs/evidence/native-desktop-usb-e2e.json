@@ -1,0 +1,184 @@
+{
+  "schema_version": 1,
+  "test_date": "2026-11-13",
+  "platform": "CachyOS Linux VM; real Tauri/WebKit native window and CH340-connected ESP32",
+  "transport": "/dev/ttyUSB0",
+  "uart_baud": 115200,
+  "simulator": false,
+  "native_app": {
+    "path": "target/debug/muse-video-bridge",
+    "bytes": 218491192,
+    "sha256": "b3851e4955a9b97067e00ae4d6faf92a8c4b86a2e185fa2f5818c9e4e869c620",
+    "test_configuration": "Separate verification config/cache; local WebKit inspector used only to read existing snapshot/DOM; actions performed with native XTest mouse/keyboard"
+  },
+  "workflow": {
+    "native_mp4_picker": true,
+    "native_conversion": true,
+    "native_send_over_usb_button": true,
+    "native_selected_port_connect": true,
+    "mounted_sd_export_used": false,
+    "sd_left_inside_device": true,
+    "sd_write_verified_by_firmware": true,
+    "auto_play_after_verification": true
+  },
+  "media": {
+    "source": "Generated detail-pattern.mp4",
+    "source_sha256": "484143c9e5352efa1b64cf52924b41f17f739adc4d3022f4a81685a700a32672",
+    "source_resolution": [
+      640,
+      480
+    ],
+    "source_fps": 30,
+    "prepared_resolution": [
+      320,
+      240
+    ],
+    "prepared_fps": 30,
+    "qscale": 8,
+    "scaling": "bicubic",
+    "frames": 360,
+    "duration_seconds": 12,
+    "bytes": 3327948,
+    "sha256": "5cef59ed0bd6410d54d93932bd450402676b71fe563e9c8d50bbc47f89f1807e"
+  },
+  "initial_failure": {
+    "native_desktop": true,
+    "selected_port": "/dev/ttyUSB0",
+    "connected": true,
+    "prepared_bytes": 3327948,
+    "prepared_sha256": "5cef59ed0bd6410d54d93932bd450402676b71fe563e9c8d50bbc47f89f1807e",
+    "result": "failed_at_begin_upload",
+    "error": {
+      "code": "upload_conflict",
+      "details": "Transfer start failed; existing videos and recovery files retained"
+    },
+    "confirmed_uploaded_bytes": 0,
+    "data_discarded": false,
+    "screen_evidence": "10-upload-error-details.png",
+    "recorded_at_unix": 1794583007.595188
+  },
+  "final_transfer_result": {
+    "accepted_offset": 3327948,
+    "checkpointed_offset": 3327948,
+    "chunk_bytes": 1024,
+    "error": null,
+    "host_transfer": {
+      "confirmed_bytes_per_second": 9845.350168235702,
+      "end_to_end_seconds": 376.113887414,
+      "host_diagnostics": {
+        "buffered_receive_bytes": 0,
+        "invalid_wire_frames": 41,
+        "queued_events": 2,
+        "scope": "connection_lifetime",
+        "transport": {
+          "read_calls": 127672,
+          "received_bytes": 3884705,
+          "response_timeouts": 14,
+          "retry_attempts": 14,
+          "write_calls": 4156,
+          "written_bytes": 3493472
+        }
+      },
+      "newly_confirmed_bytes": 3327948,
+      "receiving_seconds": 338.022309327,
+      "resumed_offset": 0,
+      "verification_seconds": 37.829769822
+    },
+    "sha256": "5cef59ed0bd6410d54d93932bd450402676b71fe563e9c8d50bbc47f89f1807e",
+    "size": 3327948,
+    "state": "complete",
+    "transfer_id": 3601344895,
+    "verified_bytes": 3327948
+  },
+  "device_after_transfer": {
+    "state": "playing",
+    "frame_index": 18,
+    "content_sha256": "5cef59ed0bd6410d54d93932bd450402676b71fe563e9c8d50bbc47f89f1807e",
+    "frame_count": 360,
+    "target_fps": {
+      "denominator": 1,
+      "numerator": 10
+    },
+    "actual_fps": null,
+    "error": null,
+    "error_count": 0,
+    "simulator": false,
+    "psram_bytes": 0
+  },
+  "native_controls": [
+    {
+      "evidence": ".verification/session-2026-11-13/physical-desktop/control-restart-playing.json",
+      "captured_at_unix": 1794585915.709,
+      "connection": "connected",
+      "state": "playing",
+      "frame_index": 45,
+      "frame_pts_us": 1500000,
+      "playhead_generation": 4,
+      "error": null
+    },
+    {
+      "evidence": ".verification/session-2026-11-13/physical-desktop/control-paused.json",
+      "captured_at_unix": 1794585916.95,
+      "connection": "connected",
+      "state": "paused",
+      "frame_index": 99,
+      "frame_pts_us": 3300000,
+      "playhead_generation": 4,
+      "error": null
+    },
+    {
+      "evidence": ".verification/session-2026-11-13/physical-desktop/control-resumed.json",
+      "captured_at_unix": 1794585919.386,
+      "connection": "connected",
+      "state": "playing",
+      "frame_index": 147,
+      "frame_pts_us": 4900000,
+      "playhead_generation": 4,
+      "error": null
+    },
+    {
+      "evidence": ".verification/session-2026-11-13/physical-desktop/control-stopped.json",
+      "captured_at_unix": 1794585920.63,
+      "connection": "connected",
+      "state": "stopped",
+      "frame_index": null,
+      "frame_pts_us": null,
+      "playhead_generation": 5,
+      "error": null
+    },
+    {
+      "evidence": ".verification/session-2026-11-13/physical-desktop/control-disconnected.json",
+      "captured_at_unix": 1794585921.852,
+      "connection": "disconnected",
+      "state": "stopped",
+      "frame_index": null,
+      "frame_pts_us": null,
+      "playhead_generation": 5,
+      "error": null
+    }
+  ],
+  "outcome": "PASS: full native desktop -> USB -> installed microSD transfer, full size/SHA verification, actual firmware decode/render frame progression, native pause/resume/stop/disconnect",
+  "limitations": [
+    "Screen photographs/camera capture were unavailable; desktop screenshot reconstructs reported frames and is not physical TFT capture.",
+    "This short desktop acceptance run does not establish stable actual FPS, TFT visual quality or Windows runtime support.",
+    "Host diagnostic counters are connection-lifetime totals, including activity before upload; they are not transfer-only failure counts.",
+    "The snapshot observer ended after the first 2,001,920 confirmed bytes and was restarted read-only; the native upload continued uninterrupted."
+  ],
+  "evidence_files": [
+    ".verification/session-2026-11-13/physical-desktop/preparation.json",
+    ".verification/session-2026-11-13/physical-desktop/retry-prepared-snapshot.json",
+    ".verification/session-2026-11-13/physical-desktop/recovered-dom.json",
+    ".verification/session-2026-11-13/physical-desktop/final-upload-snapshots.ndjson",
+    ".verification/session-2026-11-13/physical-desktop/final-upload-continuation-snapshots.ndjson",
+    ".verification/session-2026-11-13/physical-desktop/final-upload-continuation-success.json",
+    ".verification/session-2026-11-13/physical-desktop/17-final-upload-progress.png"
+  ],
+  "cleanup": {
+    "native_disconnect_confirmed": true,
+    "serial_descriptor_released": true,
+    "native_app_closed": true,
+    "user_settings_reset": false,
+    "unrelated_files_deleted": false,
+    "sd_formatted": false
+  }
+}

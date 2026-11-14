@@ -1,0 +1,182 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-13",
+  "scope": "Read-only installed-source and compiled-library investigation. No serial device opened; no code or hardware modified by this inspection.",
+  "arduino_version": "3.3.12",
+  "esp_idf_version": "5.5.5",
+  "source_evidence": [
+    {
+      "path": ".dev-tools/platformio-core/packages/toolchain-xtensa-esp-elf/xtensa-esp-elf/include/sys/config.h",
+      "bytes": 7464,
+      "sha256": "81b78e0c38c110ababfa02fc3e726f361c1d71d2c60c2d74ef373e330eba70f9"
+    },
+    {
+      "path": ".dev-tools/platformio-core/packages/toolchain-xtensa-esp-elf/xtensa-esp-elf/include/stdio.h",
+      "bytes": 29660,
+      "sha256": "c900e320b44518e1a214792b8caf7cffa683fda7bae2cb70714bdcd8087fe2f8"
+    },
+    {
+      "path": ".dev-tools/platformio-core/packages/framework-arduinoespressif32-esp32-libs/dio_qspi/include/sdkconfig.h",
+      "bytes": 75075,
+      "sha256": "19235ce930242f64152045a983aad90efc2d7b36d11a3495f047008c66c2f58b"
+    },
+    {
+      "path": ".dev-tools/platformio-core/packages/framework-arduinoespressif32/libraries/FS/src/vfs_api.cpp",
+      "bytes": 13973,
+      "sha256": "3d345bcb3b764f08c6e923dbacc96f27da10edb12beb774de439228057d14a54"
+    },
+    {
+      "path": ".dev-tools/platformio-core/packages/framework-arduinoespressif32/libraries/SD/src/sd_diskio.cpp",
+      "bytes": 24737,
+      "sha256": "fda00b53f23d4d93ab63a506b3197f27e24278a3f0d5da9c7590fff5ec37aa05"
+    },
+    {
+      "path": ".dev-tools/platformio-core/packages/framework-arduinoespressif32/libraries/SPI/src/SPI.cpp",
+      "bytes": 8726,
+      "sha256": "56bd839008c808f34defc2af715b76810f54f844c0643a6fbc9f2d8f3bda00a8"
+    },
+    {
+      "path": ".dev-tools/platformio-core/packages/framework-arduinoespressif32/cores/esp32/esp32-hal-spi.c",
+      "bytes": 62289,
+      "sha256": "a88381169809486ff8263c7eb7e04b5c42b9eccecea21c256e1ad3dc9b1b4aed"
+    },
+    {
+      "path": ".dev-tools/platformio-core/packages/toolchain-xtensa-esp-elf/xtensa-esp-elf/lib/esp32/psram/libc.a",
+      "bytes": 8925632,
+      "sha256": "69be39d1be3dc96338a0a3278dc7503d3d4acb0a54d201090ff8b33a0dd308a5"
+    },
+    {
+      "path": ".dev-tools/platformio-core/packages/framework-arduinoespressif32-esp32-libs/lib/libfatfs.a",
+      "bytes": 789536,
+      "sha256": "e6c97adaddcdf96954d9975ea15f68e8216486c1c4dcf5d9785301a091d2585e"
+    }
+  ],
+  "compiled_evidence": [
+    {
+      "symbol": "_fread_r",
+      "archive": ".dev-tools/platformio-core/packages/toolchain-xtensa-esp-elf/xtensa-esp-elf/lib/esp32/psram/libc.a",
+      "command": [
+        ".dev-tools/platformio-core/packages/toolchain-xtensa-esp-elf/bin/xtensa-esp32-elf-objdump",
+        "-dr",
+        "--disassemble=_fread_r",
+        ".dev-tools/platformio-core/packages/toolchain-xtensa-esp-elf/xtensa-esp-elf/lib/esp32/psram/libc.a"
+      ],
+      "evidence": ".verification/session-2026-11-13/sd-driver-inspection/_fread_r.txt"
+    },
+    {
+      "symbol": "__srefill_r",
+      "archive": ".dev-tools/platformio-core/packages/toolchain-xtensa-esp-elf/xtensa-esp-elf/lib/esp32/psram/libc.a",
+      "command": [
+        ".dev-tools/platformio-core/packages/toolchain-xtensa-esp-elf/bin/xtensa-esp32-elf-objdump",
+        "-dr",
+        "--disassemble=__srefill_r",
+        ".dev-tools/platformio-core/packages/toolchain-xtensa-esp-elf/xtensa-esp-elf/lib/esp32/psram/libc.a"
+      ],
+      "evidence": ".verification/session-2026-11-13/sd-driver-inspection/__srefill_r.txt"
+    },
+    {
+      "symbol": "__swhatbuf_r",
+      "archive": ".dev-tools/platformio-core/packages/toolchain-xtensa-esp-elf/xtensa-esp-elf/lib/esp32/psram/libc.a",
+      "command": [
+        ".dev-tools/platformio-core/packages/toolchain-xtensa-esp-elf/bin/xtensa-esp32-elf-objdump",
+        "-dr",
+        "--disassemble=__swhatbuf_r",
+        ".dev-tools/platformio-core/packages/toolchain-xtensa-esp-elf/xtensa-esp-elf/lib/esp32/psram/libc.a"
+      ],
+      "evidence": ".verification/session-2026-11-13/sd-driver-inspection/__swhatbuf_r.txt"
+    },
+    {
+      "symbol": "f_read",
+      "archive": ".dev-tools/platformio-core/packages/framework-arduinoespressif32-esp32-libs/lib/libfatfs.a",
+      "command": [
+        ".dev-tools/platformio-core/packages/toolchain-xtensa-esp-elf/bin/xtensa-esp32-elf-objdump",
+        "-dr",
+        "--disassemble=f_read",
+        ".dev-tools/platformio-core/packages/framework-arduinoespressif32-esp32-libs/lib/libfatfs.a"
+      ],
+      "evidence": ".verification/session-2026-11-13/sd-driver-inspection/f_read.txt"
+    },
+    {
+      "symbol": "validate",
+      "archive": ".dev-tools/platformio-core/packages/framework-arduinoespressif32-esp32-libs/lib/libfatfs.a",
+      "command": [
+        ".dev-tools/platformio-core/packages/toolchain-xtensa-esp-elf/bin/xtensa-esp32-elf-objdump",
+        "-dr",
+        "--disassemble=validate",
+        ".dev-tools/platformio-core/packages/framework-arduinoespressif32-esp32-libs/lib/libfatfs.a"
+      ],
+      "evidence": ".verification/session-2026-11-13/sd-driver-inspection/validate.txt"
+    },
+    {
+      "symbol": "vfs_fat_read",
+      "archive": ".dev-tools/platformio-core/packages/framework-arduinoespressif32-esp32-libs/lib/libfatfs.a",
+      "command": [
+        ".dev-tools/platformio-core/packages/toolchain-xtensa-esp-elf/bin/xtensa-esp32-elf-objdump",
+        "-dr",
+        "--disassemble=vfs_fat_read",
+        ".dev-tools/platformio-core/packages/framework-arduinoespressif32-esp32-libs/lib/libfatfs.a"
+      ],
+      "evidence": ".verification/session-2026-11-13/sd-driver-inspection/vfs_fat_read.txt"
+    }
+  ],
+  "confirmed_findings": [
+    {
+      "finding": "Espressif Newlib defaults to a 128-byte stdio buffer.",
+      "evidence": "sys/config.h unconditionally defines __BUFSIZ__ as 128 in its Espressif section. stdio.h maps BUFSIZ to that value. Compiled __swhatbuf_r selects 128 when st_blksize is zero."
+    },
+    {
+      "finding": "The installed FatFS VFS reports a zero preferred block size.",
+      "evidence": "dio_qspi sdkconfig.h sets CONFIG_FATFS_VFS_FSTAT_BLKSIZE to 0."
+    },
+    {
+      "finding": "The installed fread always refills its FILE buffer instead of bypassing it for large requests.",
+      "evidence": "Compiled _fread_r repeatedly copies buffered bytes and calls __srefill_r. Compiled __srefill_r invokes the underlying read callback with the FILE buffer size."
+    },
+    {
+      "finding": "Each FatFS f_read call validates storage status.",
+      "evidence": "Compiled f_read calls validate first. Compiled validate calls ff_disk_status. Arduino ff_sd_status acquires SPI and sends CMD13."
+    },
+    {
+      "finding": "The Arduino FS wrapper explicitly supplies 4096-byte buffering.",
+      "evidence": "vfs_api.cpp defines DEFAULT_FILE_BUFFER_SIZE as 4096. Its constructor calls setvbuf when st_blksize is zero. A checked direct fopen adapter bypasses this wrapper behavior."
+    },
+    {
+      "finding": "Arduino SD supports multi-sector CMD18 reads, but a 128-byte FatFS request cannot enter that path.",
+      "evidence": "ff_sd_read calls sdReadSectors when count exceeds one. sdReadSectors sends CMD18, receives 512-byte sectors, then sends CMD12. Compiled f_read requires at least one sector in its request before using a direct sector transfer."
+    },
+    {
+      "finding": "Arduino SPI receives payloads through a polled FIFO, without DMA.",
+      "evidence": "SPIClass::transferBytes calls spiTransferBytesNL inside a transaction. The latter transfers at most 64 bytes through the FIFO, busy-waits for spi->dev->cmd.usr, and copies FIFO words to the output. It creates no DMA descriptors."
+    },
+    {
+      "finding": "The Arduino SD driver caps higher requested frequencies.",
+      "evidence": "sd_diskio.cpp clamps card frequency to 25 MHz. The actual classic ESP32 divider and resulting bus rate require the separate hardware measurements."
+    }
+  ],
+  "calculated_implications": {
+    "aligned_153600_byte_read_refills_at128": 1200,
+    "aligned_153600_byte_read_refills_at4096": 38,
+    "aligned_153600_byte_read_refills_at8192": 19,
+    "caveat": "Counts are ideal buffer-refill calculations. Runtime counters, request alignment, cache state and filesystem boundaries determine actual count."
+  },
+  "recommended_measurement_order": [
+    "Compare 128, 4096 and 8192-byte buffering on rb handles using the same file, clock and offset. Verify size/CRC and inspect the actual FILE buffer size.",
+    "Compare direct POSIX read/lseek on a dedicated descriptor for the bulk baseline. Never mix descriptor offsets with buffered stdio on the same handle.",
+    "Count underlying VFS read request sizes, ff_sd_status calls, and ff_sd_read requests for one sector versus multiple sectors.",
+    "Measure command time separately for CMD13, CMD17, CMD18 and CMD12; then token wait time and poll count, 512-byte payload transfer, CRC16, and retries.",
+    "Use the read-only contiguous-file check to separate fragmentation from driver overhead."
+  ],
+  "alternative_driver": {
+    "preferred_candidate": "Existing ESP-IDF SDSPI plus FatFS before adding SdFat.",
+    "interface": "esp_vfs_fat_sdspi_mount and spi_bus_initialize on SPI3_HOST (VSPI), using SCK18, MOSI23, MISO19 and CS5; TFT remains on SPI2_HOST (HSPI).",
+    "properties": [
+      "Uses the installed SDK driver and can enable DMA.",
+      "Retains the /sd stdio/POSIX paths and checked fsync behavior.",
+      "disk_status_check_enable defaults to false; compare true/false while preserving read-error and card-removal handling.",
+      "SD-specific metadata methods need an adapter. A generic fs::FS with VFSImpl bound to /sd can retain existing directory operations. Calling the global SD object after mounting only through IDF is insufficient.",
+      "Release SD and Arduino SPI ownership before initializing the IDF bus; clean up every mount/unmount failure. Keep format_if_mount_failed false."
+    ],
+    "second_candidate": "A pinned SdFat driver with dedicated SPI and a direct file adapter, if measured results still justify the larger integration."
+  },
+  "qualification": "The compiled 128-byte default and call path are confirmed. The fraction of the measured 517/447 ms bulk-read and 31/27 ms playback-read times attributable to this behavior still requires a device benchmark."
+}

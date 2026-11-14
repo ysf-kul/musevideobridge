@@ -1,0 +1,344 @@
+{
+  "scope": "host-only synthetic MP4 and MJPEG AVI encoding research",
+  "hardware_tested": false,
+  "generated_at_utc": "20261111T175751Z",
+  "host": "Linux-7.3.3-1-cachyos-x86_64-with-glibc2.44",
+  "ffmpeg": "ffmpeg version n9.0.2 Copyright (c) 2000-2026 the FFmpeg developers",
+  "ffprobe": "ffprobe version n9.0.2 Copyright (c) 2007-2026 the FFmpeg developers",
+  "container_model": "draft: 96-byte header, 16-byte frame records padded to 4, 24-byte index entries",
+  "result": "passed: all 12 AVI cases parsed and decoded on host",
+  "cases": [
+    {
+      "corpus": "pattern",
+      "source_sha256": "e16610852cdc8821f14145177aa1432fbe9535d8a22f58337643b8414ea10ce9",
+      "fps": 10,
+      "qscale": 4,
+      "frames": 40,
+      "jpeg_header": {
+        "sof": "0xc0",
+        "precision": 8,
+        "height": 180,
+        "width": 320,
+        "components": 3,
+        "sampling": [
+          "0x22",
+          "0x11",
+          "0x11"
+        ]
+      },
+      "jpeg_payload_sha256": "8fb59fcfadea5402ce8f504dd00ff8a6393d038a363126fcd04e22ee2a5ade01",
+      "mean_frame_bytes": 8322.2,
+      "max_frame_bytes": 9082,
+      "payload_bytes": 332888,
+      "avi_bytes_measured": 339628,
+      "custom_bytes_modeled": 334644,
+      "conversion_seconds_host": 0.0861,
+      "decode_seconds_host": 0.0471
+    },
+    {
+      "corpus": "pattern",
+      "source_sha256": "e16610852cdc8821f14145177aa1432fbe9535d8a22f58337643b8414ea10ce9",
+      "fps": 10,
+      "qscale": 8,
+      "frames": 40,
+      "jpeg_header": {
+        "sof": "0xc0",
+        "precision": 8,
+        "height": 180,
+        "width": 320,
+        "components": 3,
+        "sampling": [
+          "0x22",
+          "0x11",
+          "0x11"
+        ]
+      },
+      "jpeg_payload_sha256": "638a78357d9be42b89fdcba368ac857bac9d430805b4d411e0b84e6f0c73d263",
+      "mean_frame_bytes": 5939.93,
+      "max_frame_bytes": 6404,
+      "payload_bytes": 237597,
+      "avi_bytes_measured": 244342,
+      "custom_bytes_modeled": 239360,
+      "conversion_seconds_host": 0.0831,
+      "decode_seconds_host": 0.0455
+    },
+    {
+      "corpus": "pattern",
+      "source_sha256": "e16610852cdc8821f14145177aa1432fbe9535d8a22f58337643b8414ea10ce9",
+      "fps": 10,
+      "qscale": 12,
+      "frames": 40,
+      "jpeg_header": {
+        "sof": "0xc0",
+        "precision": 8,
+        "height": 180,
+        "width": 320,
+        "components": 3,
+        "sampling": [
+          "0x22",
+          "0x11",
+          "0x11"
+        ]
+      },
+      "jpeg_payload_sha256": "b5b53ff4397ccec859d9d8aac2de892c2c7363114fa5eecd0e9707fd3bd98ca1",
+      "mean_frame_bytes": 4905.68,
+      "max_frame_bytes": 5217,
+      "payload_bytes": 196227,
+      "avi_bytes_measured": 202968,
+      "custom_bytes_modeled": 197976,
+      "conversion_seconds_host": 0.0834,
+      "decode_seconds_host": 0.0433
+    },
+    {
+      "corpus": "pattern",
+      "source_sha256": "e16610852cdc8821f14145177aa1432fbe9535d8a22f58337643b8414ea10ce9",
+      "fps": 15,
+      "qscale": 4,
+      "frames": 60,
+      "jpeg_header": {
+        "sof": "0xc0",
+        "precision": 8,
+        "height": 180,
+        "width": 320,
+        "components": 3,
+        "sampling": [
+          "0x22",
+          "0x11",
+          "0x11"
+        ]
+      },
+      "jpeg_payload_sha256": "fd5eae2aaf92abf58e153e0f946c4d04fd142b615a0e499889762e5a18aee6dc",
+      "mean_frame_bytes": 8328.93,
+      "max_frame_bytes": 9082,
+      "payload_bytes": 499736,
+      "avi_bytes_measured": 506960,
+      "custom_bytes_modeled": 502296,
+      "conversion_seconds_host": 0.0826,
+      "decode_seconds_host": 0.0477
+    },
+    {
+      "corpus": "pattern",
+      "source_sha256": "e16610852cdc8821f14145177aa1432fbe9535d8a22f58337643b8414ea10ce9",
+      "fps": 15,
+      "qscale": 8,
+      "frames": 60,
+      "jpeg_header": {
+        "sof": "0xc0",
+        "precision": 8,
+        "height": 180,
+        "width": 320,
+        "components": 3,
+        "sampling": [
+          "0x22",
+          "0x11",
+          "0x11"
+        ]
+      },
+      "jpeg_payload_sha256": "d77643e7bd7ccf9955782cde033c3e3ced38e378b6ad910ba25765cd6cd2050f",
+      "mean_frame_bytes": 5946.48,
+      "max_frame_bytes": 6404,
+      "payload_bytes": 356789,
+      "avi_bytes_measured": 364024,
+      "custom_bytes_modeled": 359380,
+      "conversion_seconds_host": 0.0824,
+      "decode_seconds_host": 0.0448
+    },
+    {
+      "corpus": "pattern",
+      "source_sha256": "e16610852cdc8821f14145177aa1432fbe9535d8a22f58337643b8414ea10ce9",
+      "fps": 15,
+      "qscale": 12,
+      "frames": 60,
+      "jpeg_header": {
+        "sof": "0xc0",
+        "precision": 8,
+        "height": 180,
+        "width": 320,
+        "components": 3,
+        "sampling": [
+          "0x22",
+          "0x11",
+          "0x11"
+        ]
+      },
+      "jpeg_payload_sha256": "5b9c9e561dc1a4f8baa910da0f7bb7507b560774b7ac7fa1db1f5e4e0d3c7d01",
+      "mean_frame_bytes": 4912.12,
+      "max_frame_bytes": 5217,
+      "payload_bytes": 294727,
+      "avi_bytes_measured": 301960,
+      "custom_bytes_modeled": 297308,
+      "conversion_seconds_host": 0.0811,
+      "decode_seconds_host": 0.0449
+    },
+    {
+      "corpus": "noise",
+      "source_sha256": "1ac885ee096bc476c4e4c63b8e05bb1c68efba550343b403b6d8bb71f8170aee",
+      "fps": 10,
+      "qscale": 4,
+      "frames": 40,
+      "jpeg_header": {
+        "sof": "0xc0",
+        "precision": 8,
+        "height": 240,
+        "width": 320,
+        "components": 3,
+        "sampling": [
+          "0x22",
+          "0x11",
+          "0x11"
+        ]
+      },
+      "jpeg_payload_sha256": "42392abf49620e7209624a4157ee1d33001af8f8471a6694517d9ec76426c8d8",
+      "mean_frame_bytes": 65342.28,
+      "max_frame_bytes": 66030,
+      "payload_bytes": 2613691,
+      "avi_bytes_measured": 2620432,
+      "custom_bytes_modeled": 2615440,
+      "conversion_seconds_host": 0.1436,
+      "decode_seconds_host": 0.0686
+    },
+    {
+      "corpus": "noise",
+      "source_sha256": "1ac885ee096bc476c4e4c63b8e05bb1c68efba550343b403b6d8bb71f8170aee",
+      "fps": 10,
+      "qscale": 8,
+      "frames": 40,
+      "jpeg_header": {
+        "sof": "0xc0",
+        "precision": 8,
+        "height": 240,
+        "width": 320,
+        "components": 3,
+        "sampling": [
+          "0x22",
+          "0x11",
+          "0x11"
+        ]
+      },
+      "jpeg_payload_sha256": "8a827d730c47a1b68cd943470bb293f9fe926880eb03eb344593eb1ba0909b8d",
+      "mean_frame_bytes": 48302.97,
+      "max_frame_bytes": 48931,
+      "payload_bytes": 1932119,
+      "avi_bytes_measured": 1938866,
+      "custom_bytes_modeled": 1933868,
+      "conversion_seconds_host": 0.1347,
+      "decode_seconds_host": 0.0688
+    },
+    {
+      "corpus": "noise",
+      "source_sha256": "1ac885ee096bc476c4e4c63b8e05bb1c68efba550343b403b6d8bb71f8170aee",
+      "fps": 10,
+      "qscale": 12,
+      "frames": 40,
+      "jpeg_header": {
+        "sof": "0xc0",
+        "precision": 8,
+        "height": 240,
+        "width": 320,
+        "components": 3,
+        "sampling": [
+          "0x22",
+          "0x11",
+          "0x11"
+        ]
+      },
+      "jpeg_payload_sha256": "d7faade31776690157c6fc77e803ad30210592d74e7b6e7eec9795b509d87bbd",
+      "mean_frame_bytes": 39363.62,
+      "max_frame_bytes": 39925,
+      "payload_bytes": 1574545,
+      "avi_bytes_measured": 1581286,
+      "custom_bytes_modeled": 1576296,
+      "conversion_seconds_host": 0.1329,
+      "decode_seconds_host": 0.0754
+    },
+    {
+      "corpus": "noise",
+      "source_sha256": "1ac885ee096bc476c4e4c63b8e05bb1c68efba550343b403b6d8bb71f8170aee",
+      "fps": 15,
+      "qscale": 4,
+      "frames": 60,
+      "jpeg_header": {
+        "sof": "0xc0",
+        "precision": 8,
+        "height": 240,
+        "width": 320,
+        "components": 3,
+        "sampling": [
+          "0x22",
+          "0x11",
+          "0x11"
+        ]
+      },
+      "jpeg_payload_sha256": "a6254fe7c917abdb3f26ac5aed1b9cc93b1731ad9bc2727cad0d9ac216d898e0",
+      "mean_frame_bytes": 65352.3,
+      "max_frame_bytes": 66031,
+      "payload_bytes": 3921138,
+      "avi_bytes_measured": 3928368,
+      "custom_bytes_modeled": 3923716,
+      "conversion_seconds_host": 0.1367,
+      "decode_seconds_host": 0.1083
+    },
+    {
+      "corpus": "noise",
+      "source_sha256": "1ac885ee096bc476c4e4c63b8e05bb1c68efba550343b403b6d8bb71f8170aee",
+      "fps": 15,
+      "qscale": 8,
+      "frames": 60,
+      "jpeg_header": {
+        "sof": "0xc0",
+        "precision": 8,
+        "height": 240,
+        "width": 320,
+        "components": 3,
+        "sampling": [
+          "0x22",
+          "0x11",
+          "0x11"
+        ]
+      },
+      "jpeg_payload_sha256": "d1d1c13502a28506b091310addc1b4ef8fa01c9bae40e812d76a7f42a7f12d59",
+      "mean_frame_bytes": 48305.07,
+      "max_frame_bytes": 48913,
+      "payload_bytes": 2898304,
+      "avi_bytes_measured": 2905542,
+      "custom_bytes_modeled": 2900892,
+      "conversion_seconds_host": 0.1392,
+      "decode_seconds_host": 0.079
+    },
+    {
+      "corpus": "noise",
+      "source_sha256": "1ac885ee096bc476c4e4c63b8e05bb1c68efba550343b403b6d8bb71f8170aee",
+      "fps": 15,
+      "qscale": 12,
+      "frames": 60,
+      "jpeg_header": {
+        "sof": "0xc0",
+        "precision": 8,
+        "height": 240,
+        "width": 320,
+        "components": 3,
+        "sampling": [
+          "0x22",
+          "0x11",
+          "0x11"
+        ]
+      },
+      "jpeg_payload_sha256": "1454cfbcd2851707e03743c5d5173374dafb36e2a5611dd08676d77cd13fe04b",
+      "mean_frame_bytes": 39369.63,
+      "max_frame_bytes": 39988,
+      "payload_bytes": 2362178,
+      "avi_bytes_measured": 2369412,
+      "custom_bytes_modeled": 2364772,
+      "conversion_seconds_host": 0.1411,
+      "decode_seconds_host": 0.0855
+    }
+  ],
+  "jpeg_packets_checked": 600,
+  "strict_decode": {
+    "samples": 12,
+    "ffmpeg_xerror": true,
+    "result": "passed; zero error diagnostics"
+  },
+  "cfr_pts_check": "passed: all packets match i/fps within FFprobe microsecond precision",
+  "script_sha256": "36e5893ae3519b01e4200ffe5d4ea0dec4fdc8badb2d4cd6697e197596b77d74"
+}

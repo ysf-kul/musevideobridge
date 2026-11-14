@@ -1,0 +1,201 @@
+{
+  "schema_version": 1,
+  "phase": 3,
+  "date": "2026-11-11",
+  "environment": "CachyOS Linux VM",
+  "protected_document_sha256": {
+    "MUSE_GUIDELINES.md": "b19624f475656d2ad9839e28c14d1e8792f2e9c41af0d2f7688371961ae27317",
+    "MUSE_DESIGN_SYSTEM.md": "5fa3df88a80b2f9ef454efd886fc0301675983e1c6c83a0e4c5aa92ed363ed87",
+    "AGENTS.md": "3b20053c06f27bdaea9478d446d690993c601a8d35b0dfb79b4f1829892a6c1e"
+  },
+  "tools": {
+    "node": "26.13.0",
+    "rust": "1.99.1",
+    "python": "3.14.9",
+    "clang": "23.1.4",
+    "ffmpeg": "9.0.2",
+    "platformio": "6.2.0"
+  },
+  "desktop": {
+    "version": "0.3.0",
+    "linux_debug_embedded_asset_build": true,
+    "linux_native_selection_conversion_preview": true,
+    "native_runtime_with_vite_stopped": true,
+    "production_assets_exclude_test_bridge": true,
+    "debug_binary_bytes": 218158168,
+    "debug_binary_sha256": "be3ca8438c260cb557c50949c762a6fd27b43ebf6ec6594259030b655d630864",
+    "js_bytes": 88101,
+    "css_bytes": 11455,
+    "release_installer_tested": false,
+    "windows_release_build": true,
+    "windows_runtime_tested": false,
+    "windows_release_binary_bytes": 10733056,
+    "windows_release_binary_sha256": "089966f948192edd8f77ad3c9b7a2565184322733cf98ef288452ca5754c9590",
+    "portable_app_data": "Data/config and Data/cache; Windows WebView2 Data/cache/webview",
+    "latest_window_creation_native_smoke": true
+  },
+  "automated": {
+    "rust_normal_passed": 22,
+    "rust_native_core_integration_passed": 6,
+    "rust_native_desktop_integration_passed": 1,
+    "rust_total_executed": 29,
+    "typescript_passed": 5,
+    "browser_expected": 1,
+    "browser_unexpected": 0,
+    "browser_duration_ms": 9311.399,
+    "svelte_check_errors": 0,
+    "svelte_check_warnings": 0,
+    "cargo_fmt": true,
+    "cargo_clippy": true,
+    "prettier": true,
+    "native_asan_ubsan": true,
+    "native_transform_cases": 320,
+    "linux_pty": true,
+    "axe_tested_states_violations": 0,
+    "localization_keys": 163,
+    "windows_packaging_host_tests_passed": 9,
+    "powershell_host_test_version": "7.6.1",
+    "flasher_localization_keys": 29
+  },
+  "firmware": {
+    "environment": "cyd_ili9341",
+    "build_passed": true,
+    "platform": "espressif32@8.0.0",
+    "arduino": "3.3.12",
+    "static_ram_bytes": 36884,
+    "application_flash_bytes": 627214,
+    "engine_allocation_bytes": 74352,
+    "binary_sha256": "91266f6e591febd3612f8e396c72551781576b958bcae60b2c889cdf020e5be0",
+    "physically_tested": false
+  },
+  "synthetic_ui_conversion": {
+    "schema_version": 1,
+    "sha256": "7415a2c367a2587c425632a81ba4062afed57d81c5d256a3abe95f0e3a504f6a",
+    "header": {
+      "width": 320,
+      "height": 240,
+      "fps": {
+        "numerator": 10,
+        "denominator": 1
+      },
+      "frames": 200,
+      "duration_us": 20000000,
+      "index_offset": 1623248,
+      "file_bytes": 1628048,
+      "max_jpeg_bytes": 8926,
+      "index_crc": 4145774199
+    },
+    "options": {
+      "fps": {
+        "numerator": 10,
+        "denominator": 1
+      },
+      "qscale": 10,
+      "fit": "Contain"
+    },
+    "input": {
+      "width": 320,
+      "height": 240,
+      "duration_us": 20000000,
+      "original_fps": {
+        "numerator": 12,
+        "denominator": 1
+      },
+      "nominal_fps": {
+        "numerator": 12,
+        "denominator": 1
+      },
+      "sample_aspect_ratio": "1:1",
+      "display_aspect_ratio": "4:3",
+      "rotation_deg": 0,
+      "codec": "h264",
+      "interlaced": false
+    },
+    "converter": "ffmpeg version n9.0.2 Copyright (c) 2000-2026 the FFmpeg developers"
+  },
+  "npm_audit": {
+    "dev_low_findings": 2,
+    "production_findings": 0,
+    "advisory": "GHSA-gcqx-w48m-w2h4",
+    "automatic_fix_available": false
+  },
+  "hardware": {
+    "owner_confirmed": "one-USB ESP32-2432S028R resistive",
+    "port": "/dev/ttyUSB0",
+    "port_access": "original root:uucp 0660 ACL restored after temporary access",
+    "flash_authorized": true,
+    "rom_identification_succeeded": true,
+    "chip": "ESP32-D0WD-V3",
+    "revision": "3.1",
+    "dual_core": true,
+    "cpu_max_capability_mhz": 240,
+    "crystal_mhz": 40,
+    "flash_manufacturer": "0x20",
+    "flash_device": "0x4016",
+    "flash_bytes": 4194304,
+    "strap_flash_voltage_v": 3.3,
+    "rom_commands_sent": true,
+    "firmware_commands_sent": false,
+    "flash_written": false,
+    "sd_written": false,
+    "configuration_changed": false,
+    "temporary_permissions_used": true,
+    "original_permissions_restored": true,
+    "persistent_permissions_changed": false,
+    "complete_backup_exists": false,
+    "read_probe_bytes": 65536,
+    "vm_failures": [
+      {
+        "baud": 460800,
+        "expected_packet_bytes": 4096,
+        "received_packet_bytes": 3845
+      },
+      {
+        "baud": 115200,
+        "expected_packet_bytes": 4096,
+        "received_packet_bytes": 4077
+      },
+      {
+        "baud": 115200,
+        "expected_packet_bytes": 512,
+        "received_packet_bytes": 449
+      }
+    ],
+    "usb_reenumeration_observed": true,
+    "final_action": "ROM flash-id and hard reset to existing firmware",
+    "pcb_controller_ram_fps_qualified": false
+  },
+  "platforms": {
+    "linux": "native desktop selection/conversion and host-browser/shared-engine tested in available VM",
+    "esp32": "firmware build verified, actual ROM chip/flash identified, no firmware write or physical playback test",
+    "windows": "release MSVC x64 cross-build and package integrity verified; Windows runtime and flasher/physical playback unverified",
+    "macos": "outside scope"
+  },
+  "screenshots": {
+    "light-wide.png": "9821328639573c5b56a721a079112cd2cb5c3ca7ad260465b594199093aa8ed0",
+    "dark-wide.png": "5ec23f06366c526eb2cda9d6939a12bc329793051a8a514a6bdeb8623f277292",
+    "dark-narrow.png": "982bb1179d2437dfa55d4a7bcf066df6b456668845486271c00c1b9fa55db24e",
+    "native-initial.png": "3443eda5f59c035a038fd8ff1d3237733c1c3f5d8e8e0a23a1afb7eb3a0486f2",
+    "embedded-selected.png": "85e26cc56755c4cf462cd494db073381b11dd8981b1cbbf2cafcfe9cd54c7c93",
+    "native-converted.png": "f8a827cb88a31525b5e1b7628aa15047b4317786ef5cd4c848c01fa1b48eeabf",
+    "portable-native-window.png": "6d3e62d4d03486195963a4e0848f63d2b29cd5a384f326a36c2978c0643de8c9",
+    "portable-native-selected.png": "0be7075c51e277cea0281923d6e87e09dc064b9bbccc7e961da93d0561a29be6",
+    "portable-native-converted.png": "a6d4a15b5658ae614cc22c51300d4404b5eda2d41325c9489fc5a25afa4a4faf"
+  },
+  "windows_fallback_date": "2026-11-12",
+  "windows_packages": {
+    "manifest": "dist-packages/packages.json",
+    "purpose": "private owner-test builds",
+    "portable_zip": "Muse-Video-Bridge-0.3.0-Windows-x64-portable.zip",
+    "flasher_zip": "Muse-Video-Bridge-CYD-Windows-Flasher-0.2.0.zip",
+    "cargo_xwin": "0.23.1",
+    "esptool": "5.6.0",
+    "ffmpeg": "n9.0.2-49-gc179411bbb-20261111",
+    "windows_runtime_tested": false,
+    "pe_machine": "AMD64",
+    "pe_subsystem": "Windows GUI",
+    "webview2_required": true,
+    "code_signed": false,
+    "public_release_license_audit_complete": false
+  }
+}

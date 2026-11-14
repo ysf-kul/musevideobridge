@@ -1,0 +1,265 @@
+{
+  "accessed_date": "2026-11-11",
+  "scope": "source research; not physical validation",
+  "records": [
+    {
+      "id": "H1",
+      "url": "https://raw.githubusercontent.com/witnessmenow/ESP32-Cheap-Yellow-Display/0564a140c76de76ef34a8b7115044e7c6c852695/README.md",
+      "http_status": 200,
+      "bytes": 5981,
+      "sha256": "82012fc2118357268787e3bde50aa28cde560bc5abef6ff1fa3555c194a494a0"
+    },
+    {
+      "id": "H2",
+      "url": "https://raw.githubusercontent.com/witnessmenow/ESP32-Cheap-Yellow-Display/0564a140c76de76ef34a8b7115044e7c6c852695/OriginalDocumentation/5-Schematic/ESP32-2432S028-MCU.jpg",
+      "http_status": 200,
+      "bytes": 340673,
+      "sha256": "5dbb59ba147310fe5abad8c1798099df2718710dcd2d40c118fa3f4cf33fdba2"
+    },
+    {
+      "id": "H3",
+      "url": "https://raw.githubusercontent.com/witnessmenow/ESP32-Cheap-Yellow-Display/0564a140c76de76ef34a8b7115044e7c6c852695/OriginalDocumentation/5-Schematic/ESP32-2432S028-LCM.jpg",
+      "http_status": 200,
+      "bytes": 334357,
+      "sha256": "b6311844c69de614ea79bb25093f89efad578655e835cf64787f621dd979ea9e"
+    },
+    {
+      "id": "H4",
+      "url": "https://raw.githubusercontent.com/witnessmenow/ESP32-Cheap-Yellow-Display/0564a140c76de76ef34a8b7115044e7c6c852695/DisplayConfig/User_Setup.h",
+      "http_status": 200,
+      "bytes": 18305,
+      "sha256": "95392ca78e86bd57fc6e4b6805d2d23dcbb438b8f8214f3d0a589a54f3319c99"
+    },
+    {
+      "id": "H5",
+      "url": "https://raw.githubusercontent.com/witnessmenow/ESP32-Cheap-Yellow-Display/0564a140c76de76ef34a8b7115044e7c6c852695/DisplayConfig/CYD2USB/User_Setup.h",
+      "http_status": 200,
+      "bytes": 18319,
+      "sha256": "f932c923f9ea4334be7746be0b81df1a4fb05cb4af1b7c28d1fed91fd03ff28a"
+    },
+    {
+      "id": "H6",
+      "url": "https://raw.githubusercontent.com/rzeldent/platformio-espressif32-sunton/a96fa42a56ac0613c1c46d706fe35a5dc99795c6/esp32-2432S028R.json",
+      "http_status": 200,
+      "bytes": 4087,
+      "sha256": "2db745cba2a83e9c8f1ec6d9f61570de8c326f0bb5dcd11c775b7669ee2c6740"
+    },
+    {
+      "id": "H7",
+      "url": "https://raw.githubusercontent.com/rzeldent/esp32-smartdisplay/38e9ebabe3e4044159c4e95192d432607ed70588/BOARD_MATRIX.md",
+      "http_status": 200,
+      "bytes": 6783,
+      "sha256": "228f586df0370a944e3b4eedb3f48b0d64b4bc6c86b58ce0bb4885e1309ab3b5"
+    },
+    {
+      "id": "H8",
+      "url": "https://raw.githubusercontent.com/witnessmenow/ESP32-Cheap-Yellow-Display/0564a140c76de76ef34a8b7115044e7c6c852695/PINS.md",
+      "http_status": 200,
+      "bytes": 3129,
+      "sha256": "f664a2a30a87dac7a43d9657622ecdfa0dd2c386b8566e0a40f5e8ccb4fce3ce"
+    },
+    {
+      "id": "E1",
+      "url": "https://www.espressif.com/sites/default/files/documentation/esp32_datasheet_en.pdf",
+      "http_status": 200,
+      "bytes": 989523,
+      "sha256": "a7917e6b47528c9dcab06837a49d452e582751335797db879f1cf2d17cd29adf"
+    },
+    {
+      "id": "E2",
+      "url": "https://docs.espressif.com/projects/esp-idf/en/v5.5.1/esp32/api-reference/system/mem_alloc.html",
+      "http_status": 200,
+      "bytes": 176912,
+      "sha256": "54cbdafba6fc4ecfea6a2f9d1606d4e355cf0096d21f73bf30d574e665d7f5aa"
+    },
+    {
+      "id": "E2",
+      "url": "https://docs.espressif.com/projects/esp-idf/en/v5.5.1/esp32/api-reference/system/heap_debug.html",
+      "http_status": 200,
+      "bytes": 208815,
+      "sha256": "5748d2d47427643c6d81e28c6a91340b99861eba274e68f81b699766890a5497"
+    },
+    {
+      "id": "E3",
+      "url": "https://raw.githubusercontent.com/espressif/esp-idf/v5.5.1/components/soc/esp32/include/soc/soc_caps.h",
+      "http_status": 200,
+      "bytes": 23117,
+      "sha256": "45e1fb7f6c226d07229613e0cabcbc67034913a454c9fed7178743255620b394"
+    },
+    {
+      "id": "E3",
+      "url": "https://raw.githubusercontent.com/espressif/esp-idf/v5.5.1/components/esp_driver_tsens/CMakeLists.txt",
+      "http_status": 200,
+      "bytes": 437,
+      "sha256": "e098312345143e3907f59ff3ad288e23f4e9c34ecd04a1990d57bd21042662e8"
+    },
+    {
+      "id": "E4",
+      "url": "https://raw.githubusercontent.com/espressif/arduino-esp32/3.3.12/cores/esp32/esp32-hal-misc.c",
+      "http_status": 200,
+      "bytes": 14823,
+      "sha256": "04ce322c477123980e396c12a981f412dbf402190136aad0c9a6acc1b25ce4d6"
+    },
+    {
+      "id": "E5",
+      "url": "https://docs.espressif.com/projects/esp-idf/en/v5.5.1/esp32/api-reference/system/freertos_idf.html",
+      "http_status": 200,
+      "bytes": 877953,
+      "sha256": "5f5ae4752f104a1ca61b4ac65ba36b476a49f06107cc70f199eddad18a6c1db5"
+    },
+    {
+      "id": "E6",
+      "url": "https://docs.espressif.com/projects/esp-idf/en/v5.5.1/esp32/api-reference/peripherals/sdspi_host.html",
+      "http_status": 200,
+      "bytes": 60893,
+      "sha256": "8ee26080ca23f331c44752f4cfe0f78605eba98b48d5b84e09981bb740e271ed"
+    },
+    {
+      "id": "E7",
+      "url": "https://docs.espressif.com/projects/esptool/en/latest/esp32/esptool/basic-commands.html",
+      "http_status": 200,
+      "bytes": 62665,
+      "sha256": "fe9a6f285b398d3e5123dce275210bc4fbaa44f292f315c51d0a943fbe1d6dc5"
+    },
+    {
+      "id": "J1",
+      "url": "https://raw.githubusercontent.com/bitbank2/JPEGDEC/32132971bcc032b5b14f1e1e968c242d8d986854/README.md",
+      "http_status": 200,
+      "bytes": 7230,
+      "sha256": "dd447fbe7b7ff2367746f48ab09c949aaa50647476c00f83e91a0407306e330e"
+    },
+    {
+      "id": "J1",
+      "url": "https://raw.githubusercontent.com/bitbank2/JPEGDEC/32132971bcc032b5b14f1e1e968c242d8d986854/src/JPEGDEC.h",
+      "http_status": 200,
+      "bytes": 12091,
+      "sha256": "8275205e4c5dfc63549ea86a7fed0011baebd2007de920ae29b646909105389f"
+    },
+    {
+      "id": "J1",
+      "url": "https://raw.githubusercontent.com/bitbank2/JPEGDEC/32132971bcc032b5b14f1e1e968c242d8d986854/LICENSE",
+      "http_status": 200,
+      "bytes": 11414,
+      "sha256": "16b742c2110129c89df82164a28dbecb7ca1fe100c75c30e5c506f050c0c6de5"
+    },
+    {
+      "id": "J2",
+      "url": "https://raw.githubusercontent.com/Bodmer/TJpg_Decoder/master/README.md",
+      "http_status": 200,
+      "bytes": 2043,
+      "sha256": "495305ece290672f9a9cf4ca4ae051164824666222d527c8a91b558d9c815dc9"
+    },
+    {
+      "id": "J3",
+      "url": "https://raw.githubusercontent.com/lovyan03/LovyanGFX/master/README.md",
+      "http_status": 200,
+      "bytes": 34284,
+      "sha256": "f63bd23682908641f5098839a42cd1c2b4f5ab8dfdc153d108622cd7b47b7b80"
+    },
+    {
+      "id": "J3",
+      "url": "https://raw.githubusercontent.com/lovyan03/LovyanGFX/master/license.txt",
+      "http_status": 200,
+      "bytes": 5952,
+      "sha256": "ec7c22d763503f016c1e743e6089042e780fbb1c118ebcc0b1eb72232e8903b3"
+    },
+    {
+      "id": "J4",
+      "url": "https://raw.githubusercontent.com/Bodmer/TFT_eSPI/master/library.json",
+      "http_status": 200,
+      "bytes": 848,
+      "sha256": "15308ca95e4d98ec7f841858fcea02fd252e208f549c4a349d1e236f11582ffa"
+    },
+    {
+      "id": "J4",
+      "url": "https://raw.githubusercontent.com/Bodmer/TFT_eSPI/master/license.txt",
+      "http_status": 200,
+      "bytes": 6243,
+      "sha256": "cb615ba882fde2967e855d326ce8cdebd285ac9c61ead1e14c1e9518895742a2"
+    },
+    {
+      "id": "V1",
+      "url": "https://ffmpeg.org/ffmpeg-filters.html",
+      "http_status": 200,
+      "bytes": 1751248,
+      "sha256": "54ea5435e2af63a914ffcdfe04c9f74919145a5b58b6879a3a10e516ac89652f"
+    },
+    {
+      "id": "V1",
+      "url": "https://ffmpeg.org/ffmpeg-formats.html",
+      "http_status": 200,
+      "bytes": 352784,
+      "sha256": "94a0c690581e1f26296ddb2d0c3421bbd328b52c6af7fd81d9770c419f8dd3ec"
+    },
+    {
+      "id": "V1",
+      "url": "https://ffmpeg.org/ffmpeg-codecs.html",
+      "http_status": 200,
+      "bytes": 410198,
+      "sha256": "19716983c5b85fb88483fdf20fcb59b231f3523e5919eccda60aa7b00f5d305e"
+    },
+    {
+      "id": "V2",
+      "url": "https://learn.microsoft.com/en-us/windows/win32/directshow/avi-riff-file-reference",
+      "http_status": 200,
+      "bytes": 58438,
+      "sha256": "e5bf34b4d35b4759cd276646a84ec8fc4bd54ec509e1a5d8d911cbc76561177d"
+    },
+    {
+      "id": "V2",
+      "url": "https://raw.githubusercontent.com/FFmpeg/FFmpeg/master/libavformat/avienc.c",
+      "http_status": 200,
+      "bytes": 37702,
+      "sha256": "672547dacf6a2da47f70034e0145aa5e87485c2fa1c44ab7f317fda14b6d0ea5"
+    },
+    {
+      "id": "V3",
+      "url": "https://ffmpeg.org/legal.html",
+      "http_status": 200,
+      "bytes": 10746,
+      "sha256": "0c0f84b347baa5edb55ad594cb9b8dc3a6ae47b652131ff4533a16b3773e89df"
+    },
+    {
+      "id": "D1",
+      "url": "https://v2.tauri.app/start/prerequisites/",
+      "http_status": 200,
+      "bytes": 160843,
+      "sha256": "615e4b29f330e0afde024895ba11d1ec835b2325977b9d8d90b4eb801e189307"
+    },
+    {
+      "id": "D2",
+      "url": "https://raw.githubusercontent.com/serialport/serialport-rs/main/README.md",
+      "http_status": 200,
+      "bytes": 8451,
+      "sha256": "472fd9252305d3433e7c8ad8fc39afebc6c698be7d9c25561032b62f875e4378"
+    },
+    {
+      "id": "D2",
+      "url": "https://raw.githubusercontent.com/serialport/serialport-rs/main/Cargo.toml",
+      "http_status": 200,
+      "bytes": 1975,
+      "sha256": "b0aa96dca92900bfe4b42471c11987379587058a35945f3a168b133a6d9bd231"
+    },
+    {
+      "id": "D3",
+      "url": "https://api.github.com/repos/espressif/arduino-esp32/releases/latest",
+      "http_status": 200,
+      "bytes": 34177,
+      "sha256": "8e48597b1c23a5361c78789c1937cba60782a6692e657876d980971030c52af1"
+    },
+    {
+      "id": "D4",
+      "url": "https://api.github.com/repos/platformio/platform-espressif32/releases/latest",
+      "http_status": 200,
+      "bytes": 4020,
+      "sha256": "c732c92d33d0b375ee84904a07e95371b2e2fca91dfdb3bf32acc24c91731e2c"
+    },
+    {
+      "id": "D4",
+      "url": "https://raw.githubusercontent.com/platformio/platform-espressif32/v8.0.0/platform.json",
+      "http_status": 200,
+      "bytes": 4194,
+      "sha256": "9c9b3fbaddc00420aaa208c33d6f2a8e6eef0a29d533e94620601d33ccc86e02"
+    }
+  ]
+}

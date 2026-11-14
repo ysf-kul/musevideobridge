@@ -1,0 +1,162 @@
+{
+  "status": "implemented_guarded_joined_overlap_host_verified",
+  "date": "2026-11-13",
+  "doc": "docs/PREFETCH_DESIGN.md",
+  "device_access": "root_exclusive_hardware_testing_no_serial_access_by_prefetch_implementation_agent",
+  "artifact_max_jpeg_bytes": 9757,
+  "second_slot_capacity_bytes": 9776,
+  "max_legal_second_slot_capacity_bytes": 49171,
+  "scheduling": {
+    "loop_core": 1,
+    "loop_priority": 1,
+    "serial_core": 0,
+    "serial_priority": 1,
+    "serial_stack_bytes": 8192,
+    "sdk_tick_hz": 1000,
+    "sdk_core0_idle_wdt_s": 5,
+    "sd_sector_token_timeout_ms": 500,
+    "sector_timeout_is_not_whole_request_timeout": true,
+    "prefetch_core": 0,
+    "prefetch_priority": 0,
+    "prefetch_stack_bytes": 4096
+  },
+  "benchmarks": [
+    {
+      "evidence": ".verification/session-2026-11-13/hardware/matrix-posix-5120-sd20.jsonl",
+      "evidence_sha256": "f83aa7245e000d972413472e1f34a189c999ab092a133406e4acab852a23c89d",
+      "decoder": "jpegdec",
+      "source_fps": {
+        "denominator": 1,
+        "numerator": 30
+      },
+      "target_fps": {
+        "denominator": 1,
+        "numerator": 30
+      },
+      "actual_completed_render_fps": 16.40366721,
+      "completed_frames": 91,
+      "average_stage_us": {
+        "container_prepare": 152.8461538,
+        "crc": 588,
+        "display": 5305.637363,
+        "display_copy_nested": 933.1538462,
+        "dma_wait_nested": 2070.241758,
+        "frame": 58087.6044,
+        "jpeg_decode": 38638.30769,
+        "jpeg_open": 696.5054945,
+        "jpeg_validation": 695.6043956,
+        "sd_read": 9735.626374,
+        "sd_seek": 1922.208791,
+        "transform": 260.1208791
+      },
+      "average_complete_fetch_us": 13139.75824,
+      "ideal_fetch_hidden_service_us": 44947.84616,
+      "ideal_fetch_hidden_service_fps": 22.248007088934113,
+      "ideal_sd_only_hidden_service_us": 46429.769235,
+      "ideal_sd_only_hidden_service_fps": 21.53790588401575,
+      "ideal_bounds_are_not_measurements": true,
+      "memory": {
+        "free_heap_bytes": 71944,
+        "largest_free_block_bytes": 30708,
+        "minimum_free_heap_bytes": 65404,
+        "psram_bytes": 0
+      }
+    },
+    {
+      "evidence": ".verification/session-2026-11-13/hardware/matrix-rom-posix-5120-sd20.jsonl",
+      "evidence_sha256": "7776417f3385cae22fc6e2fdbc8c89e26210fcca675eee7f40137fb3a7abff42",
+      "decoder": "rom",
+      "source_fps": {
+        "denominator": 1,
+        "numerator": 30
+      },
+      "target_fps": {
+        "denominator": 1,
+        "numerator": 30
+      },
+      "actual_completed_render_fps": 11.78037704,
+      "completed_frames": 68,
+      "average_stage_us": {
+        "color_conversion_nested": 9196.632353,
+        "container_prepare": 119.25,
+        "crc": 580.8235294,
+        "display": 4743.294118,
+        "display_copy_nested": 885.3676471,
+        "dma_wait_nested": 2108.779412,
+        "frame": 82141.75,
+        "jpeg_decode": 63248.5,
+        "jpeg_open": 76.51470588,
+        "jpeg_validation": 714.2058824,
+        "sd_read": 9960.029412,
+        "sd_seek": 2336.147059,
+        "transform": 270.3676471
+      },
+      "average_complete_fetch_us": 13739.41176,
+      "ideal_fetch_hidden_service_us": 68402.33824,
+      "ideal_fetch_hidden_service_fps": 14.619383280310506,
+      "ideal_sd_only_hidden_service_us": 69845.573529,
+      "ideal_sd_only_hidden_service_fps": 14.317299572102423,
+      "ideal_bounds_are_not_measurements": true,
+      "memory": {
+        "free_heap_bytes": 54532,
+        "largest_free_block_bytes": 30708,
+        "minimum_free_heap_bytes": 47992,
+        "psram_bytes": 0
+      }
+    }
+  ],
+  "original_design_inspected_source_sha256": {
+    "firmware/include/engine.hpp": "46123a90b7dd09dd90476671d712596ebde7b8eff4dff2a25b0c5256f58ecbd7",
+    "firmware/include/video.hpp": "88ec57ad7d680a28255ddc23dba6591436be6f100c70ddbd6eddd572b9c50f18",
+    "firmware/include/timing.hpp": "c3f07e61056579099e3240ea8b8af46b7d2b57d75c1b0f9f308a07075b777a06",
+    "firmware/include/profiling.hpp": "b7bcdaff910ae095cd2ad3b8258e161c3bab74d5a39d8cb4160d83eae00ec1b9",
+    "firmware/src/main.cpp": "c216673625e71427c72ab1f8c2768e8ee67ae0da318bbf7594cba6315749f7e4",
+    "<platformio-home>/packages/framework-arduinoespressif32@3.20017.241212+sha.dcc1105b/tools/sdk/esp32/sdkconfig": "a4fe490abd8cd6447874edd79bde1e78d9630af7845bd53f70440a56b3504907",
+    "<platformio-home>/packages/framework-arduinoespressif32@3.20017.241212+sha.dcc1105b/cores/esp32/main.cpp": "130ee85dbf77f5343ce3b7a4f9b9355316fb293105603af8cd70ebbcaff5d9ff",
+    "<platformio-home>/packages/framework-arduinoespressif32@3.20017.241212+sha.dcc1105b/libraries/SD/src/sd_diskio.cpp": "0401e23009f06e3a418470a144403e89727f3d007b1d16d429dc370ce8bdc5f0",
+    "<platformio-home>/packages/framework-arduinoespressif32@3.20017.241212+sha.dcc1105b/tools/sdk/esp32/include/freertos/include/freertos/FreeRTOS.h": "244b71930fc5b1a9e3cd48ee9a2707d441b73f1f55884ae34dbb554b265b1c55"
+  },
+  "original_design_test_status": "No new implementation tests; measured evidence and installed source inspected.",
+  "implementation": {
+    "guard": "MVB_FRAME_PREFETCH",
+    "command": {
+      "method": "set_prefetch_options",
+      "enabled": true
+    },
+    "ownership": "worker_joined_after_decode_and_display_before_render_frame_return",
+    "max_outstanding_requests": 1,
+    "per_frame_application_allocations": 0,
+    "configuration_memory_guard": "32768 + verified slot bytes + 4096 stack + 1024 task/allocator allowance",
+    "slow_sd_read_join_can_block": "same_driver_completion_bound_as_previous_synchronous_fetch; no unsafe_task_deletion",
+    "physical_results_recorded_by_root_in": "docs/REAL_HARDWARE_PERFORMANCE_REPORT.md",
+    "source_hashes_at_host_verification": {
+      "firmware/include/frame_prefetch.hpp": "d11de70220254912fe760d5b7a6e2a600950846cadcc74c551d5d70dd21fb693",
+      "firmware/include/engine.hpp": "5689e8f355727906d665672868711f645a532ee3a5c6bcafcaf8f2c4821ba6cd",
+      "firmware/include/timing.hpp": "b709d6ca469c29dfa69f2a8cd15c7d3938977967eda2afa1a2eef00880b07058",
+      "tests/frame_prefetch_test.py": "b3bc5047cd79a8dd9141403f8058fd77b56becec47146a1f579caf183d8686ce"
+    },
+    "tests": [
+      {
+        "suite": "ASan/UBSan actual container, codec engine, disabled fallback",
+        "passed": 3,
+        "optional_tsan_skipped_in_that_run": 1,
+        "log": ".verification/session-2026-11-13/prefetch-host-tests.log"
+      },
+      {
+        "suite": "g++ ThreadSanitizer blocked-read worker ownership",
+        "passed": 1,
+        "log": ".verification/session-2026-11-13/prefetch-worker-tsan.log"
+      },
+      {
+        "suite": "g++ ThreadSanitizer actual codec engine controls and storage ownership",
+        "passed": 1,
+        "log": ".verification/session-2026-11-13/prefetch-engine-tsan.log"
+      },
+      {
+        "suite": "existing two-build decoder_options_test.py",
+        "passed": 1,
+        "build_configurations": 2
+      }
+    ]
+  }
+}

@@ -1,0 +1,568 @@
+{
+  "schema_version": 1,
+  "status": "final source snapshot",
+  "comparison_basis": "byte comparison against retained project-source ZIP; no Git history and absence from snapshot alone does not prove when a file was created",
+  "baseline_sha256": "f313fd3a429202f7f9e949bd6411b1a21889400cca1f89506e6e474bb97ccc27",
+  "scope": "packaged source roots; generated build/tool/verification directories excluded",
+  "modified_files": 48,
+  "absent_from_snapshot_files": 91,
+  "missing_from_workspace": [],
+  "files": [
+    {
+      "path": ".prettierrc.json",
+      "snapshot_status": "absent_from_retained_snapshot"
+    },
+    {
+      "path": "README.md",
+      "snapshot_status": "modified"
+    },
+    {
+      "path": "crates/muse-video-cli/src/main.rs",
+      "snapshot_status": "modified"
+    },
+    {
+      "path": "crates/muse-video-core/Cargo.toml",
+      "snapshot_status": "modified"
+    },
+    {
+      "path": "crates/muse-video-core/examples/hardware_benchmark.rs",
+      "snapshot_status": "absent_from_retained_snapshot"
+    },
+    {
+      "path": "crates/muse-video-core/examples/pack_jpeg_research.rs",
+      "snapshot_status": "absent_from_retained_snapshot"
+    },
+    {
+      "path": "crates/muse-video-core/src/jpeg.rs",
+      "snapshot_status": "modified"
+    },
+    {
+      "path": "crates/muse-video-core/src/media.rs",
+      "snapshot_status": "modified"
+    },
+    {
+      "path": "crates/muse-video-core/src/serial.rs",
+      "snapshot_status": "modified"
+    },
+    {
+      "path": "crates/muse-video-core/tests/device_engine.rs",
+      "snapshot_status": "modified"
+    },
+    {
+      "path": "crates/muse-video-core/tests/video_storage.rs",
+      "snapshot_status": "modified"
+    },
+    {
+      "path": "crates/muse-video-desktop/src/device.rs",
+      "snapshot_status": "modified"
+    },
+    {
+      "path": "crates/muse-video-desktop/src/settings.rs",
+      "snapshot_status": "modified"
+    },
+    {
+      "path": "crates/muse-video-desktop/tests/workflow.rs",
+      "snapshot_status": "modified"
+    },
+    {
+      "path": "docs/ARCHITECTURE.md",
+      "snapshot_status": "modified"
+    },
+    {
+      "path": "docs/BUILD_AND_RUN.md",
+      "snapshot_status": "modified"
+    },
+    {
+      "path": "docs/DECODER_EXPERIMENTS.md",
+      "snapshot_status": "absent_from_retained_snapshot"
+    },
+    {
+      "path": "docs/DMA_DIRECT_OUTPUT_EXPERIMENT.md",
+      "snapshot_status": "absent_from_retained_snapshot"
+    },
+    {
+      "path": "docs/ENCODING_RESEARCH_REPORT.md",
+      "snapshot_status": "absent_from_retained_snapshot"
+    },
+    {
+      "path": "docs/FIRST_FRAME_PRELOAD_EXPERIMENT.md",
+      "snapshot_status": "absent_from_retained_snapshot"
+    },
+    {
+      "path": "docs/FORMAT_AND_AUDIO_COMPARISON.md",
+      "snapshot_status": "absent_from_retained_snapshot"
+    },
+    {
+      "path": "docs/FRAME_INTEGRITY_PROBE.md",
+      "snapshot_status": "absent_from_retained_snapshot"
+    },
+    {
+      "path": "docs/HARDWARE.md",
+      "snapshot_status": "modified"
+    },
+    {
+      "path": "docs/IDF_SDSPI_EXPERIMENT.md",
+      "snapshot_status": "absent_from_retained_snapshot"
+    },
+    {
+      "path": "docs/JPEG_FIRST_BLOCK_WARMUP.md",
+      "snapshot_status": "absent_from_retained_snapshot"
+    },
+    {
+      "path": "docs/NATIVE_DESKTOP_USB_E2E.md",
+      "snapshot_status": "absent_from_retained_snapshot"
+    },
+    {
+      "path": "docs/PHASE_2_PROTOCOL.md",
+      "snapshot_status": "modified"
+    },
+    {
+      "path": "docs/PREFETCH_DESIGN.md",
+      "snapshot_status": "absent_from_retained_snapshot"
+    },
+    {
+      "path": "docs/QUALIFIED_FAST_DEFAULTS.md",
+      "snapshot_status": "absent_from_retained_snapshot"
+    },
+    {
+      "path": "docs/QUALIFIED_PLAYBACK_DEFAULTS.md",
+      "snapshot_status": "absent_from_retained_snapshot"
+    },
+    {
+      "path": "docs/REAL_HARDWARE_PERFORMANCE_REPORT.md",
+      "snapshot_status": "absent_from_retained_snapshot"
+    },
+    {
+      "path": "docs/SD_DRIVER_INVESTIGATION.md",
+      "snapshot_status": "absent_from_retained_snapshot"
+    },
+    {
+      "path": "docs/SERIAL_PROTOCOL.md",
+      "snapshot_status": "modified"
+    },
+    {
+      "path": "docs/USB_TRANSFER_AND_PLAYBACK_REPORT.md",
+      "snapshot_status": "modified"
+    },
+    {
+      "path": "docs/WINDOWS_DEVICE_TESTS.md",
+      "snapshot_status": "absent_from_retained_snapshot"
+    },
+    {
+      "path": "docs/WINDOWS_TESTING.md",
+      "snapshot_status": "modified"
+    },
+    {
+      "path": "docs/evidence/final-firmware-playback-endurance.json",
+      "snapshot_status": "absent_from_retained_snapshot"
+    },
+    {
+      "path": "docs/evidence/final-native-desktop-usb-e2e.json",
+      "snapshot_status": "absent_from_retained_snapshot"
+    },
+    {
+      "path": "docs/evidence/native-desktop-usb-e2e.json",
+      "snapshot_status": "absent_from_retained_snapshot"
+    },
+    {
+      "path": "docs/evidence/playback-current-matrix.json",
+      "snapshot_status": "absent_from_retained_snapshot"
+    },
+    {
+      "path": "docs/evidence/prefetch-design.json",
+      "snapshot_status": "absent_from_retained_snapshot"
+    },
+    {
+      "path": "docs/evidence/production-encoding-verification.json",
+      "snapshot_status": "absent_from_retained_snapshot"
+    },
+    {
+      "path": "docs/evidence/sd-driver-inspection.json",
+      "snapshot_status": "absent_from_retained_snapshot"
+    },
+    {
+      "path": "docs/evidence/source-change-inventory.json",
+      "snapshot_status": "absent_from_retained_snapshot"
+    },
+    {
+      "path": "docs/evidence/windows-build-2026-11-14.json",
+      "snapshot_status": "absent_from_retained_snapshot"
+    },
+    {
+      "path": "firmware/include/dma_ownership.hpp",
+      "snapshot_status": "absent_from_retained_snapshot"
+    },
+    {
+      "path": "firmware/include/engine.hpp",
+      "snapshot_status": "modified"
+    },
+    {
+      "path": "firmware/include/frame_prefetch.hpp",
+      "snapshot_status": "absent_from_retained_snapshot"
+    },
+    {
+      "path": "firmware/include/idf_sd.hpp",
+      "snapshot_status": "absent_from_retained_snapshot"
+    },
+    {
+      "path": "firmware/include/jpeg_portable.hpp",
+      "snapshot_status": "modified"
+    },
+    {
+      "path": "firmware/include/jpeg_validation.hpp",
+      "snapshot_status": "modified"
+    },
+    {
+      "path": "firmware/include/new_jpeg.hpp",
+      "snapshot_status": "absent_from_retained_snapshot"
+    },
+    {
+      "path": "firmware/include/profiling.hpp",
+      "snapshot_status": "absent_from_retained_snapshot"
+    },
+    {
+      "path": "firmware/include/render.hpp",
+      "snapshot_status": "modified"
+    },
+    {
+      "path": "firmware/include/rom_jpeg.hpp",
+      "snapshot_status": "absent_from_retained_snapshot"
+    },
+    {
+      "path": "firmware/include/timing.hpp",
+      "snapshot_status": "modified"
+    },
+    {
+      "path": "firmware/include/tjpgd_fast.hpp",
+      "snapshot_status": "absent_from_retained_snapshot"
+    },
+    {
+      "path": "firmware/include/video.hpp",
+      "snapshot_status": "modified"
+    },
+    {
+      "path": "firmware/include/wire.hpp",
+      "snapshot_status": "modified"
+    },
+    {
+      "path": "firmware/native/core_tests.cpp",
+      "snapshot_status": "modified"
+    },
+    {
+      "path": "firmware/native/profile_tests.cpp",
+      "snapshot_status": "absent_from_retained_snapshot"
+    },
+    {
+      "path": "firmware/native/simulator.cpp",
+      "snapshot_status": "modified"
+    },
+    {
+      "path": "firmware/patch_jpegdec.py",
+      "snapshot_status": "modified"
+    },
+    {
+      "path": "firmware/platformio.ini",
+      "snapshot_status": "modified"
+    },
+    {
+      "path": "firmware/src/main.cpp",
+      "snapshot_status": "modified"
+    },
+    {
+      "path": "firmware/src/tjpgd_fast.cpp",
+      "snapshot_status": "absent_from_retained_snapshot"
+    },
+    {
+      "path": "firmware/vendor/esp_new_jpeg/CMakeLists.txt",
+      "snapshot_status": "absent_from_retained_snapshot"
+    },
+    {
+      "path": "firmware/vendor/esp_new_jpeg/LICENSE",
+      "snapshot_status": "absent_from_retained_snapshot"
+    },
+    {
+      "path": "firmware/vendor/esp_new_jpeg/PROVENANCE.json",
+      "snapshot_status": "absent_from_retained_snapshot"
+    },
+    {
+      "path": "firmware/vendor/esp_new_jpeg/README.md",
+      "snapshot_status": "absent_from_retained_snapshot"
+    },
+    {
+      "path": "firmware/vendor/esp_new_jpeg/UPSTREAM_README.md",
+      "snapshot_status": "absent_from_retained_snapshot"
+    },
+    {
+      "path": "firmware/vendor/esp_new_jpeg/idf_component.yml",
+      "snapshot_status": "absent_from_retained_snapshot"
+    },
+    {
+      "path": "firmware/vendor/esp_new_jpeg/include/esp_jpeg_common.h",
+      "snapshot_status": "absent_from_retained_snapshot"
+    },
+    {
+      "path": "firmware/vendor/esp_new_jpeg/include/esp_jpeg_dec.h",
+      "snapshot_status": "absent_from_retained_snapshot"
+    },
+    {
+      "path": "firmware/vendor/esp_new_jpeg/lib/esp32/libesp_new_jpeg.a",
+      "snapshot_status": "absent_from_retained_snapshot"
+    },
+    {
+      "path": "firmware/vendor/tjpgd_fast/LICENSE",
+      "snapshot_status": "absent_from_retained_snapshot"
+    },
+    {
+      "path": "firmware/vendor/tjpgd_fast/README.md",
+      "snapshot_status": "absent_from_retained_snapshot"
+    },
+    {
+      "path": "firmware/vendor/tjpgd_fast/provenance.json",
+      "snapshot_status": "absent_from_retained_snapshot"
+    },
+    {
+      "path": "firmware/vendor/tjpgd_fast/tjpgd.c",
+      "snapshot_status": "absent_from_retained_snapshot"
+    },
+    {
+      "path": "firmware/vendor/tjpgd_fast/tjpgd.h",
+      "snapshot_status": "absent_from_retained_snapshot"
+    },
+    {
+      "path": "firmware/vendor/tjpgd_fast/tjpgdcnf.h",
+      "snapshot_status": "absent_from_retained_snapshot"
+    },
+    {
+      "path": "firmware/vendor/tjpgd_fast/upstream/tjpgd.c",
+      "snapshot_status": "absent_from_retained_snapshot"
+    },
+    {
+      "path": "firmware/vendor/tjpgd_fast/upstream/tjpgd.h",
+      "snapshot_status": "absent_from_retained_snapshot"
+    },
+    {
+      "path": "firmware/vendor/tjpgd_fast/upstream/tjpgdcnf.h",
+      "snapshot_status": "absent_from_retained_snapshot"
+    },
+    {
+      "path": "packaging/build_windows.py",
+      "snapshot_status": "modified"
+    },
+    {
+      "path": "packaging/build_windows_test_kit.py",
+      "snapshot_status": "modified"
+    },
+    {
+      "path": "packaging/windows/Device.Tests.Common.ps1",
+      "snapshot_status": "absent_from_retained_snapshot"
+    },
+    {
+      "path": "packaging/windows/FLASHER_README.md",
+      "snapshot_status": "modified"
+    },
+    {
+      "path": "packaging/windows/Flash-CYD.ps1",
+      "snapshot_status": "modified"
+    },
+    {
+      "path": "packaging/windows/Flash-Firmware-English.cmd",
+      "snapshot_status": "absent_from_retained_snapshot"
+    },
+    {
+      "path": "packaging/windows/Flash-Full-Firmware-English.cmd",
+      "snapshot_status": "absent_from_retained_snapshot"
+    },
+    {
+      "path": "packaging/windows/Flash-Performance-English.cmd",
+      "snapshot_status": "absent_from_retained_snapshot"
+    },
+    {
+      "path": "packaging/windows/Flash.Common.ps1",
+      "snapshot_status": "modified"
+    },
+    {
+      "path": "packaging/windows/PORTABLE_README.md",
+      "snapshot_status": "modified"
+    },
+    {
+      "path": "packaging/windows/Run-Device-Tests.cmd",
+      "snapshot_status": "absent_from_retained_snapshot"
+    },
+    {
+      "path": "packaging/windows/Run-Device-Tests.ps1",
+      "snapshot_status": "absent_from_retained_snapshot"
+    },
+    {
+      "path": "packaging/windows/Start-App.cmd",
+      "snapshot_status": "absent_from_retained_snapshot"
+    },
+    {
+      "path": "packaging/windows/THIRD_PARTY.md",
+      "snapshot_status": "modified"
+    },
+    {
+      "path": "packaging/windows/USB_TEST_README.md",
+      "snapshot_status": "modified"
+    },
+    {
+      "path": "packaging/windows/localization/en.json",
+      "snapshot_status": "modified"
+    },
+    {
+      "path": "packaging/windows/localization/tr.json",
+      "snapshot_status": "modified"
+    },
+    {
+      "path": "research/benchmark_playback.py",
+      "snapshot_status": "modified"
+    },
+    {
+      "path": "research/build_native.py",
+      "snapshot_status": "modified"
+    },
+    {
+      "path": "research/decode_jpeg_research.cpp",
+      "snapshot_status": "absent_from_retained_snapshot"
+    },
+    {
+      "path": "research/prepare_chroma_candidates.py",
+      "snapshot_status": "absent_from_retained_snapshot"
+    },
+    {
+      "path": "research/prepare_native_sizes.py",
+      "snapshot_status": "absent_from_retained_snapshot"
+    },
+    {
+      "path": "research/prepare_standard_422.py",
+      "snapshot_status": "absent_from_retained_snapshot"
+    },
+    {
+      "path": "src/App.svelte",
+      "snapshot_status": "modified"
+    },
+    {
+      "path": "src/lib/types.ts",
+      "snapshot_status": "modified"
+    },
+    {
+      "path": "tests/browser/workflow.spec.ts",
+      "snapshot_status": "modified"
+    },
+    {
+      "path": "tests/decoder_options_test.py",
+      "snapshot_status": "absent_from_retained_snapshot"
+    },
+    {
+      "path": "tests/dma_ownership_test.py",
+      "snapshot_status": "absent_from_retained_snapshot"
+    },
+    {
+      "path": "tests/first_frame_preload_test.py",
+      "snapshot_status": "absent_from_retained_snapshot"
+    },
+    {
+      "path": "tests/fixtures/dma_direct_fake_sdk.hpp",
+      "snapshot_status": "absent_from_retained_snapshot"
+    },
+    {
+      "path": "tests/fixtures/idf_sd_fake_sdk.hpp",
+      "snapshot_status": "absent_from_retained_snapshot"
+    },
+    {
+      "path": "tests/fixtures/idf_sd_lifecycle.cpp",
+      "snapshot_status": "absent_from_retained_snapshot"
+    },
+    {
+      "path": "tests/fixtures/tjpgd_fast/README.md",
+      "snapshot_status": "absent_from_retained_snapshot"
+    },
+    {
+      "path": "tests/fixtures/tjpgd_fast/edge-1x1.jpg",
+      "snapshot_status": "absent_from_retained_snapshot"
+    },
+    {
+      "path": "tests/fixtures/tjpgd_fast/edge-2x1.jpg",
+      "snapshot_status": "absent_from_retained_snapshot"
+    },
+    {
+      "path": "tests/fixtures/tjpgd_fast/edge-2x2.jpg",
+      "snapshot_status": "absent_from_retained_snapshot"
+    },
+    {
+      "path": "tests/fixtures/tjpgd_fast/gray-17x13.jpg",
+      "snapshot_status": "absent_from_retained_snapshot"
+    },
+    {
+      "path": "tests/fixtures/tjpgd_fast/unsupported-ffmpeg-444.jpg",
+      "snapshot_status": "absent_from_retained_snapshot"
+    },
+    {
+      "path": "tests/frame_integrity_test.py",
+      "snapshot_status": "absent_from_retained_snapshot"
+    },
+    {
+      "path": "tests/frame_prefetch_test.py",
+      "snapshot_status": "absent_from_retained_snapshot"
+    },
+    {
+      "path": "tests/idf_sd_test.py",
+      "snapshot_status": "absent_from_retained_snapshot"
+    },
+    {
+      "path": "tests/jpeg_chroma_test.py",
+      "snapshot_status": "absent_from_retained_snapshot"
+    },
+    {
+      "path": "tests/jpeg_dma_direct_test.py",
+      "snapshot_status": "absent_from_retained_snapshot"
+    },
+    {
+      "path": "tests/jpeg_portable_test.py",
+      "snapshot_status": "absent_from_retained_snapshot"
+    },
+    {
+      "path": "tests/jpeg_warmup_test.py",
+      "snapshot_status": "absent_from_retained_snapshot"
+    },
+    {
+      "path": "tests/loop_options_test.py",
+      "snapshot_status": "absent_from_retained_snapshot"
+    },
+    {
+      "path": "tests/new_jpeg_test.py",
+      "snapshot_status": "absent_from_retained_snapshot"
+    },
+    {
+      "path": "tests/qualified_defaults_test.py",
+      "snapshot_status": "absent_from_retained_snapshot"
+    },
+    {
+      "path": "tests/qualified_fast_defaults_test.py",
+      "snapshot_status": "absent_from_retained_snapshot"
+    },
+    {
+      "path": "tests/rom_jpeg_test.py",
+      "snapshot_status": "absent_from_retained_snapshot"
+    },
+    {
+      "path": "tests/sync.test.ts",
+      "snapshot_status": "modified"
+    },
+    {
+      "path": "tests/tjpgd_fast_test.py",
+      "snapshot_status": "absent_from_retained_snapshot"
+    },
+    {
+      "path": "tests/windows_device_tests_test.py",
+      "snapshot_status": "absent_from_retained_snapshot"
+    },
+    {
+      "path": "tests/windows_package_test.py",
+      "snapshot_status": "modified"
+    },
+    {
+      "path": "vite.config.ts",
+      "snapshot_status": "modified"
+    }
+  ]
+}

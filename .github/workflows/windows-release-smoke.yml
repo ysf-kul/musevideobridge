@@ -1,0 +1,123 @@
+name: Windows release smoke
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: Existing release tag to download and verify
+        required: true
+        default: v0.3.0
+
+permissions:
+  contents: read
+
+jobs:
+  packaged-runtime:
+    runs-on: windows-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download and verify the actual release archive
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.release_tag }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $version = $env:RELEASE_TAG -replace '^v', ''
+          if ($version -notmatch '^\d+\.\d+\.\d+$') { throw 'Expected a semantic version tag' }
+          $name = "Muse-Video-Bridge-$version-Windows-x64-portable.zip"
+          New-Item -ItemType Directory -Path release-smoke | Out-Null
+          gh release download $env:RELEASE_TAG -R ysf-kul/musevideobridge -p $name -p SHA256SUMS.txt -D release-smoke
+          if ($LASTEXITCODE -ne 0) { throw 'Release download failed' }
+          $line = Get-Content release-smoke/SHA256SUMS.txt | Where-Object { $_.EndsWith("  $name") }
+          if (@($line).Count -ne 1) { throw 'Missing or ambiguous release checksum' }
+          $expected = $line.Split(' ')[0]
+          $actual = (Get-FileHash "release-smoke/$name" -Algorithm SHA256).Hash.ToLowerInvariant()
+          if ($actual -ne $expected) { throw 'Release archive checksum mismatch' }
+          Expand-Archive "release-smoke/$name" -DestinationPath release-smoke/extracted
+          $packages = @(Get-ChildItem release-smoke/extracted -Directory)
+          if ($packages.Count -ne 1) { throw 'Archive must have one enclosing folder' }
+          $prefix = $packages[0].FullName
+          foreach ($entry in Get-Content (Join-Path $prefix SHA256SUMS.txt)) {
+            $parts = $entry -split '  ', 2
+            $file = Join-Path $prefix $parts[1]
+            if ((Get-FileHash $file -Algorithm SHA256).Hash.ToLowerInvariant() -ne $parts[0]) {
+              throw "Internal checksum mismatch: $($parts[1])"
+            }
+          }
+          "PACKAGE_PATH=$prefix" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          "PACKAGE_SHA256=$actual" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+      - name: Run bundled FFprobe and the complete conversion filters
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $ffmpeg = Join-Path $env:PACKAGE_PATH tools/ffmpeg.exe
+          $ffprobe = Join-Path $env:PACKAGE_PATH tools/ffprobe.exe
+          $source = (Resolve-Path tests/fixtures/windows-release/smoke.mp4).Path
+          $info = & $ffprobe -v error -show_streams -show_format -of json $source
+          if ($LASTEXITCODE -ne 0) { throw 'Bundled FFprobe could not inspect MP4' }
+          $video = ($info | ConvertFrom-Json).streams | Where-Object codec_type -eq video
+          if ($video.width -ne 320 -or $video.height -ne 240 -or $video.codec_name -ne 'h264') {
+            throw 'Unexpected test input metadata'
+          }
+          $output = Join-Path (Resolve-Path release-smoke).Path prepared.mjpeg
+          $filter = 'fps=25/1,scale=320:240:flags=bicubic:force_original_aspect_ratio=decrease:force_divisible_by=2:reset_sar=1:out_range=full:out_color_matrix=bt601,format=yuvj420p,pad=ceil(iw/8)*8:ceil(ih/8)*8:floor((ow-iw)/4)*2:floor((oh-ih)/4)*2:color=black'
+          & $ffmpeg -hide_banner -nostdin -loglevel error -protocol_whitelist file,pipe -i $source -map 0:v:0 -an -sn -dn -vf $filter -c:v mjpeg -q:v 8 -qmin 8 -qmax 8 -huffman optimal -threads 1 -f image2pipe $output
+          if ($LASTEXITCODE -ne 0 -or (Get-Item $output).Length -le 0) { throw 'Bundled conversion failed' }
+          & $ffmpeg -hide_banner -nostdin -loglevel error -xerror -f mjpeg -i $output -f null -
+          if ($LASTEXITCODE -ne 0) { throw 'Prepared JPEG stream failed decoding verification' }
+          $preparedInfo = & $ffprobe -v error -f mjpeg -count_frames -show_streams -of json $output
+          if ($LASTEXITCODE -ne 0) { throw 'Prepared stream inspection failed' }
+          $prepared = ($preparedInfo | ConvertFrom-Json).streams[0]
+          if ($prepared.width -ne 320 -or $prepared.height -ne 240 -or $prepared.nb_read_frames -ne '10') {
+            throw 'Prepared stream geometry or frame count differs from expected output'
+          }
+          & $ffmpeg -version | Out-File release-smoke/ffmpeg-version.txt
+      - name: Verify the packaged desktop creates a Windows window
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $webview = Join-Path ${env:ProgramFiles(x86)} Microsoft/EdgeWebView/Application
+          if (-not (Test-Path $webview)) {
+            $installer = Join-Path $env:RUNNER_TEMP MicrosoftEdgeWebview2Setup.exe
+            Invoke-WebRequest https://go.microsoft.com/fwlink/p/?LinkId=2124703 -OutFile $installer
+            $setup = Start-Process -FilePath $installer -ArgumentList '/silent','/install' -Wait -PassThru
+            if ($setup.ExitCode -ne 0) { throw "WebView2 installation failed: $($setup.ExitCode)" }
+          }
+          $exe = Join-Path $env:PACKAGE_PATH 'Muse Video Bridge.exe'
+          $app = Start-Process -FilePath $exe -WorkingDirectory $env:PACKAGE_PATH -PassThru -RedirectStandardOutput release-smoke/app-stdout.txt -RedirectStandardError release-smoke/app-stderr.txt
+          try {
+            $deadline = (Get-Date).AddSeconds(45)
+            do {
+              Start-Sleep -Seconds 1
+              $app.Refresh()
+              if ($app.HasExited) { throw "Desktop exited during startup: $($app.ExitCode)" }
+            } while ($app.MainWindowHandle -eq 0 -and (Get-Date) -lt $deadline)
+            if ($app.MainWindowHandle -eq 0) { throw 'Desktop did not create a native window' }
+            Start-Sleep -Seconds 5
+            $app.Refresh()
+            if ($app.HasExited) { throw 'Desktop exited after window creation' }
+            [ordered]@{
+              release_tag = '${{ inputs.release_tag }}'
+              package_sha256 = $env:PACKAGE_SHA256
+              os = (Get-CimInstance Win32_OperatingSystem).Caption
+              architecture = $env:PROCESSOR_ARCHITECTURE
+              ffprobe_inspection = 'passed'
+              ffmpeg_conversion_and_decode = 'passed'
+              desktop_window_creation = 'passed'
+              physical_usb_tested = $false
+              interactive_controls_tested = $false
+            } | ConvertTo-Json | Out-File release-smoke/windows-runtime-evidence.json -Encoding utf8
+          } finally {
+            if (-not $app.HasExited) { Stop-Process -Id $app.Id -Force }
+          }
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: windows-release-smoke-evidence
+          path: |
+            release-smoke/windows-runtime-evidence.json
+            release-smoke/ffmpeg-version.txt
+            release-smoke/app-stdout.txt
+            release-smoke/app-stderr.txt

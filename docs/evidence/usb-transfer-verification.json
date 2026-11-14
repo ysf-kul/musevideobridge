@@ -1,0 +1,104 @@
+{
+  "date": "2026-11-12",
+  "task": "USB reliability and playback quality/performance investigation",
+  "outcome": "source hardening and host verification complete; physical qualification incomplete",
+  "original_device_root_cause": "unconfirmed: original desktop/firmware errors could not be captured",
+  "device_access": {
+    "requested_port": "/dev/ttyUSB0",
+    "sysfs_device_number": "188:0",
+    "session_device_node_present": false,
+    "captured_error": {
+      "error": {
+        "code": "connection_failed",
+        "details": "No such file or directory"
+      },
+      "message": "Could not open the selected connection. Check access permissions.",
+      "ok": false
+    },
+    "firmware_responses_captured": false
+  },
+  "protected_documents_unchanged": {
+    "MUSE_GUIDELINES.md": "b19624f475656d2ad9839e28c14d1e8792f2e9c41af0d2f7688371961ae27317",
+    "MUSE_DESIGN_SYSTEM.md": "5fa3df88a80b2f9ef454efd886fc0301675983e1c6c83a0e4c5aa92ed363ed87",
+    "AGENTS.md": "3b20053c06f27bdaea9478d446d690993c601a8d35b0dfb79b4f1829892a6c1e"
+  },
+  "device_flash_or_configuration_changed": false,
+  "checks": {
+    "rust_workspace": {
+      "passed": 25,
+      "failed": 0,
+      "native_tests_ignored": 12,
+      "log": ".verification/usb-playback/rust-tests.log"
+    },
+    "native_engine": {
+      "passed": 11,
+      "failed": 0,
+      "log": ".verification/usb-playback/device-tests.log"
+    },
+    "native_desktop_actor": {
+      "passed": 1,
+      "failed": 0,
+      "log": ".verification/usb-playback/desktop-actor-tests.log"
+    },
+    "native_renderer_and_stdio": {
+      "golden_cases": 500,
+      "address_and_undefined_behavior_sanitizers": "passed",
+      "leak_sanitizer": "not run: ptrace restrictions; detect_leaks=0",
+      "log": ".verification/usb-playback/native-build.log"
+    },
+    "rust_clippy": "passed with warnings denied",
+    "rust_format": "passed",
+    "frontend_typecheck": "0 errors, 0 warnings",
+    "frontend_sync_test": "1 passed, 0 failed",
+    "frontend_format": "passed",
+    "frontend_production_build": "passed",
+    "linux_desktop_build": {
+      "result": "passed",
+      "binary": "target/debug/muse-video-bridge"
+    },
+    "esp32_build": {
+      "result": "passed",
+      "static_ram_bytes": 36876,
+      "flash_bytes": 639146,
+      "warning": "existing TFT_eSPI TOUCH_CS undefined; touch functions unavailable"
+    },
+    "browser_workflow": "could not start: localhost listeners denied (EPERM/PermissionDenied)",
+    "reconnect_after_final_metadata_validation": "passed"
+  },
+  "encoding": {
+    "host_profiles": 14,
+    "reports": [
+      ".verification/usb-playback/encoding-detailed/report.json",
+      ".verification/usb-playback/encoding-wide/report.json"
+    ],
+    "simulator_profiles_transferred_verified_played": 4,
+    "largest_simulator_transfer_bytes": 2972972,
+    "cancellation_and_fresh_client_resume": "passed in native simulator",
+    "row_render_and_decoder_mcus_1": "passed in native simulator",
+    "perceived_quality_on_physical_screen": "not evaluated",
+    "actual_esp32_fps_decode_render_sd_timings": null,
+    "default_changed": false,
+    "retained_default": {
+      "qscale": 8,
+      "fps": 10,
+      "max_width": 320,
+      "max_height": 240,
+      "chroma": "4:2:0"
+    }
+  },
+  "platforms": {
+    "linux": "desktop build and host workflows verified; physical serial/SD/TFT unverified",
+    "windows": "new source not build/runtime qualified; previous packages predate these changes",
+    "macos": "outside target scope"
+  },
+  "remaining": [
+    "capture original desktop and firmware transfer failures",
+    "install compatible firmware only within authorized device scope if required",
+    "physical USB video transfer and SD size/SHA-256 verification",
+    "physical playback and cancellation/interruption recovery",
+    "real FPS/read/decode/draw/heap measurement and screen quality evaluation",
+    "select encoding default from physical benchmarks",
+    "manual/browser accessibility and responsive state review"
+  ],
+  "report": "docs/USB_TRANSFER_AND_PLAYBACK_REPORT.md"
+}

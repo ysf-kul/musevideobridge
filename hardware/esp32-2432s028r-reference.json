@@ -1,0 +1,72 @@
+{
+  "status": "documentation-reference-only",
+  "activation": "requires-physical-controller-and-wiring-confirmation",
+  "model": "ESP32-2432S028R",
+  "owner_confirmed": {
+    "usb_connector_count": 1,
+    "diagonal_inches": 2.8,
+    "touch_type": "resistive",
+    "installed_sd_card_nominal_gb": 4,
+    "pcb_revision": null
+  },
+  "observed_here": {
+    "usb_vid": "1a86",
+    "usb_pid": "7523",
+    "usb_family": "CH340",
+    "serial_port": "/dev/ttyUSB0",
+    "rom_identification": "blocked-by-os-permissions",
+    "chip_revision": null,
+    "flash_bytes": null,
+    "psram_bytes": null,
+    "free_heap_bytes": null,
+    "lcd_controller": null,
+    "sd_filesystem": null
+  },
+  "reference": {
+    "source_commit": "0564a140c76de76ef34a8b7115044e7c6c852695",
+    "mcu_schematic_revision": "V0.1, 2022-07-15",
+    "lcm_schematic_revision": "V0.1, 2022-07-09",
+    "expected_soc": "classic ESP32 / ESP32-WROOM-32",
+    "expected_flash_bytes": 4194304,
+    "soc_internal_sram_bytes": 532480,
+    "assume_psram": false,
+    "native_width": 240,
+    "native_height": 320,
+    "logical_width": 320,
+    "logical_height": 240,
+    "candidate_controller": "ILI9341",
+    "lcd": {
+      "host": "HSPI/SPI2_HOST",
+      "sck": 14,
+      "mosi": 13,
+      "miso": 12,
+      "cs": 15,
+      "dc": 2,
+      "backlight": 21,
+      "reset_gpio": -1,
+      "reset_net": "ESP32_EN",
+      "initial_clock_hz": 20000000,
+      "qualification_clock_hz": 40000000
+    },
+    "sd": {
+      "host": "VSPI/SPI3_HOST",
+      "sck": 18,
+      "mosi": 23,
+      "miso": 19,
+      "cs": 5,
+      "card_detect_gpio": null,
+      "initial_operating_clock_hz": 10000000
+    },
+    "touch": {
+      "controller": "XPT2046",
+      "host_policy": "software-SPI-if-enabled; otherwise-CS-high",
+      "sck": 25,
+      "mosi": 32,
+      "miso": 39,
+      "cs": 33,
+      "irq": 36
+    },
+    "uart": { "tx": 1, "rx": 3 },
+    "temperature_supported": false
+  }
+}

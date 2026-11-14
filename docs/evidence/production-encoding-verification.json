@@ -1,0 +1,249 @@
+{
+  "scope": "initial production encoding/default host audit, with separately identified later real-device 16:9 and final native default25 USB followups",
+  "production_files_changed": [
+    "crates/muse-video-core/src/media.rs",
+    "crates/muse-video-desktop/src/settings.rs",
+    "src/lib/types.ts",
+    "src/App.svelte",
+    "crates/muse-video-cli/src/main.rs",
+    "crates/muse-video-core/tests/video_storage.rs",
+    "crates/muse-video-core/tests/device_engine.rs",
+    "tests/sync.test.ts",
+    "tests/browser/workflow.spec.ts",
+    "vite.config.ts"
+  ],
+  "new_research_files": [
+    "research/prepare_native_sizes.py"
+  ],
+  "research_source_updated": [
+    "research/decode_jpeg_research.cpp"
+  ],
+  "defaults": {
+    "first_launch_encoded_fps": 25,
+    "qscale": 8,
+    "scaling": "bicubic",
+    "sampling": "420",
+    "huffman": "optimal",
+    "audio": false,
+    "language": "tr",
+    "saved_settings_preserved": true
+  },
+  "checks": {
+    "workspace_rust_passed": 38,
+    "workspace_rust_ignored_native_dependent": 20,
+    "core_guarded_library_passed": 14,
+    "frontend_unit_passed": 6,
+    "svelte_errors": 0,
+    "svelte_warnings": 0,
+    "workspace_clippy": "passed",
+    "rust_format": "passed",
+    "frontend_format": "passed",
+    "frontend_build": "passed",
+    "cli_default_conversion": "passed",
+    "browser_final": {
+      "passed": 1,
+      "seconds": 14.2,
+      "evidence": "optimal-production-browser-final/result.json"
+    },
+    "browser_prior_fixture_failures_retained": [
+      "empty-state FPS assertion",
+      "0.1-second seek assumed10-FPS frame1 rather than25-FPS frame3"
+    ],
+    "dev_watcher_smoke": {
+      "HTML_HTTP": 200,
+      "App_svelte_HTTP": 200,
+      "ELOOP": 0,
+      "file_watcher_errors": 0
+    },
+    "final_workspace_including_native": {
+      "passed": 59,
+      "failed": 0,
+      "ignored": 0,
+      "host_exit_code": 0,
+      "log": ".verification/session-2026-11-13/release-final-workspace-tests.log",
+      "scope": "corrected complete final source suite; original38-test audit retained above; ASan leak checks disabled"
+    }
+  },
+  "source_sha256_after": "484143c9e5352efa1b64cf52924b41f17f739adc4d3022f4a81685a700a32672",
+  "mandatory_files_modified": false,
+  "windows_runtime_verified": false,
+  "schema_version": 1,
+  "date": "2026-11-13",
+  "prepared_default_artifact": {
+    "resolution": [
+      320,
+      240
+    ],
+    "source_fps": 30,
+    "encoded_fps": 25,
+    "actual_esp32_fps": null,
+    "frames": 300,
+    "duration_us": 12000000,
+    "file_bytes": 2444120,
+    "maximum_jpeg_bytes": 8657,
+    "sha256": "9c19f630b9b2205dc5c25932c64b377f9b811dd3023dc5d68be73928bdee7fb7",
+    "verified_on_host": true,
+    "physical_status": "PASS: final native desktop USB, stored size/SHA verification, matching automatic playback and15 control snapshots on exact3de1a18f firmware",
+    "verified_on_device": true,
+    "native_usb_evidence": "docs/evidence/final-native-desktop-usb-e2e.json",
+    "actual_fps_scope": "No whole-clip aggregate measured in native UI workflow; short-window telemetry median24.99748775FPS, target25, separately from final-firmware target30 endurance",
+    "native_telemetry_actual_fps_median": 24.99748775
+  },
+  "audio_regression": {
+    "source_video_fps": 12,
+    "source_video_duration_us": 3000000,
+    "source_aac_duration_seconds": 7,
+    "converted_fps": 25,
+    "converted_frames": 75,
+    "converted_duration_us": 3000000,
+    "both_prepared_sha256_identical": true,
+    "sources_unchanged": true,
+    "prior_converter_already_video_only": true,
+    "audio_removal_saving_bytes": 0
+  },
+  "entropy_equivalence": {
+    "ffmpeg_identical_rgb_bytes": 82944000,
+    "tjpgd_identical_paired_frames": 360,
+    "jpegdec_rgb565_differing_pixels": 51253,
+    "jpegdec_compared_pixels": 27648000,
+    "jpegdec_difference_percent": 0.1854,
+    "jpegdec_maximum_rgb565_step_difference": 8,
+    "scope": "host decoder comparisons; active Espressif single-frame physical CRC is in the real hardware report"
+  },
+  "subsequent_aligned_padding_audit": {
+    "scope": "host-only aligned containment padding, code frozen",
+    "files_changed": [
+      "crates/muse-video-core/src/media.rs",
+      "crates/muse-video-core/tests/video_storage.rs"
+    ],
+    "behavior": {
+      "aligned_request_bounds_only": true,
+      "contain_only": true,
+      "format": "yuvj420p",
+      "pad_multiple": 8,
+      "centering_max_displacement_pixels": 1,
+      "colour_roundtrip_added": false,
+      "additional_scaling_added": false,
+      "runtime_ESP_transform_added": false,
+      "explicit_non_aligned_bounds_preserved": true
+    },
+    "common_examples": {
+      "640x360_default_bounds": "320x180 active content ->320x184, exact2 blackrows eachside",
+      "240x320_default_bounds": "180x240 active content ->184x240, exact2 blackcolumns eachside",
+      "640x360_304x224_bounds": "304x172 active content ->304x176, exact2 blackrows eachside",
+      "640x340_default_bounds": "320x170 active content ->320x176, top2/bottom4 rows with1px centre displacement",
+      "268x480_default_bounds": "134x240 active content ->136x240, left0/right2 columns with1px centre displacement"
+    },
+    "checks": {
+      "raw_RGB_pixel_oracle_cases": 9,
+      "exact_content_and_black_border_pixels": "passed",
+      "workspace_rust_passed": 39,
+      "workspace_rust_native_dependent_ignored": 20,
+      "guarded_core_library_passed": 15,
+      "real_MP4_video_storage_passed": 11,
+      "workspace_clippy": "passed",
+      "rust_format": "passed"
+    },
+    "full_320x240_default_output": {
+      "byte_identical_to_before_padding": true,
+      "sha256": "9c19f630b9b2205dc5c25932c64b377f9b811dd3023dc5d68be73928bdee7fb7",
+      "file_bytes": 2444120,
+      "frames": 300,
+      "encoded_fps": 25
+    },
+    "earlier_corrected_check_failures": "aligned-padding-initial-checks.json",
+    "physical_padding_playback_verified": true,
+    "physical_followup": {
+      "scope": "short real-device 16:9 USB verification/playback, separate from host audit",
+      "evidence": ".verification/session-2026-11-13/hardware/usb-padded184-final.jsonl",
+      "resolution": [
+        320,
+        184
+      ],
+      "source_fps": 30,
+      "encoded_fps": 25,
+      "target_fps": 25,
+      "actual_fps": 24.995025989828026,
+      "frames_presented": 75,
+      "dropped_frames": 0,
+      "rate_skipped_frames": 0,
+      "file_bytes": 472216,
+      "sha256": "bda458f2e02b731b4b1f0d75765de7809232e00e219337ad262cb3d1b51ddc5e",
+      "verified_bytes": 472216,
+      "sample_pixels_mismatched": 0,
+      "sample_pixels_checked": 15,
+      "separate_full_region_pixels_mismatched": 0,
+      "separate_full_region_pixels_checked": 58880,
+      "portrait_physical_playback_verified": false,
+      "padded_endurance_verified": false,
+      "prior_converter_audio_removal_savings_bytes": 0
+    },
+    "host_run_had_physical_access": false
+  },
+  "followup_wholevideo_rgb_quality": {
+    "scope": "shared-reference wholevideoRGB quality only,no deviceFPS claim",
+    "source_sha256_before": "484143c9e5352efa1b64cf52924b41f17f739adc4d3022f4a81685a700a32672",
+    "source_sha256_after": "484143c9e5352efa1b64cf52924b41f17f739adc4d3022f4a81685a700a32672",
+    "results": [
+      [
+        "q8-bicubic-optimal",
+        "psnr",
+        {
+          "r": 25.619691,
+          "g": 29.410606,
+          "b": 24.578023,
+          "average": 26.095311,
+          "min": 25.302965,
+          "max": 27.124794
+        }
+      ],
+      [
+        "q8-bicubic-optimal",
+        "ssim",
+        {
+          "RGB_SSIM": 0.692648
+        }
+      ],
+      [
+        "q10-area-default",
+        "psnr",
+        {
+          "r": 25.349667,
+          "g": 29.214577,
+          "b": 24.237157,
+          "average": 25.80298,
+          "min": 25.021198,
+          "max": 26.84759
+        }
+      ],
+      [
+        "q10-area-default",
+        "ssim",
+        {
+          "RGB_SSIM": 0.677784
+        }
+      ],
+      [
+        "q10-area-optimal",
+        "psnr",
+        {
+          "r": 25.349667,
+          "g": 29.214577,
+          "b": 24.237157,
+          "average": 25.80298,
+          "min": 25.021198,
+          "max": 26.84759
+        }
+      ],
+      [
+        "q10-area-optimal",
+        "ssim",
+        {
+          "RGB_SSIM": 0.677784
+        }
+      ]
+    ]
+  },
+  "initial_host_audit_serial_opened": false,
+  "initial_host_audit_hardware_build_performed": false
+}

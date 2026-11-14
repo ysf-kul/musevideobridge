@@ -1,0 +1,19 @@
+[package]
+name = "muse-video-bridge"
+version = "0.3.0"
+edition.workspace = true
+rust-version.workspace = true
+publish = false
+license.workspace = true
+repository.workspace = true
+[features]
+custom-protocol = ["tauri/custom-protocol"]
+[build-dependencies]
+tauri-build = { version = "=2.7.4", features = [] }
+[dependencies]
+tauri = { version = "=2.12.5", features = [] }
+tauri-plugin-dialog = "=2.8.4"
+muse-video-desktop = { path = "../crates/muse-video-desktop" }
+muse-video-core = { path = "../crates/muse-video-core" }
+serde.workspace = true
+serde_json.workspace = true

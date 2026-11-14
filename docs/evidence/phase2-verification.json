@@ -1,0 +1,129 @@
+{
+  "schema_version": 1,
+  "phase": 2,
+  "date": "2026-11-11",
+  "environment": "CachyOS Linux VM",
+  "protected_document_sha256": {
+    "MUSE_GUIDELINES.md": "b19624f475656d2ad9839e28c14d1e8792f2e9c41af0d2f7688371961ae27317",
+    "MUSE_DESIGN_SYSTEM.md": "5fa3df88a80b2f9ef454efd886fc0301675983e1c6c83a0e4c5aa92ed363ed87",
+    "AGENTS.md": "3b20053c06f27bdaea9478d446d690993c601a8d35b0dfb79b4f1829892a6c1e"
+  },
+  "host_tools": {
+    "rust": "1.99.1",
+    "cargo": "1.99.1",
+    "python": "3.14.9",
+    "clang": "23.1.4",
+    "ffmpeg": "9.0.2",
+    "platformio": "6.2.0"
+  },
+  "tests": {
+    "rust_unit": {
+      "passed": 7
+    },
+    "ffmpeg_storage_integration": {
+      "passed": 9
+    },
+    "shared_native_engine_integration": {
+      "passed": 6,
+      "sanitizers": [
+        "address",
+        "undefined"
+      ],
+      "linux_pty": true
+    },
+    "native_core": {
+      "passed": true,
+      "transform_cases": 320,
+      "dirty_region_cases": 4
+    },
+    "cargo_fmt": true,
+    "cargo_clippy_warnings_as_errors": true,
+    "clang_format": true,
+    "documentation_links": true,
+    "localization_parity_and_error_keys": true
+  },
+  "firmware": {
+    "compiled": true,
+    "platform": "espressif32@8.0.0",
+    "arduino": "3.3.12",
+    "environment": "cyd_ili9341",
+    "static_ram_bytes": 36884,
+    "application_flash_bytes": 627214,
+    "engine_type_bytes": 74352,
+    "jpegdec_type_bytes": 17884,
+    "frame_type_bytes": 2064,
+    "physical_tested": false,
+    "binary_sha256": "91266f6e591febd3612f8e396c72551781576b958bcae60b2c889cdf020e5be0"
+  },
+  "conversion_cases": {
+    "pattern": {
+      "schema_version": 1,
+      "sha256": "5400cd06ab62a9feda67c3266c98517e5550079d8e96b37bc553e0691e091ad1",
+      "header": {
+        "width": 320,
+        "height": 180,
+        "fps": {
+          "numerator": 10,
+          "denominator": 1
+        },
+        "frames": 40,
+        "duration_us": 4000000,
+        "index_offset": 238400,
+        "file_bytes": 239360,
+        "max_jpeg_bytes": 6404,
+        "index_crc": 171561182
+      },
+      "options": {
+        "fps": {
+          "numerator": 10,
+          "denominator": 1
+        },
+        "qscale": 8,
+        "fit": "Contain"
+      },
+      "input": {
+        "width": 640,
+        "height": 360,
+        "duration_us": 4000000,
+        "original_fps": {
+          "numerator": 30,
+          "denominator": 1
+        },
+        "nominal_fps": {
+          "numerator": 30,
+          "denominator": 1
+        },
+        "sample_aspect_ratio": "1:1",
+        "display_aspect_ratio": "16:9",
+        "rotation_deg": 0,
+        "codec": "h264",
+        "interlaced": false
+      },
+      "converter": "ffmpeg version n9.0.2 Copyright (c) 2000-2026 the FFmpeg developers"
+    },
+    "selected_high_quality_noise": {
+      "qscale": 4,
+      "fps": 10,
+      "expected_error": "frame_too_large",
+      "failure": {
+        "code": "frame_too_large",
+        "details": "49152"
+      }
+    }
+  },
+  "hardware": {
+    "owner_confirmed_board": "one-USB ESP32-2432S028R resistive",
+    "physical_port_access": false,
+    "pcb_revision": null,
+    "controller_verified": false,
+    "physical_flash_written": false,
+    "physical_sd_written": false,
+    "physical_device_configuration_changed": false
+  },
+  "platforms": {
+    "linux_host": "build and runtime tested in available VM",
+    "esp32": "build verified only",
+    "windows": "not built or runtime tested",
+    "macos": "outside scope"
+  }
+}

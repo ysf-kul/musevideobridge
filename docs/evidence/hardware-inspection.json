@@ -1,0 +1,39 @@
+{
+  "date": "2026-11-11",
+  "owner_confirmed": {
+    "model": "ESP32-2432S028R",
+    "usb_connector_count": 1,
+    "touch": "resistive",
+    "installed_card_nominal_gb": 4,
+    "pcb_revision": null
+  },
+  "observed_usb": {
+    "vid": "1a86",
+    "pid": "7523",
+    "family": "CH340",
+    "port": "/dev/ttyUSB0",
+    "device_owner": "root",
+    "device_group": "uucp",
+    "mode": "0660"
+  },
+  "read_only_rom_attempt": {
+    "tool": "esptool 4.9.0",
+    "command": "flash_id",
+    "no_stub": true,
+    "exit_code": 2,
+    "errno": 13,
+    "error": "Permission denied before opening serial port"
+  },
+  "device_commands_sent": false,
+  "device_reset_performed": false,
+  "ram_stub_loaded": false,
+  "flash_written": false,
+  "sd_written": false,
+  "device_configuration_changed": false,
+  "os_permissions_changed": false,
+  "chip_revision": null,
+  "flash_bytes": null,
+  "lcd_controller": null,
+  "runtime_heap_bytes": null,
+  "sd_filesystem": null
+}

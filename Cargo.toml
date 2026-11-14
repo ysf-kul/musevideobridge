@@ -1,0 +1,22 @@
+[workspace]
+members = ["crates/muse-video-core", "crates/muse-video-cli", "crates/muse-video-desktop", "src-tauri"]
+resolver = "2"
+default-members = ["crates/muse-video-core", "crates/muse-video-cli", "crates/muse-video-desktop"]
+
+[workspace.package]
+version = "0.2.0"
+edition = "2021"
+rust-version = "1.90"
+publish = false
+license = "MIT"
+repository = "https://github.com/ysf-kul/musevideobridge"
+
+[workspace.dependencies]
+serde = { version = "=1.0.229", features = ["derive"] }
+serde_json = "=1.0.154"
+sha2 = "=0.10.9"
+crc32fast = "=1.5.4"
+serialport = "=4.10.1"
+libc = "=0.2.191"
+tempfile = "=3.27.0"
+

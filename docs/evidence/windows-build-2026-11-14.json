@@ -1,0 +1,95 @@
+{
+  "windows_desktop": {
+    "path": "target/x86_64-pc-windows-msvc/release/muse-video-bridge.exe",
+    "bytes": 10820608,
+    "sha256": "cc8a0946cea0e4a22d292e0679d3c352174daad627c3e12110596ba6eb7a5ceb",
+    "imports": [
+      "kernel32.dll",
+      "user32.dll",
+      "ole32.dll",
+      "gdi32.dll",
+      "dwmapi.dll",
+      "shlwapi.dll",
+      "comctl32.dll",
+      "api-ms-win-core-synch-l1-2-0.dll",
+      "bcryptprimitives.dll",
+      "shell32.dll",
+      "combase.dll",
+      "imm32.dll",
+      "ADVAPI32.dll",
+      "ntdll.dll",
+      "oleaut32.dll",
+      "api-ms-win-core-winrt-error-l1-1-0.dll",
+      "setupapi.dll",
+      "cfgmgr32.dll",
+      "api-ms-win-crt-convert-l1-1-0.dll",
+      "api-ms-win-crt-string-l1-1-0.dll",
+      "api-ms-win-crt-math-l1-1-0.dll",
+      "api-ms-win-crt-runtime-l1-1-0.dll",
+      "api-ms-win-crt-heap-l1-1-0.dll",
+      "api-ms-win-crt-stdio-l1-1-0.dll",
+      "api-ms-win-crt-locale-l1-1-0.dll"
+    ]
+  },
+  "windows_cli": {
+    "path": "target/x86_64-pc-windows-msvc/release/muse-video-cli.exe",
+    "bytes": 1155584,
+    "sha256": "2bc613bc569a9df4d219a1c681b880fe8c278003bec3768abe6c56e23b76e503",
+    "imports": [
+      "kernel32.dll",
+      "api-ms-win-core-synch-l1-2-0.dll",
+      "ntdll.dll",
+      "bcryptprimitives.dll",
+      "setupapi.dll",
+      "cfgmgr32.dll",
+      "advapi32.dll"
+    ]
+  },
+  "firmware": {
+    "path": "firmware/.pio/build/cyd_optimized_input_aligned/firmware.bin",
+    "bytes": 665888,
+    "sha256": "3de1a18fdd0eb993c6fb53a311317ebe62e2b82b07ec634f030d21496483343f"
+  },
+  "schema_version": 1,
+  "date": "2026-11-14",
+  "windows_cross_build_verified": true,
+  "windows_runtime_tested": false,
+  "windows_flashing_tested": false,
+  "windows_usb_e2e_tested": false,
+  "firmware_environment": "cyd_optimized_input_aligned",
+  "firmware_linux_flash_verified": true,
+  "protected_documents": {
+    "MUSE_GUIDELINES.md": "b19624f475656d2ad9839e28c14d1e8792f2e9c41af0d2f7688371961ae27317",
+    "MUSE_DESIGN_SYSTEM.md": "5fa3df88a80b2f9ef454efd886fc0301675983e1c6c83a0e4c5aa92ed363ed87",
+    "AGENTS.md": "3b20053c06f27bdaea9478d446d690993c601a8d35b0dfb79b4f1829892a6c1e"
+  },
+  "checks": {
+    "rust_workspace": {
+      "passed": 59,
+      "failed": 0,
+      "ignored": 0
+    },
+    "fast_defaults_sanitized": {
+      "passed": 8,
+      "failed": 0
+    },
+    "direct_dma_sanitized": {
+      "passed": 10,
+      "failed": 0
+    },
+    "windows_package_host": {
+      "passed": 16,
+      "failed": 0
+    },
+    "windows_device_helper_host": {
+      "passed": 4,
+      "failed": 0
+    }
+  },
+  "notes": [
+    "Windows release builds passed with missing external debug-PDB linker warnings.",
+    "Host PowerShell and native simulator tests do not establish Windows runtime compatibility.",
+    "Private flash backup and generated host data are excluded from source/package selection.",
+    "Final archive SHA-256 values are stored externally to avoid self-referencing archive contents."
+  ]
+}
