@@ -1,0 +1,13 @@
+{
+  "release_tag": "v0.4.0",
+  "package_sha256": "f66c859f7557bc921974ab3028a486b9b677227fb22dbf58e4d06866d55da9a8",
+  "os": "Microsoft Windows Server 2025 Datacenter",
+  "architecture": "AMD64",
+  "ffprobe_inspection": "passed",
+  "ffmpeg_conversion_and_decode": "passed",
+  "desktop_window_creation": "passed",
+  "physical_usb_tested": false,
+  "interactive_controls_tested": false,
+  "workflow_url": "https://github.com/ysf-kul/musevideobridge/actions/runs/43643506196",
+  "scope": "Published-package checksum, bundled conversion/decode, native HWND creation and five-second survival. Physical USB and interactive acceptance unverified."
+}

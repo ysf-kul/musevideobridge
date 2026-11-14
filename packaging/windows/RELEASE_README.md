@@ -1,8 +1,8 @@
 # Muse Video Bridge — Windows x64 portable
 
-Version 0.4.0 is a pre-release. Touch controls are experimental: unobserved hardware
-diagnostics registered contacts and briefly showed the overlay. Physical calibration
-and touch/display acceptance are incomplete.
+Version 0.4.0 is a pre-release. Physical touch-button actions, calibration and
+display acceptance are incomplete. The owner confirmed tapping during diagnostics;
+the clips with registered contacts are excluded from idle qualification.
 
 Extract the complete ZIP into a writable folder and open `Start-App.cmd` or
 `Muse Video Bridge.exe`. Windows 10/11 x64 and Microsoft Edge WebView2 Runtime
@@ -58,9 +58,11 @@ playback sustained approximately 29.80 actual FPS over five active minutes, with
 25 full-region TFT-memory checks reporting zero mismatches and zero DMA ownership
 errors. These prior measurements do not establish Windows runtime or USB behavior.
 The requested FPS and actual FPS are separate values. Audio, arbitrary rotation,
-and calibrated temperature are unavailable. The new queue/touch firmware measured
-29.74 actual FPS over one active minute on the reference device, with zero DMA
-ownership errors and zero mismatches in five separate full-region readback checks.
+and calibrated temperature are unavailable. Version 0.4.0 measured 29.73 actual FPS
+over 228 active seconds across 19 full-screen clips on the reference device,
+excluding the initial overlay-affected clip. All 20 separate full-region readback
+checks passed with zero mismatches and DMA ownership errors. This does not qualify
+physical touch-button actions or display appearance.
 
 Documentation and source: https://github.com/ysf-kul/musevideobridge .
 Downloads: https://github.com/ysf-kul/musevideobridge/releases .

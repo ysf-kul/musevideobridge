@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "checked_at_utc": "2026-11-14T21:42:34.026961+00:00",
+  "website_commit": "bfec3c37a600e255db83a7845b95e4928c97a391",
+  "deployment_workflow_url": "https://github.com/ysf-kul/muse/actions/runs/43643930021",
+  "deployment_conclusion": "success",
+  "pages": [
+    {
+      "url": "https://ysf-kul.github.io/muse/",
+      "final_url": "https://ysf-kul.github.io/muse/",
+      "status": 200,
+      "bytes": 35512,
+      "release_links": [],
+      "screenshots": []
+    },
+    {
+      "url": "https://ysf-kul.github.io/muse/software/video-bridge/",
+      "final_url": "https://ysf-kul.github.io/muse/software/video-bridge/",
+      "status": 200,
+      "bytes": 54956,
+      "release_links": [
+        "https://github.com/ysf-kul/musevideobridge/releases/download/v0.4.0/Muse-Video-Bridge-0.4.0-Linux-x86_64.AppImage",
+        "https://github.com/ysf-kul/musevideobridge/releases/download/v0.4.0/Muse-Video-Bridge-0.4.0-Linux-x86_64.tar.gz",
+        "https://github.com/ysf-kul/musevideobridge/releases/download/v0.4.0/Muse-Video-Bridge-0.4.0-Linux-amd64.deb",
+        "https://github.com/ysf-kul/musevideobridge/releases/download/v0.4.0/Muse-Video-Bridge-0.4.0-Linux-x86_64.rpm",
+        "https://github.com/ysf-kul/musevideobridge/releases/download/v0.4.0/Muse-Video-Bridge-0.4.0-Windows-x64-portable.zip",
+        "https://github.com/ysf-kul/musevideobridge/releases/tag/v0.4.0"
+      ],
+      "screenshots": [
+        "/muse/assets/video-bridge-desktop.webp"
+      ]
+    },
+    {
+      "url": "https://ysf-kul.github.io/muse/en/software/video-bridge/",
+      "final_url": "https://ysf-kul.github.io/muse/en/software/video-bridge/",
+      "status": 200,
+      "bytes": 54301,
+      "release_links": [
+        "https://github.com/ysf-kul/musevideobridge/releases/download/v0.4.0/Muse-Video-Bridge-0.4.0-Linux-x86_64.AppImage",
+        "https://github.com/ysf-kul/musevideobridge/releases/download/v0.4.0/Muse-Video-Bridge-0.4.0-Linux-x86_64.tar.gz",
+        "https://github.com/ysf-kul/musevideobridge/releases/download/v0.4.0/Muse-Video-Bridge-0.4.0-Linux-amd64.deb",
+        "https://github.com/ysf-kul/musevideobridge/releases/download/v0.4.0/Muse-Video-Bridge-0.4.0-Linux-x86_64.rpm",
+        "https://github.com/ysf-kul/musevideobridge/releases/download/v0.4.0/Muse-Video-Bridge-0.4.0-Windows-x64-portable.zip",
+        "https://github.com/ysf-kul/musevideobridge/releases/tag/v0.4.0"
+      ],
+      "screenshots": [
+        "/muse/assets/video-bridge-desktop.webp"
+      ],
+      "owner_touch_clarification_present": true,
+      "physical_acceptance_qualification_present": true,
+      "performance_figures_present": true
+    }
+  ],
+  "screenshot_asset": {
+    "url": "https://ysf-kul.github.io/muse/assets/video-bridge-desktop.webp",
+    "status": 200,
+    "content_type": "image/webp",
+    "bytes": 37130,
+    "sha256": "aa4b7a3f09b8d6fb15f86a98d00ae5cb15f86a3995cfbc14c2d2c07b372e00ed",
+    "matches_deployed_repository_asset": true
+  }
+}

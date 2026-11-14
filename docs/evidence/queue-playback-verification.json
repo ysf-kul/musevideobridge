@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "date": "2026-11-15",
-  "status": "implemented; automated and USB hardware checks passed; owner authorized v0.4.0 publication with physical touch/visual acceptance unverified",
+  "status": "v0.4.0 published as a pre-release; automated, USB and packaged Windows runner checks passed; touch remains experimental",
   "firmware": {
     "environment": "cyd_optimized_input_aligned",
     "version": "0.3.0",
@@ -108,23 +108,33 @@
   },
   "platforms": {
     "Linux": "CachyOS x86-64: optimized build, native window launch, production backend with real USB acceptance",
-    "Windows": "x64 MSVC optimized cross-build passed; updated Windows runtime and COM hardware unverified"
+    "Windows": "Optimized x64 MSVC cross-build and production ZIP verified; published-package startup/conversion smoke passed on Windows Server 2025 AMD64. Interactive Windows 10/11 and physical COM/USB remain unverified."
   },
   "limitations": [
-    "Physical touch calibration, physical taps and display appearance unverified by user choice.",
+    "Physical touch-button actions, panel calibration and display appearance unverified by user choice; owner confirmed taps during diagnostics.",
     "Queue order/mode and prepared preview registrations are session-local.",
     "Port reopen restarted the connected unit; boot queue/mode were refreshed rather than overwritten.",
     "One preliminary HELLO-discovery run timed out; later real probes and complete acceptance succeeded.",
-    "Performance is five 12-second runs with gaps; it does not repeat the previous five-minute qualification.",
+    "Version 0.4.0 performance covers 228 active seconds across 19 full-screen clips with gaps; it does not repeat the previous five-minute qualification.",
     "USB closure/restart and checkpoint recovery covered in automated tests; physical cable interruption unverified."
   ],
   "publication": {
-    "new_release_published": false,
-    "website_updated": false,
+    "new_release_published": true,
+    "website_updated": true,
     "gate": "Owner requested publication on 2026-11-15 with remaining physical touch/visual limitations disclosed.",
     "authorized": true,
     "planned_tag": "v0.4.0",
-    "prerelease": true
+    "prerelease": true,
+    "url": "https://github.com/ysf-kul/musevideobridge/releases/tag/v0.4.0",
+    "source_commit": "76c98e612ff97d6c852f95f10cdffd339d7a8c84",
+    "downloaded_assets_hash_verified": true,
+    "website_url": "https://ysf-kul.github.io/muse/",
+    "website_product_url": "https://ysf-kul.github.io/muse/en/software/video-bridge/",
+    "website_commit": "bfec3c37a600e255db83a7845b95e4928c97a391",
+    "website_workflow_url": "https://github.com/ysf-kul/muse/actions/runs/43643930021",
+    "website_deployment_conclusion": "success",
+    "website_live_http_verified": true,
+    "website_evidence": "docs/evidence/website-release-040-deployment.json"
   },
   "earlier_diagnostic_after": {
     "runs": 5,
@@ -158,7 +168,8 @@
     "browser_acceptance": ".verification/queue-browser-tests-confirmed.log",
     "standalone_package_smoke": ".verification/queue-package-smoke/results.json",
     "release_040_performance": ".verification/release-040-performance.jsonl",
-    "release_040_usb_acceptance": ".verification/queue-hardware/release-040-acceptance-confirmed.jsonl"
+    "release_040_usb_acceptance": ".verification/queue-hardware/release-040-acceptance-confirmed.jsonl",
+    "release_040_owner_confirmed_idle": ".verification/queue-hardware/release-040-owner-confirmed-idle.jsonl"
   },
   "local_builds": {
     "Linux": {
@@ -167,7 +178,7 @@
       "sha256": "158fa22ba0f9d0d25a701075c343de3773085c3deebf0317db6b8fb4e76d337e",
       "optimization": "Cargo release",
       "version": "0.4.0",
-      "published": false
+      "published": true
     },
     "Windows": {
       "path": "target/x86_64-pc-windows-msvc/release/muse-video-bridge.exe",
@@ -175,7 +186,7 @@
       "sha256": "e3a43c2efbd75d4f275b369be17e37be911e9566162d3eb3dbef7ed9ff4ebb12",
       "optimization": "Cargo release",
       "version": "0.4.0",
-      "published": false
+      "published": true
     }
   },
   "local_packages": {
@@ -224,8 +235,20 @@
     "frontend_tests_passed": 6,
     "initial_windows_build": "Frontend generation race; resolved by freezing frontend assets for the cross-build.",
     "Windows_packaging": "Fresh desktop; unchanged conversion tools retained from checksum-verified v0.3.0 production ZIP.",
-    "Windows_runtime": "Pending new published-package runner smoke; interactive/COM tests remain unverified.",
-    "touch_qualification": "Experimental: accepted contacts and temporary overlay observed in a diagnostic run; physical interaction was not observed.",
+    "Windows_runtime": {
+      "release_tag": "v0.4.0",
+      "package_sha256": "f66c859f7557bc921974ab3028a486b9b677227fb22dbf58e4d06866d55da9a8",
+      "os": "Microsoft Windows Server 2025 Datacenter",
+      "architecture": "AMD64",
+      "ffprobe_inspection": "passed",
+      "ffmpeg_conversion_and_decode": "passed",
+      "desktop_window_creation": "passed",
+      "physical_usb_tested": false,
+      "interactive_controls_tested": false,
+      "workflow_url": "https://github.com/ysf-kul/musevideobridge/actions/runs/43643506196",
+      "scope": "Published-package checksum, bundled conversion/decode, native HWND creation and five-second survival. Physical USB and interactive acceptance unverified."
+    },
+    "touch_qualification": "Owner confirmed tapping during diagnostics; contact-affected clips excluded from idle qualification. Physical button actions, calibration and visual acceptance remain unverified.",
     "usb_acceptance": "Later complete acceptance passed with zero idle contacts before and after reconnect; earlier HELLO timeout and idle-contact assertion failure retained in report.",
     "performance": {
       "runs_total": 20,
@@ -241,7 +264,8 @@
       "full_readback_checks": 20,
       "full_readback_pixels": 1536000,
       "full_readback_mismatches": 0,
-      "qualification": "Initial accepted contacts and overlay prevent idle-touch qualification; later normal full-screen playback is measured separately. Physical interaction was not observed."
+      "qualification": "Owner confirmed tapping during diagnostics. Initial accepted contacts and overlay are excluded from idle-touch qualification and normal full-screen playback; physical button actions, calibration and visual acceptance remain unverified.",
+      "change_vs_historical_percent": -0.228905923528544
     },
     "firmware": {
       "bytes": 680320,
@@ -290,6 +314,15 @@
         "sha256": "02b4b5cb0bbb25644c5e7c852bcd4462cc6e4d931edaf24935547848c03d3ad5"
       }
     ],
-    "asset_directory": ".verification/release-040-final-artifacts"
+    "asset_directory": ".verification/release-040-final-artifacts",
+    "owner_confirmed_physical_taps": true,
+    "after_owner_tap_clarification": {
+      "usb_acceptance_complete": true,
+      "commands_confirmed": 26,
+      "idle_touch_verified_before_and_after_reconnect": true,
+      "physical_button_actions": "unverified",
+      "physical_calibration": "unverified",
+      "physical_visual_acceptance": "unverified"
+    }
   }
 }

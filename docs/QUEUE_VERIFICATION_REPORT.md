@@ -114,14 +114,18 @@ user data. Both corrected checks passed. AppImage packaging initially lacked
 `mksquashfs` on PATH; an official Arch package was extracted into ignored task-local
 tools, after which packaging and both launch methods passed without a system install.
 
-Physical taps, touch orientation/calibration, and display appearance were not
-observed. Host-only synthetic taps exercise the real engine handler for reveal,
+Physical touch-button actions, touch orientation/calibration, and display appearance
+were not verified. The owner later confirmed tapping during diagnostics, as recorded
+below. Host-only synthetic taps exercise the real engine handler for reveal,
 pause/resume, next/previous, timeout, and host sequence independence. The synthetic
 touch method is excluded from production firmware. Physical cable interruption is
 unverified; automated tests cover transport interruption, checkpoint retry, reset,
 and state refresh.
 
 ## Playback performance
+
+The following feature-audit runs preceded the v0.4.0 version bump. The longer
+versioned-release comparison is recorded in the next section.
 
 All runs used the same 320×240, 30-FPS prepared clip, 40-MHz pixel / 20-MHz command
 clocks, owned direct DMA, prefetch and one-block codec warmup.
@@ -142,9 +146,9 @@ covered 384,000 pixels with zero mismatches. Readback time is excluded from play
 FPS. This shorter comparison found no significant normal-playback regression; it
 does not establish a new five-minute endurance qualification.
 
-Earlier diagnostic runs exposed spurious touch readings, including unwanted
-overlays and a pause. Those runs are not normal playback qualification, even when
-their separate TFT readback checks passed. Startup power-down and stable-contact
+Earlier diagnostic runs recorded touch readings, overlays and a pause. Physical
+input was not observed during those runs. They are not normal playback qualification,
+even when their separate TFT readback checks passed. Startup power-down and stable-contact
 confirmation were added before the clean final guarded-touch runs above.
 
 The first diagnostic performance attempt could not re-enable prefetch because
@@ -170,34 +174,36 @@ The first connection after flashing timed out during HELLO discovery. A normal
 boot probe and retries followed. One acceptance run completed its queue actions
 but failed its idle-contact assertion; the later complete acceptance passed with
 zero idle contacts before/after reconnect. A longer performance run subsequently
-recorded accepted contacts during its first clip and a temporary overlay. Physical
-interaction was not observed, so their cause is unverified. These diagnostic runs
-are not clean idle-touch qualification. **Touch controls are experimental in this
-pre-release; a final release still requires physical and idle-touch qualification.**
+recorded accepted contacts during its first clip and a temporary overlay. The owner
+subsequently confirmed tapping the panel during diagnostics. Those contact-affected
+runs are not clean idle-touch qualification. **Touch controls are experimental in
+this pre-release; a final release still requires physical touch and visual acceptance.**
 Of 20 new twelve-second clips, the initial overlay-affected clip is excluded from
 normal playback comparison. The remaining 19 clips drew every full-screen pixel,
 measured 29.7310 FPS over 228.078266 active seconds, and accepted no
-additional contacts. All 20 separate TFT readback checks passed with zero mismatches
-and DMA ownership errors. This does not qualify the initial contact behavior.
-The release performance evidence keeps those scopes separate. Earlier clean guarded-touch results above remain historical.
+additional contacts. This is 0.23% below the historical 29.7992 FPS reference.
+All 20 separate TFT readback checks passed with zero mismatches
+and DMA ownership errors. This performance test does not verify physical touch-button
+actions or calibration. Earlier clean guarded-touch results above remain historical.
 
 ## Remaining qualification and publication
 
-Windows runtime/COM hardware and physical touch/visual acceptance remain unverified.
+Interactive Windows 10/11, physical COM/USB and touch/visual acceptance remain unverified.
 Queue/mode and local preview registrations are not persistent playlists. Resistive
 touch uses reference raw bounds; actual panel mapping requires physical testing.
-The new performance test covers one active minute with restart/check gaps, rather
-than repeating the entire historical five-minute qualification.
+The v0.4.0 performance comparison covers 228 active seconds across 19 full-screen
+clips with restart/check gaps, rather than repeating the entire historical
+five-minute qualification.
 
 The owner's later request authorizes a new v0.4.0 release with physical touch and
 visual acceptance still unverified. Desktop/firmware versions have been updated,
-fresh production packages are prepared separately, and the public v0.3.0 tag and
+fresh production packages are published separately, and the public v0.3.0 tag and
 assets are preserved. The release notes state the remaining hardware and platform
 limits. Windows interactive/COM acceptance and clean Debian/RPM installation are
 not established by packaging or runner smoke tests.
 
-Versioned release packages and checksums are prepared under
-`.verification/release-040-artifacts/` (ignored, not source files).
+Versioned release packages and checksums are retained under
+`.verification/release-040-final-artifacts/` (ignored, not source files).
 The Windows build is `target/x86_64-pc-windows-msvc/release/muse-video-bridge.exe`.
 
 The machine-readable results are in
@@ -206,3 +212,44 @@ Synchronization contracts and reproducible commands are in
 [QUEUE_AND_PLAYBACK.md](QUEUE_AND_PLAYBACK.md). Development launch remains
 `npm run tauri -- dev`; the real USB backend runner is explicitly invoked as
 documented there.
+
+## Published package verification
+
+[v0.4.0](https://github.com/ysf-kul/musevideobridge/releases/tag/v0.4.0) is published
+as a pre-release from source commit `76c98e6`. All nine uploaded asset hashes matched
+local inputs; every downloaded package/source asset matched SHA256SUMS.txt. The
+v0.3.0 release and its assets were preserved.
+
+The new published Windows ZIP passed external/internal checksums, bundled FFprobe,
+320×240 ten-frame conversion and decode, native window creation and five-second
+survival on Windows Server 2025 Datacenter AMD64. This does not establish interactive
+Windows 10/11 or physical COM/USB acceptance. See the
+[runner evidence](evidence/windows-release-040-runtime-smoke.json) and
+[successful workflow](https://github.com/ysf-kul/musevideobridge/actions/runs/43643506196).
+
+## Muse website publication
+
+The [Muse website](https://ysf-kul.github.io/muse/en/software/video-bridge/) is
+updated with the v0.4.0 queue features, a real Linux screenshot, all five desktop
+downloads, performance measurements and the owner touch clarification. The website
+deployment of commit `bfec3c37a600e255db83a7845b95e4928c97a391`
+[passed](https://github.com/ysf-kul/muse/actions/runs/43643930021).
+Live HTTP checks returned 200 for the home page and both Turkish/English product
+pages. Both product pages link to v0.4.0 packages and the release; the English page
+includes the remaining physical acceptance limits. See
+[deployment evidence](evidence/website-release-040-deployment.json).
+
+## Owner touch clarification
+
+After publication, the owner confirmed tapping the panel during the diagnostics.
+The registered contacts are consistent with that input; affected clips remain
+excluded from idle qualification and normal full-screen FPS. Physical touch-button
+actions, calibration, and display appearance remain unverified. The publication
+retains its pre-release status while those acceptance checks are incomplete.
+
+The subsequent unattended USB acceptance completed all 26 confirmed commands,
+including uploads, queue ordering, navigation, loop modes and reconnect. Its
+idle-contact checks passed with zero accepted contacts before and after reconnect.
+No device touch or rendering implementation was changed in response to the owner's
+tap clarification. Published packages/checksums and the v0.4.0 source tag are unchanged;
+the release notes and current documentation record the clarification.

@@ -14,8 +14,9 @@ third-party components retain their [own licenses](THIRD_PARTY.md).
 Get the versioned desktop downloads and **SHA256SUMS.txt** from
 [GitHub Releases](https://github.com/ysf-kul/musevideobridge/releases).
 **[v0.4.0 pre-release](https://github.com/ysf-kul/musevideobridge/releases/tag/v0.4.0)** adds synchronized queues, loop modes and real preparation progress.
-Touch controls remain experimental: unattended diagnostics have accepted contacts
-and briefly shown the overlay; physical calibration and display checks are unverified.
+Touch controls remain experimental while physical button actions, calibration, and
+display checks are unverified. The owner confirmed tapping during contact-affected
+diagnostics; those clips are excluded from idle qualification.
 
 See [installation and USB setup](docs/INSTALL.md),
 [source build instructions](docs/BUILD_AND_RUN.md), and
@@ -27,9 +28,9 @@ See [installation and USB setup](docs/INSTALL.md),
   and FFmpeg/FFprobe 8+ with scale `reset_sar` support are required.
 - **Windows x64:** portable ZIP with conversion tools. Requires Windows 10/11
   and Microsoft's WebView2 Runtime. Optimized MSVC cross-build and package contents
-  are verified; the previously published package's window creation and bundled conversion/decode passed on a
-  Windows Server 2025 runner. Windows 10/11 interactive acceptance and physical USB
-  remain unverified.
+  are verified; the published v0.4.0 package's window creation and bundled
+  conversion/decode passed on a Windows Server 2025 runner. Windows 10/11
+  interactive acceptance and physical USB remain unverified.
 - Other Linux distributions/architectures and macOS are not qualified.
 
 ## Workflow
@@ -108,8 +109,8 @@ excluded from production assets. Production packaging is documented in
 
 The `.mvb` format is experimental. Audio, arbitrary rotation angles, and calibrated
 classic-ESP32 CPU temperature are unavailable. USB at 115200 baud is reliable but
-slow for large videos. Windows runtime, clean Debian/RPM installation, broader
-Linux compatibility, and signed installers remain unverified. Firmware is supplied
+slow for large videos. Interactive Windows 10/11 and physical USB, clean Debian/RPM
+installation, broader Linux compatibility, and signed installers remain unverified. Firmware is supplied
 as complete project source with pinned dependency/build instructions; this release
 contains no firmware binary or private test/flashing kit. Earlier reports are
 historical, with local-only evidence paths clearly labeled.

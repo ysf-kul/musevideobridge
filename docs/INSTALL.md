@@ -6,9 +6,9 @@ Version 0.4.0 is an unsigned queue and playback update. Compare the downloaded a
 SHA-256 with SHA256SUMS.txt before extracting/installing it. Source is MIT licensed;
 third-party notices and corresponding dependency sources are supplied separately.
 
-Version 0.4.0 is a **pre-release**. Touch controls are experimental: unobserved
-hardware diagnostics registered contacts and temporarily revealed the overlay.
-Physical touch calibration and display appearance have not been verified.
+Version 0.4.0 is a **pre-release**. Physical touch-button actions, calibration and
+display appearance have not been fully verified. The owner confirmed tapping
+during contact-affected diagnostics; those clips are excluded from idle qualification.
 
 ## Linux x86-64
 
@@ -102,11 +102,13 @@ no universal compatibility with every CYD revision is claimed.
 The release supplies firmware **source**, not a prebuilt firmware/flashing kit.
 Install the pinned PlatformIO environment following [BUILD_AND_RUN.md](BUILD_AND_RUN.md).
 The selected production environment is `cyd_optimized_input_aligned`, firmware
-version 0.2.1. Preserve the device's existing firmware with a complete verified
+version 0.4.0. Preserve the device's existing firmware with a complete verified
 4 MB backup before writing any image. Then use the documented PlatformIO/esptool
 build/upload procedure and verify the installed image. Do not erase the whole chip
-or overwrite a known-good backup. Newly rebuilt firmware is build-verified; previous
-hardware measurements refer to the preserved qualified implementation/image.
+or overwrite a known-good backup. Version 0.4.0 was built, application-only flashed
+and hash-verified on the reference CYD. Its real USB and playback checks are in
+[QUEUE_VERIFICATION_REPORT.md](QUEUE_VERIFICATION_REPORT.md); physical touch-button
+and visual acceptance remain unverified.
 
 A source setup example on Linux (use the selected `COM...` port and the venv's
 `Scripts/python.exe` on Windows):
