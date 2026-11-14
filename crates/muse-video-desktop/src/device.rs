@@ -51,6 +51,7 @@ fn refresh<T: Read + Write>(
             "current_video_id",
             "previous_video_id",
             "next_video_id",
+            "queue_persistent",
         ] {
             status[key] = confirmed[key].clone();
         }
@@ -152,7 +153,7 @@ impl Device {
                         let result = client
                             .as_mut()
                             .ok_or_else(|| Error::new("disconnected", "No selected connection"))
-                            .and_then(|c| c.upload(&path, &cancel, progress));
+                            .and_then(|c| c.upload_resumable(&path, &cancel, progress));
                         active_transfer.store(false, Ordering::Release);
                         let _ = reply.send(result);
                         next_status = Instant::now();

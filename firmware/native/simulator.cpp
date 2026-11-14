@@ -103,6 +103,38 @@ public:
     fs::create_directories(root_ / "muse-video", e);
     return !e;
   }
+  bool queue_store_available() const override { return true; }
+  bool read_queue(unsigned slot, uint8_t *bytes, size_t n) override {
+    auto p = root_ / "muse-video" / ("queue." + std::to_string(slot) + ".bin");
+    if (slot > 1 || fs::is_symlink(p) || !fs::exists(p) || fs::file_size(p) != n) return false;
+    std::ifstream f(p, std::ios::binary); f.read(reinterpret_cast<char *>(bytes), n); return bool(f);
+  }
+  bool write_queue(unsigned slot, const uint8_t *bytes, size_t n) override {
+    if (slot > 1 || n != mvb::QueueRecordBytes || !mkdir_library()) return false;
+    auto p = root_ / "muse-video" / ("queue." + std::to_string(slot) + ".bin");
+    if (fs::is_symlink(p)) return false;
+    if (fs::exists(p)) {
+      uint8_t old[mvb::QueueRecordBytes]; mvb::Playlist queue; uint32_t generation;
+      if (!read_queue(slot, old, sizeof(old)) || !mvb::decode_queue(old, queue, generation)) {
+        auto time = std::chrono::steady_clock::now().time_since_epoch().count();
+        fs::rename(p, p.parent_path() / ("queue.unrecognized-" + std::to_string(time) + ".bin"));
+      }
+    }
+    std::ofstream f(p, std::ios::binary | std::ios::trunc);
+    f.write(reinterpret_cast<const char *>(bytes), n); f.flush(); return bool(f);
+  }
+  size_t video_ids(char (*ids)[65], size_t capacity) override {
+    auto dir = root_ / "muse-video"; if (!fs::is_directory(dir)) return 0;
+    std::vector<std::string> names;
+    for (const auto &item : fs::directory_iterator(dir)) {
+      auto name = item.path().filename().string();
+      if (item.is_regular_file() && !item.is_symlink() && name.size() == 68 && name.substr(64) == ".mvb" && mvb::digest_valid(name.substr(0, 64).c_str())) names.push_back(name.substr(0, 64));
+    }
+    std::sort(names.begin(), names.end());
+    size_t count = std::min(capacity, names.size());
+    for (size_t i = 0; i < count; ++i) std::memcpy(ids[i], names[i].c_str(), 65);
+    return count;
+  }
   bool first_video(char *out, size_t n, const char *ignored) override {
     auto dir = root_ / "muse-video";
     if (!fs::is_directory(dir))

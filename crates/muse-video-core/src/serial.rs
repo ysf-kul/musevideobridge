@@ -321,6 +321,34 @@ impl<T: Read + Write> Client<T> {
         self.session = 0;
         self.request(json!({"method":"hello","protocol_min":1,"protocol_max":1,"client_nonce":self.client_nonce}))
     }
+    /// Recover bounded ACK/session failures using the real verified SD checkpoint.
+    /// No new serial device is opened, and storage/integrity failures are returned.
+    pub fn upload_resumable(
+        &mut self,
+        path: &Path,
+        cancel: &Cancellation,
+        sink: ProgressSink,
+    ) -> Result<Value> {
+        let mut attempts = 0;
+        loop {
+            match self.upload(path, cancel, sink.clone()) {
+                Err(ref error)
+                    if !cancel.is_cancelled()
+                        && attempts < 2
+                        && ["timeout", "stale_session"].contains(&error.code.as_str()) =>
+                {
+                    attempts += 1;
+                    progress(&sink, "retrying_upload", 0, None);
+                    self.hello()?;
+                }
+                Ok(mut result) => {
+                    result["host_transfer"]["recovery_attempts"] = json!(attempts);
+                    return Ok(result);
+                }
+                other => return other,
+            }
+        }
+    }
     pub fn upload(
         &mut self,
         path: &Path,
@@ -380,6 +408,7 @@ impl<T: Read + Write> Client<T> {
             let mut file = File::open(path)?;
             file.seek(SeekFrom::Start(offset))?;
             let mut data = [0; 1024];
+            let mut last_progress = Instant::now() - Duration::from_secs(1);
             // Firmware may advertise a smaller tested limit; never exceed v1's cap.
             let chunk_bytes = start["chunk_bytes"].as_u64().unwrap_or(1024).min(1024) as usize;
             if chunk_bytes == 0 {
@@ -438,7 +467,23 @@ impl<T: Read + Write> Client<T> {
                 ));
                 }
                 offset += count as u64;
-                progress(&sink, "uploading", offset, Some(size));
+                if last_progress.elapsed() >= Duration::from_millis(100) || offset == size {
+                    let seconds = receive_started.elapsed().as_secs_f64();
+                    let rate = (offset - initial_offset) as f64 / seconds.max(0.001);
+                    if let Some(sender) = &sink {
+                        let _ = sender.try_send(crate::media::Progress {
+                            stage: "uploading".into(),
+                            completed: offset,
+                            total: Some(size),
+                            bytes_per_second: Some(rate),
+                            remaining_seconds: Some((size - offset) as f64 / rate.max(1.0)),
+                            item_index: None,
+                            items_total: None,
+                            filename: None,
+                        });
+                    }
+                    last_progress = Instant::now();
+                }
             }
             if cancel.is_cancelled() {
                 return Err(Error::new("cancelled", "Upload cancelled"));

@@ -19,6 +19,8 @@
   let settings = $state<Settings>({ ...defaults }),
     media = $state<Media | null>(null),
     prepared = $state<Media[]>([]),
+    sources = $state<Media[]>([]),
+    selectedPrepared = $state<string[]>([]),
     device = $state<Device>({ connection: "disconnected" }),
     job = $state<Job | null>(null),
     error = $state<Failure | null>(null),
@@ -77,6 +79,12 @@
       ["playing", "paused", "stopped", "ended"].includes(status.state),
   );
   const busy = $derived(Boolean(job?.running) || working);
+  const selectedBytes = $derived(
+    prepared
+      .filter((m) => selectedPrepared.includes(m.artifact!.sha256))
+      .reduce((sum, m) => sum + m.artifact!.header.file_bytes, 0),
+  );
+  const usbBaud = $derived(device.host_diagnostics?.configured_uart_baud);
   const preparation = $derived(
     transferring && job
       ? {
@@ -98,7 +106,7 @@
       !busy &&
       queuePendingRevision == null &&
       !!status?.queue &&
-      !["loading", "error"].includes(status.state),
+      status.state !== "loading",
   );
   function videoName(id: string) {
     return (
@@ -289,11 +297,20 @@
       if (next.status.error) fail({ code: next.status.error, details: "" });
     }
   }
+  async function beginJob(command: string, args?: Record<string, unknown>) {
+    await action(async () => {
+      await bridge.call(command, args);
+      // The native reply acknowledges job creation. Refresh its actual state
+      // before releasing the controls; events can arrive after the IPC reply.
+      job = (await bridge.call<Snapshot>("snapshot")).job;
+    });
+  }
   async function choose() {
     await action(async () => {
       const selected = await bridge.call<Media | null>("select_video");
       if (selected) {
         media = selected;
+        sources = [selected];
         estimate = selected.estimate.worst_case_bytes;
         card = null;
         transform = {
@@ -304,6 +321,16 @@
           rotation_deg: 0,
           lock_aspect: true,
         };
+      }
+    });
+  }
+  async function chooseMany() {
+    await action(async () => {
+      const selected = await bridge.call<Media[] | null>("select_videos");
+      if (selected?.length) {
+        sources = selected;
+        media = selected[0];
+        estimate = media.estimate.worst_case_bytes;
       }
     });
   }
@@ -503,6 +530,7 @@
     uploading: "job.uploading",
     resuming_upload: "job.resuming_upload",
     verifying_upload: "job.verifying_upload",
+    retrying_upload: "job.retrying_upload",
     validating_video: "job.validating_video",
     loading_video: "job.loading_video",
     preparing_playback: "job.preparing_playback",
@@ -550,11 +578,29 @@
           "job",
           "device_error",
           "prepared",
+          "sources",
         ]) {
           const stop = await bridge.on<unknown>(name, (payload) => {
             if (!alive) return;
             if (name === "device") adopt(payload as Device);
-            else if (name === "prepared") prepared = payload as Media[];
+            else if (name === "prepared") {
+              const next = payload as Media[];
+              const added = next
+                .filter(
+                  (m) =>
+                    !prepared.some(
+                      (old) => old.artifact?.sha256 === m.artifact?.sha256,
+                    ),
+                )
+                .map((m) => m.artifact!.sha256);
+              prepared = next;
+              selectedPrepared = [
+                ...selectedPrepared.filter((id) =>
+                  next.some((m) => m.artifact?.sha256 === id),
+                ),
+                ...added,
+              ];
+            } else if (name === "sources") sources = payload as Media[];
             else if (name === "media") {
               media = payload as Media;
               if (!live && media?.artifact) {
@@ -605,6 +651,7 @@
         settings = snapshot.settings;
         media = snapshot.media;
         prepared = snapshot.prepared ?? (media?.artifact ? [media] : []);
+        sources = snapshot.sources ?? (media ? [media] : []);
         adopt(snapshot.device);
         job = snapshot.job;
         error = snapshot.startup_error;
@@ -688,13 +735,15 @@
       <span
         >{error.code === "desktop_required"
           ? t(locale, "app.desktop_required")
-          : errorText(locale, error.code)}</span
+          : errorText(locale, error.code)}<small class="error-code"
+          >{t(locale, "error.code")}: <code>{error.code}</code></small
+        ></span
       ><button
         class="text"
         aria-label={t(locale, "action.dismiss")}
         onclick={() => (error = null)}>×</button
       >
-      <details>
+      <details open={error.code === "generic"}>
         <summary>{t(locale, "action.details")}</summary>
         <pre>{error.code}{error.details ? `\n${error.details}` : ""}</pre>
       </details>
@@ -840,25 +889,126 @@
             </div>
           </li>{/each}
       </ol>{:else}<p>{t(locale, "queue.empty")}</p>{/if}
-    <p class="supporting">{t(locale, "queue.limit")}</p>
-    {#if prepared.length}<details>
+    {#if fresh}<p class="supporting">
+        {t(
+          locale,
+          status?.queue_persistent ? "queue.limit" : "queue.legacy_limit",
+        )}
+      </p>{/if}
+    <div class="queue-actions">
+      <button disabled={!ready || busy} onclick={chooseMany}
+        ><Icon name="folder" />{t(locale, "queue.pick_many")}</button
+      >
+      {#if sources.length > 1}
+        <button
+          class="primary"
+          disabled={busy || !ready}
+          onclick={() => beginJob("convert_videos", { options: options() })}
+          >{t(locale, "queue.prepare_many")} ({sources.length})</button
+        >
+      {/if}
+    </div>
+    {#if sources.length > 1}<ul class="source-list">
+        {#each sources as source}<li>
+            {source.filename}{#if source.artifact}
+              · {t(locale, "video.ready")}{/if}
+          </li>{/each}
+      </ul>{/if}
+    {#if fresh && usbBaud}<p class="supporting">
+        USB · {number(locale, usbBaud)} baud
+      </p>
+      {#if usbBaud <= 115200}<p class="notice">
+          {t(locale, "storage.slow_usb")}
+        </p>{/if}
+    {/if}
+    {#if status?.queue_error}<p class="notice">
+        {errorText(locale, status.queue_error)}
+      </p>{/if}
+    {#if prepared.length}<details open>
         <summary>{t(locale, "queue.prepared")} ({prepared.length})</summary>
+        <div class="queue-actions">
+          <button
+            class="text"
+            disabled={busy}
+            onclick={() =>
+              (selectedPrepared = prepared.map((m) => m.artifact!.sha256))}
+            >{t(locale, "queue.select_all")}</button
+          >
+          <button
+            class="text"
+            disabled={busy}
+            onclick={() => (selectedPrepared = [])}
+            >{t(locale, "queue.clear_selection")}</button
+          >
+          <span>{selectedPrepared.length} · {bytes(locale, selectedBytes)}</span
+          >
+        </div>
         <ul class="prepared-videos">
           {#each prepared as entry}<li>
-              <span title={entry.filename}>{entry.filename}</span>
+              <label class="prepared-choice"
+                ><input
+                  type="checkbox"
+                  disabled={busy}
+                  value={entry.artifact!.sha256}
+                  bind:group={selectedPrepared}
+                />
+                <span title={entry.filename}
+                  >{entry.filename} · {bytes(
+                    locale,
+                    entry.artifact!.header.file_bytes,
+                  )}</span
+                ></label
+              >
               <button
                 disabled={!fresh ||
                   busy ||
+                  !status?.sd_mounted ||
                   ((status?.queue?.length ?? 0) >= 12 &&
                     !status?.queue?.includes(entry.artifact!.sha256)) ||
                   status?.queue?.includes(entry.artifact!.sha256)}
                 onclick={() =>
-                  action(() =>
-                    bridge.call("upload", { videoId: entry.artifact!.sha256 }),
-                  )}>{t(locale, "queue.add")}</button
+                  beginJob("upload", { videoId: entry.artifact!.sha256 })}
+                >{t(locale, "queue.add")}</button
               >
             </li>{/each}
         </ul>
+        <div class="queue-actions">
+          <button
+            class="primary"
+            disabled={busy ||
+              !fresh ||
+              !status?.sd_mounted ||
+              selectedPrepared.length === 0 ||
+              selectedPrepared.length > 12}
+            onclick={() =>
+              beginJob("upload_videos", { videoIds: selectedPrepared })}
+            >{t(locale, "queue.send_many")}</button
+          >
+          <button disabled={busy} onclick={chooseCard}
+            ><Icon name="folder" />{t(locale, "storage.prepare")}</button
+          >
+          {#if card}<button
+              disabled={busy ||
+                !card.fat32_compatible ||
+                selectedPrepared.length === 0 ||
+                selectedPrepared.length > 12}
+              onclick={() =>
+                beginJob("export_videos", {
+                  destination: card!.path,
+                  videoIds: selectedPrepared,
+                })}
+              >{t(
+                locale,
+                selectedPrepared.length === 1
+                  ? "storage.write"
+                  : "queue.write_many",
+              )}</button
+            >{/if}
+        </div>
+        {#if card}<p class="path" title={card.path}>{card.path}</p>
+          {#if !card.fat32_compatible}<p class="notice">
+              {t(locale, "storage.fat32")}
+            </p>{/if}{/if}
       </details>{/if}
   </section>
   {#if !media}<section class="empty">
@@ -1022,8 +1172,7 @@
           <button
             class="primary full"
             disabled={busy || !ready}
-            onclick={() =>
-              action(() => bridge.call("convert", { options: options() }))}
+            onclick={() => beginJob("convert", { options: options() })}
             >{t(locale, "video.convert")}</button
           >{#if media.artifact}<p class="verified">
               <Icon name="check" />{t(locale, "video.ready")}
@@ -1031,32 +1180,11 @@
             <button
               class="primary full"
               disabled={busy || !fresh || !status?.sd_mounted}
-              onclick={() => action(() => bridge.call("upload"))}
+              onclick={() => beginJob("upload")}
               >{t(locale, "storage.upload")}</button
             >
             <p>{t(locale, "storage.usb_hint")}</p>
-            <button class="full" disabled={busy} onclick={chooseCard}
-              ><Icon name="folder" />{t(locale, "storage.prepare")}</button
-            >{#if card}<p class="path" title={card.path}>{card.path}</p>
-              <dl>
-                <dt>{t(locale, "storage.filesystem")}</dt>
-                <dd>{card.filesystem}</dd>
-                <dt>{t(locale, "storage.capacity")}</dt>
-                <dd>{bytes(locale, card.available_bytes)}</dd>
-              </dl>
-              {#if !card.fat32_compatible}<p class="notice">
-                  {t(locale, "storage.fat32")}
-                </p>{/if}<button
-                class="full"
-                disabled={busy ||
-                  !card.fat32_compatible ||
-                  card.available_bytes <
-                    media.artifact.header.file_bytes + 65536}
-                onclick={() =>
-                  action(() =>
-                    bridge.call("export", { destination: card!.path }),
-                  )}>{t(locale, "storage.write")}</button
-              >{/if}{/if}
+          {/if}
         </section>
         <details open class="video-info">
           <summary>{t(locale, "video.info")}</summary>
@@ -1123,6 +1251,17 @@
             >{t(locale, "action.cancel")}</button
           >{/if}
       </div>
+      {#if job.filename}<p>
+          {job.item_index} / {job.items_total} · {job.filename}
+        </p>{/if}
+      {#if job.running && job.bytes_per_second != null}<p>
+          {bytes(
+            locale,
+            job.bytes_per_second,
+          )}/s{#if job.remaining_seconds != null}
+            · {t(locale, "job.remaining")}
+            {time(job.remaining_seconds * 1000000)}{/if}
+        </p>{/if}
       {#if job.running}<progress
           aria-label={t(locale, jobs[job.stage] ?? "job.starting")}
           max={job.total ?? 1}

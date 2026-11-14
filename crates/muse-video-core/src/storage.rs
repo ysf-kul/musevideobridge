@@ -1,3 +1,4 @@
+pub mod queue;
 use crate::{
     container::{Video, MAX_FILE},
     media::{progress, ProgressSink},
@@ -276,7 +277,6 @@ pub fn export(
     let mut video = Video::open(File::open(source)?, cancel)?;
     video.verify(cancel)?;
     let size = video.header.file_bytes;
-    capacity_check(size, info.available_bytes)?;
     let digest = digest_file(source, cancel)?;
     let library = root.join("muse-video");
     no_symlink(&library)?;
@@ -288,6 +288,30 @@ pub fn export(
     if !fs::canonicalize(&library)?.starts_with(&root) {
         return Err(Error::new("unsafe_path", "Destination escaped mount"));
     }
+    let mut queue = queue::load(&library)?;
+    if queue.generation == 0 {
+        let mut stored = fs::read_dir(&library)?
+            .filter_map(|entry| {
+                let entry = entry.ok()?;
+                if !entry.file_type().ok()?.is_file() {
+                    return None;
+                }
+                let name = entry.file_name().to_string_lossy().into_owned();
+                let id = name.strip_suffix(".mvb")?;
+                valid_digest(id).then(|| id.to_owned())
+            })
+            .collect::<Vec<_>>();
+        stored.sort();
+        stored.truncate(12);
+        queue.ids = stored;
+        queue.position = (!queue.ids.is_empty()).then_some(0);
+    }
+    if !queue.ids.contains(&digest) && queue.ids.len() == 12 {
+        return Err(Error::new(
+            "queue_full",
+            "SD queue already contains 12 videos",
+        ));
+    }
     let filename = format!("{digest}.mvb");
     let final_path = library.join(&filename);
     no_symlink(&final_path)?;
@@ -296,6 +320,7 @@ pub fn export(
             return Err(Error::new("digest_mismatch", "Existing media is retained"));
         }
     } else {
+        capacity_check(size, info.available_bytes)?;
         let staging = library.join(format!(".{}.part", unique()));
         let mut file = OpenOptions::new()
             .write(true)
@@ -370,6 +395,13 @@ pub fn export(
     drop(f);
     cancel.check()?;
     fs::rename(&temp, &active)?;
+    if !queue.ids.contains(&selection.sha256) {
+        queue.ids.push(selection.sha256.clone());
+    }
+    if queue.position.is_none() {
+        queue.position = Some(0);
+    }
+    queue::save(&library, &mut queue, cancel)?;
     #[cfg(target_os = "linux")]
     File::open(&library)?.sync_all()?;
     progress(&sink, "complete", size, Some(size));

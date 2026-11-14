@@ -381,6 +381,19 @@ fn run() -> Result<()> {
             client.request(json!({"method":"select_video","sha256":digest}))?;
         }
         let automatic_status = wait_video(&mut client, &digest)?;
+        if args.iter().any(|arg| arg == "--isolate-queue") {
+            // Explicit research option: prevent queue advancement/loop restart
+            // from resetting frame counters midway through a timed clip.
+            let state = client.request(json!({"method":"get_playback_state"}))?;
+            client.request(json!({"method":"set_queue","ids":[digest],
+                "expected_queue_revision":state["queue_revision"]}))?;
+            client.request(json!({"method":"set_loop_mode","mode":"play_once"}))?;
+            emit(
+                &mut output,
+                &json!({"event":"queue_isolation",
+                "state":client.request(json!({"method":"get_playback_state"}))?}),
+            )?;
+        }
         let automatic_defaults = match client.request(json!({"method":"get_playback_defaults"})) {
             Ok(value) => json!({"result":value}),
             Err(error) => json!({"error":error}),
@@ -416,6 +429,15 @@ fn run() -> Result<()> {
     })();
     if let Err(error) = preparation {
         let mut device_diagnostics = serde_json::Map::new();
+        // Refresh a lost session for diagnostics, without replaying the action.
+        // Retaining this handle avoids an RTS/DTR close/open reset hiding the cause.
+        if ["stale_session", "timeout"].contains(&error.code.as_str()) {
+            let refreshed = match client.hello() {
+                Ok(hello) => json!({"result":hello}),
+                Err(error) => json!({"error":error}),
+            };
+            device_diagnostics.insert("hello_refresh".into(), refreshed);
+        }
         for method in ["upload_status", "get_serial_diagnostics", "get_status"] {
             let diagnostic = match client.request(json!({"method":method})) {
                 Ok(value) => json!({"result":value}),

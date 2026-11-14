@@ -67,31 +67,77 @@ fn run() -> Result<()> {
                 "Install queue firmware after verified backup",
             ));
         }
-        for source in &args[1..3] {
-            app.select(&PathBuf::from(source))?;
-            app.convert(Options {
-                fps: muse_video_core::container::Rate::new(10, 1)?,
-                ..Options::default()
-            })?;
+        // A research card may boot a long historical clip. Select its first
+        // queue entry through the legacy interruptible load path before testing.
+        let first = connected["device"]["status"]["queue"][0].as_str();
+        if let Some(id) = first {
+            let generation = connected["device"]["status"]["playhead_generation"]
+                .as_u64()
+                .unwrap_or(0);
+            app.command(json!({"method":"select_video","sha256":id}))?;
             wait(&app, |s| {
-                s["job"]["stage"] == "complete" && s["job"]["running"] == false
+                s["device"]["status"]["state"] == "playing"
+                    && s["device"]["status"]["playhead_generation"]
+                        .as_u64()
+                        .is_some_and(|g| g > generation)
+                    && s["device"]["status"]["current_video_id"] == id
             })?;
-            app.upload()?;
-            wait(&app, |s| {
-                s["job"]["stage"] == "complete" && s["job"]["running"] == false
-            })?;
+            app.command(json!({"method":"pause"}))?;
+        }
+        let initial = app.command(json!({"method":"get_playback_state"}))?;
+        // Leave room for the fixtures on research cards containing many old videos.
+        // Queue replacement never deletes their SD files.
+        if initial["queue"]
+            .as_array()
+            .is_some_and(|queue| queue.len() > 10)
+        {
+            let current: Vec<Value> = initial["current_video_id"]
+                .as_str()
+                .map(|id| vec![json!(id)])
+                .unwrap_or_default();
+            app.command(json!({"method":"set_queue","ids":current,
+                "expected_queue_revision":initial["queue_revision"]}))?;
+        }
+        app.select_many(&args[1..3].iter().map(PathBuf::from).collect::<Vec<_>>())?;
+        app.convert_many(Options {
+            fps: muse_video_core::container::Rate::new(10, 1)?,
+            ..Options::default()
+        })?;
+        let prepared = wait(&app, |s| {
+            s["job"]["stage"] == "complete" && s["job"]["running"] == false
+        })?;
+        let ids: Vec<String> = prepared["prepared"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|m| m["artifact"]["sha256"].as_str().unwrap().to_owned())
+            .collect();
+        app.upload_many(ids.clone())?;
+        let uploaded = wait(&app, |s| {
+            s["job"]["stage"] == "complete" && s["job"]["running"] == false
+        })?;
+        if uploaded["job"]["result"]["playback"]["current_video_id"] != ids[0] {
+            return Err(Error::new(
+                "verification_failed",
+                "Batch did not select its first video",
+            ));
         }
         let snapshot = wait(&app, |s| {
             s["device"]["status"]["queue"]
                 .as_array()
                 .is_some_and(|q| q.len() >= 2)
         })?;
-        let ids: Vec<String> = snapshot["prepared"]
-            .as_array()
-            .unwrap()
-            .iter()
-            .map(|m| m["artifact"]["sha256"].as_str().unwrap().to_owned())
-            .collect();
+        if !ids.iter().all(|id| {
+            snapshot["device"]["status"]["queue"]
+                .as_array()
+                .unwrap()
+                .contains(&json!(id))
+        }) {
+            return Err(Error::new(
+                "verification_failed",
+                "Batch queue is incomplete",
+            ));
+        }
         let command = |value: Value| -> Result<Value> {
             let reply = app.command(value.clone());
             writeln!(
@@ -218,23 +264,12 @@ fn run() -> Result<()> {
             .as_u64()
             .unwrap_or(u64::MAX)
             < before_uptime;
-        if restarted {
-            if after["device"]["status"]["loop_mode"] != "play_once"
-                || after["device"]["status"]["queue"]
-                    .as_array()
-                    .is_none_or(|q| q.len() != 1)
-            {
-                return Err(Error::new(
-                    "verification_failed",
-                    "Desktop did not adopt the restarted device's boot queue/mode",
-                ));
-            }
-        } else if before["queue"] != after["device"]["status"]["queue"]
-            || after["device"]["status"]["loop_mode"] != "loop_queue"
+        if before["queue"] != after["device"]["status"]["queue"]
+            || after["device"]["status"]["loop_mode"] != before["loop_mode"]
         {
             return Err(Error::new(
                 "verification_failed",
-                "Reconnect changed a running device's queue/mode",
+                "Reconnect did not restore the device's saved queue/mode",
             ));
         }
         if expect_no_touch {

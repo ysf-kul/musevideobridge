@@ -48,6 +48,8 @@ export interface Transform {
   lock_aspect: boolean;
 }
 export interface Status {
+  queue_persistent?: boolean;
+  queue_error?: string | null;
   queue?: string[];
   queue_revision?: number;
   queue_position?: number;
@@ -82,7 +84,9 @@ export interface Device {
     firmware_version: string;
     configured_board: string;
     hardware: { simulator: boolean };
+    capabilities?: { baud_rates?: number[] };
   };
+  host_diagnostics?: { configured_uart_baud?: number };
   error?: Failure;
 }
 export interface Failure {
@@ -90,6 +94,11 @@ export interface Failure {
   details: string;
 }
 export interface Job {
+  item_index?: number;
+  items_total?: number;
+  filename?: string;
+  bytes_per_second?: number | null;
+  remaining_seconds?: number | null;
   running: boolean;
   kind: string;
   stage: string;
@@ -99,6 +108,7 @@ export interface Job {
   result?: unknown;
 }
 export interface Snapshot {
+  sources?: Media[];
   prepared?: Media[];
   settings: Settings;
   media: Media | null;

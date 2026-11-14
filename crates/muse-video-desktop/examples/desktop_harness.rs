@@ -101,6 +101,9 @@ fn serve(
             "select_video" => app
                 .select(&root.join("input.mp4"))
                 .and_then(|s| Ok(serde_json::to_value(s)?)),
+            "select_videos" => app
+                .select_many(&[root.join("input.mp4"), root.join("other.mp4")])
+                .and_then(|s| Ok(serde_json::to_value(s)?)),
             "source_preview" => app.source_preview().map(|b| json!(b)),
             "frame" => app
                 .frame(
@@ -121,11 +124,24 @@ fn serve(
             "convert" => app
                 .convert(serde_json::from_value(args["options"].clone())?)
                 .map(|_| Value::Null),
+            "convert_videos" => app
+                .convert_many(serde_json::from_value(args["options"].clone())?)
+                .map(|_| Value::Null),
             "select_card" => app.destination(&root.join("card")).map(|mut d| {
                 d.fat32_compatible = true;
                 json!([root.join("card").to_string_lossy(), d])
             }),
             "export" => app.export(root.join("card"), true).map(|_| Value::Null),
+            "export_videos" => app
+                .export_many(
+                    root.join("card"),
+                    serde_json::from_value(args["videoIds"].clone())?,
+                    true,
+                )
+                .map(|_| Value::Null),
+            "upload_videos" => app
+                .upload_many(serde_json::from_value(args["videoIds"].clone())?)
+                .map(|_| Value::Null),
             "upload" => app
                 .upload_video(args["videoId"].as_str().map(str::to_owned))
                 .map(|_| Value::Null),

@@ -69,8 +69,8 @@ replacing unrelated media. App-generated `active.json` replacement preserves its
 recognized version. FAT flush/rename is not a power-loss transaction; OS safe eject remains
 necessary. Test-directory bypass exists only in explicitly invoked host test code/CLI.
 
-The serial actor owns one selected port and a 16-command queue. It uses 115200 baud,
-finite read/response timeouts, checksummed envelopes and retry receipts. RTS and DTR
+The serial actor owns one selected port and a 16-command queue. It discovers the application baud on that selected port (0.4.1 firmware uses
+921600; 0.4.0 uses 115200), with finite read/response timeouts, checksummed envelopes and retry receipts. RTS and DTR
 are explicitly released on open; this repaired the observed CH340 reset-line failure.
 It never probes all listed
 ports by transmitting bytes. Full status/heartbeat is normally requested at 1 Hz; frame

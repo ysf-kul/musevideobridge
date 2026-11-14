@@ -72,6 +72,35 @@ fn wait_state<T: Read + Write>(client: &mut Client<T>, wanted: &str) -> Value {
 }
 #[test]
 #[ignore = "requires separately built native simulator"]
+fn legacy_active_selection_stays_in_a_full_discovered_sd_queue() {
+    let source = tempfile::tempdir().unwrap();
+    let path = video(source.path());
+    let card = tempfile::tempdir().unwrap();
+    let selection =
+        storage::export(&path, card.path(), true, &Cancellation::default(), None).unwrap();
+    let library = card.path().join("muse-video");
+    // Emulate an old firmware card with an active selection and no queue record.
+    fs::remove_file(library.join("queue.1.bin")).unwrap();
+    for index in 0..12 {
+        fs::write(
+            library.join(format!("{index:064x}.mvb")),
+            b"unselected legacy file",
+        )
+        .unwrap();
+    }
+    let mut client = Client::new(Simulator::spawn(&simulator(), card.path()).unwrap());
+    client.hello().unwrap();
+    wait_state(&mut client, "playing");
+    let state = client
+        .request(json!({"method":"get_playback_state"}))
+        .unwrap();
+    assert_eq!(state["queue"].as_array().unwrap().len(), 12);
+    assert_eq!(state["queue"][0], selection.sha256);
+    assert_eq!(state["current_video_id"], selection.sha256);
+    assert_eq!(state["queue_position"], 0);
+}
+#[test]
+#[ignore = "requires separately built native simulator"]
 fn queue_order_navigation_modes_preparation_and_reconnect_are_device_owned() {
     let source = tempfile::tempdir().unwrap();
     let path = video(source.path());
@@ -611,7 +640,7 @@ fn invalid_commands_receipts_new_sessions_and_waiting_state() {
 struct DropAck {
     io: Simulator,
     pending: VecDeque<u8>,
-    drop: bool,
+    drop: u8,
     cancel: Option<Cancellation>,
 }
 impl Read for DropAck {
@@ -629,8 +658,8 @@ impl Read for DropAck {
                     break;
                 }
             }
-            if self.drop && Frame::decode(&wire[..wire.len() - 1]).is_ok_and(|f| f.kind == 17) {
-                self.drop = false;
+            if self.drop > 0 && Frame::decode(&wire[..wire.len() - 1]).is_ok_and(|f| f.kind == 17) {
+                self.drop -= 1;
                 if let Some(cancel) = &self.cancel {
                     cancel.cancel();
                     return Err(std::io::ErrorKind::TimedOut.into());
@@ -653,6 +682,38 @@ impl Write for DropAck {
     fn flush(&mut self) -> std::io::Result<()> {
         self.io.flush()
     }
+}
+#[test]
+#[ignore = "requires separately built native simulator"]
+fn automatic_upload_recovery_rehashes_the_acknowledged_checkpoint() {
+    let source = tempfile::tempdir().unwrap();
+    let path = video(source.path());
+    let card = tempfile::tempdir().unwrap();
+    let mut client = Client::new(DropAck {
+        io: Simulator::spawn(&simulator(), card.path()).unwrap(),
+        pending: VecDeque::new(),
+        drop: 3,
+        cancel: None,
+    });
+    client.response_timeout = Duration::from_millis(200);
+    client.hello().unwrap();
+    let result = client
+        .upload_resumable(&path, &Cancellation::default(), None)
+        .unwrap();
+    assert_eq!(result["state"], "complete");
+    assert_eq!(result["host_transfer"]["recovery_attempts"], 1);
+    assert!(result["host_transfer"]["resumed_offset"].as_u64().unwrap() > 0);
+    assert_eq!(
+        storage::digest_file(
+            &card.path().join(format!(
+                "muse-video/{}.mvb",
+                result["sha256"].as_str().unwrap()
+            )),
+            &Cancellation::default()
+        )
+        .unwrap(),
+        result["sha256"].as_str().unwrap()
+    );
 }
 struct CompletionMetadata {
     io: Simulator,
@@ -785,7 +846,7 @@ fn chunked_upload_retries_checksums_cancel_and_reboot_resume() {
     let mut c = Client::new(DropAck {
         io: Simulator::spawn(&simulator(), card.path()).unwrap(),
         pending: VecDeque::new(),
-        drop: true,
+        drop: 1,
         cancel: None,
     });
     c.response_timeout = Duration::from_millis(300);
@@ -1032,7 +1093,7 @@ fn cancellation_during_lost_ack_removes_owned_incomplete_files() {
     let mut c = Client::new(DropAck {
         io: Simulator::spawn(&simulator(), card.path()).unwrap(),
         pending: VecDeque::new(),
-        drop: true,
+        drop: 1,
         cancel: Some(token.clone()),
     });
     c.response_timeout = Duration::from_secs(30);

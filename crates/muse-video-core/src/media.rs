@@ -123,7 +123,7 @@ impl Default for Options {
         }
     }
 }
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Estimate {
     pub frames: Option<u64>,
     pub worst_case_bytes: Option<u64>,
@@ -134,6 +134,13 @@ pub struct Progress {
     pub stage: String,
     pub completed: u64,
     pub total: Option<u64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub bytes_per_second: Option<f64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub remaining_seconds: Option<f64>,
+    pub item_index: Option<usize>,
+    pub items_total: Option<usize>,
+    pub filename: Option<String>,
 }
 pub type ProgressSink = Option<SyncSender<Progress>>;
 pub(crate) fn progress(sink: &ProgressSink, stage: &str, completed: u64, total: Option<u64>) {
@@ -142,6 +149,11 @@ pub(crate) fn progress(sink: &ProgressSink, stage: &str, completed: u64, total: 
             stage: stage.into(),
             completed,
             total,
+            bytes_per_second: None,
+            remaining_seconds: None,
+            item_index: None,
+            items_total: None,
+            filename: None,
         });
     }
 }

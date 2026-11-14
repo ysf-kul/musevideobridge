@@ -1,0 +1,281 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-15",
+  "version": "0.4.1",
+  "status": "qualified pre-release; Windows physical USB and physical touch/visual acceptance unverified",
+  "synchronization": {
+    "authority": "ESP32 playback engine",
+    "transport": "single desktop serial actor; CRC-protected COBS frames",
+    "guards": [
+      "session",
+      "queue_revision",
+      "state_revision",
+      "playhead_generation"
+    ],
+    "reconnect": "HELLO and real device snapshot; no replay of old desktop intent",
+    "queue_capacity": 12,
+    "queue_persistence": "two alternating 808-byte CRC records; order, position and loop mode",
+    "telemetry_hz": 1,
+    "maximum_playback_state_event_hz": 10
+  },
+  "tests": {
+    "rust_workspace_including_native_engine": {
+      "passed": 66,
+      "failed": 0,
+      "ignored": 0
+    },
+    "python": {
+      "discovered": 122,
+      "passed": 109,
+      "failed": 0,
+      "skipped": 13,
+      "skip_scope": "PowerShell helper/diagnostic cases and optional ThreadSanitizer checks; no claim those ran"
+    },
+    "frontend": {
+      "tests_passed": 6,
+      "svelte_errors": 0,
+      "svelte_warnings": 0,
+      "production_backend_browser_workflows_passed": 1,
+      "browser_seconds": 30.4,
+      "format_check": "passed",
+      "cargo_fmt": "passed",
+      "clippy_all_targets_warnings_denied": "passed"
+    }
+  },
+  "builds": {
+    "windows_x64": {
+      "method": "optimized MSVC cross-build with embedded frontend",
+      "exe_sha256": "36f5dbb465895cd908e7fffa68253457328347848f6005b8a9f1778e1af45e75",
+      "warning": "SDK PDB linker warning; executable/package correspondence verified",
+      "runtime": "Windows release smoke to be recorded separately after publication"
+    },
+    "linux_x86_64": {
+      "exe_sha256": "099ff49a6d681a927f386e79f8af42c2418b53dd86efc9d547b16d9ff83f8443",
+      "runtime": "CachyOS portable native and AppImage direct-FUSE/extract-and-run: rendered, closed exit 0; isolated data directories",
+      "deb_rpm": "build-verified; clean-distribution installation unverified"
+    },
+    "firmware": {
+      "version": "0.4.1",
+      "environments": [
+        "cyd_optimized_input_aligned",
+        "cyd_optimized_input_aligned_115200"
+      ],
+      "standard_image_bytes": 687056,
+      "standard_image_sha256": "2a49bcd4b4dd4d86c8b3f9c5d0df4b39bdc340673a620b8b21f79decedd36bc8",
+      "application_baud": 921600,
+      "rom_flashing_baud": 115200,
+      "flash_scope": "application-only at 0x10000; hash verified after verified full 4 MiB backup; no erase/format/media deletion"
+    }
+  },
+  "hardware": {
+    "board": "ESP32-2432S028R / classic ESP32 / ILI9341",
+    "platform": "Linux production desktop backend and actual USB firmware",
+    "new_large_payload_transfer": {
+      "newly_confirmed_bytes": 1539876,
+      "receiving_seconds": 53.474135724,
+      "verification_seconds": 14.520945259,
+      "end_to_end_seconds": 68.411808642,
+      "confirmed_bytes_per_second": 28796.65055173356,
+      "resumed_offset": 0,
+      "recovery_attempts": null
+    },
+    "short_batch": {
+      "upload_completed": true,
+      "items": [
+        {
+          "newly_confirmed_bytes": 42816,
+          "receiving_seconds": 1.8211517000000002,
+          "verification_seconds": 3.556849567,
+          "end_to_end_seconds": 6.325364496,
+          "confirmed_bytes_per_second": 23510.397294195755,
+          "resumed_offset": 0,
+          "recovery_attempts": 0
+        },
+        {
+          "newly_confirmed_bytes": 43056,
+          "receiving_seconds": 1.8278838689999999,
+          "verification_seconds": 3.644895238,
+          "end_to_end_seconds": 6.435577856,
+          "confirmed_bytes_per_second": 23555.106935516156,
+          "resumed_offset": 0,
+          "recovery_attempts": 0
+        }
+      ],
+      "later_queue_seek": "no_video after serial delay and short clip auto-advance; retained as failed acceptance attempt"
+    },
+    "long_batch": {
+      "acceptance": {
+        "event": "acceptance_complete",
+        "idle_touch_verified": true,
+        "interfaces": "production desktop backend and real USB firmware",
+        "physical_touch": "unverified",
+        "physical_visual": "unverified",
+        "platform": "Linux",
+        "reconnect_device_restarted": true
+      },
+      "items": [
+        {
+          "newly_confirmed_bytes": 171936,
+          "receiving_seconds": 10.253977729,
+          "verification_seconds": 9.050265188,
+          "end_to_end_seconds": 20.26369355,
+          "confirmed_bytes_per_second": 16767.7368279956,
+          "resumed_offset": 0,
+          "recovery_attempts": 0
+        },
+        {
+          "newly_confirmed_bytes": 171936,
+          "receiving_seconds": 13.285000451,
+          "verification_seconds": 8.090181406,
+          "end_to_end_seconds": 22.390415294,
+          "confirmed_bytes_per_second": 12942.114728122413,
+          "resumed_offset": 0,
+          "recovery_attempts": 0
+        }
+      ],
+      "stages": [
+        "uploading with intermediate acknowledged byte counts",
+        "verifying_upload",
+        "validating_video indeterminate",
+        "loading_video",
+        "ready"
+      ],
+      "tested": [
+        "batch-first selection",
+        "pause",
+        "next",
+        "previous",
+        "queue reorder",
+        "remove and restore without media deletion",
+        "loop_current",
+        "loop_queue",
+        "play_once",
+        "actual restart and authoritative queue/mode reconciliation"
+      ]
+    },
+    "physical_touch": "unverified",
+    "physical_visual": "unverified",
+    "moved_fat32_export": "unverified; host integration/browser export passed"
+  },
+  "performance": {
+    "reference_sha256": "dcbaf2098e9a57a0ac508eb363e12f525b8f4b49f187707b4e6b984847a45356",
+    "resolution": [
+      320,
+      240
+    ],
+    "target_fps": 30,
+    "historical_qualified_fps": 29.799234457633492,
+    "historical_v040_fps": 29.731,
+    "after": {
+      "aggregate": {
+        "runs": 28,
+        "frames": 10065,
+        "active_elapsed_us": 336005968,
+        "actual_fps": 29.95482508810677
+      },
+      "series_one": {
+        "runs": 13,
+        "frames": 4679,
+        "active_elapsed_us": 156002340,
+        "actual_fps": 29.993139846492046
+      },
+      "series_readback": {
+        "runs": 15,
+        "frames": 5386,
+        "active_elapsed_us": 180003628,
+        "actual_fps": 29.92161913536543
+      },
+      "full_region_checks": 15,
+      "checked_pixels": 1152000,
+      "pixel_mismatches": 0,
+      "dma_ownership_errors": 0,
+      "touch_contacts_sampled_max": 0,
+      "touch_contacts_accepted_max": 0,
+      "per_frame_application_allocations": 0,
+      "loop_stack_min_bytes": 1664,
+      "minimum_free_heap_bytes": 17576,
+      "excluded_command_timeouts": 2,
+      "excluded_contact_series_runs": [
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24
+      ]
+    },
+    "change_vs_historical_percent": 0.5221296228078876,
+    "scope": "completed draws / device active media time; excludes loading/setup and diagnostic readback; touch-bearing tail and failed commands excluded",
+    "renderer": "existing direct DMA, prefetch and warmup; no added frame-loop allocation"
+  },
+  "failures_retained": [
+    "Early candidate firmware panic at transfer checkpoint; reset reason 4. Corrected binary-command dispatch/stack usage and hash/queue scratch storage before final qualified tests.",
+    "First endurance series recorded two exhausted serial command timeouts, invalid frames/retries and a later three-contact counter. All retained; qualified subset excludes failures/contact-bearing tail.",
+    "Six-second payload batch passed upload/readiness, but later seek failed during auto-advance after serial delay. Longer 24-second batch passed full acceptance.",
+    "Earlier automated fixture advertised nonexistent SD videos; fixture corrected and final full suites passed."
+  ],
+  "limits": [
+    "Windows 10/11 interactive and physical COM/USB unverified",
+    "Touchscreen actions, calibration and human visual acceptance unverified",
+    "Moved FAT32 export and all power-loss/removal/bad-card cases unverified",
+    "Paused state and seek are not persisted; queue transitions hash/load and may pause for preparation",
+    "28.8 kB/s is one real Linux workload; other batch measurements differ. Earlier 115200 comparison used different media. No eightfold or universal speed guarantee.",
+    "Original Windows failure reported only failed; exact original cause unknown."
+  ],
+  "release_assets": [
+    {
+      "name": "AppImage-runtime-sources.tar.gz",
+      "bytes": 10966291,
+      "sha256": "ec0f443cff7b32c619e3585321c866601f31ec31a5110a788b364ce76180438e"
+    },
+    {
+      "name": "FFmpeg-source.tar.gz",
+      "bytes": 17330649,
+      "sha256": "4270bde68c027b376899f26f7973e213aeaa5ddb6fef8a352e0d6ee457766c67"
+    },
+    {
+      "name": "Muse-Video-Bridge-0.4.1-Linux-amd64.deb",
+      "bytes": 4097002,
+      "sha256": "cee1125c8fbfabff8e7eeae52edc81e94914247aa0582048ebc5cd11ea12de42"
+    },
+    {
+      "name": "Muse-Video-Bridge-0.4.1-Linux-x86_64.AppImage",
+      "bytes": 4409848,
+      "sha256": "3532d043485c6474f77fbab4d30b536f18ba5cd587dd8d64e020c2bf2264df6f"
+    },
+    {
+      "name": "Muse-Video-Bridge-0.4.1-Linux-x86_64.rpm",
+      "bytes": 4216720,
+      "sha256": "54671c58d4a59d3fbb0dc7632a07ccf82993c06ab9fa4137a59e9e751c8909b8"
+    },
+    {
+      "name": "Muse-Video-Bridge-0.4.1-Linux-x86_64.tar.gz",
+      "bytes": 4096844,
+      "sha256": "661198097492da8a0e10545be61d71ae174196f410da40000ca287e94b9acd9b"
+    },
+    {
+      "name": "Muse-Video-Bridge-0.4.1-Windows-x64-portable.zip",
+      "bytes": 12894485,
+      "sha256": "760b94be222f2f3bfea49862ffe16ad29f20eab70ab8b13fb53a9396112c8962"
+    },
+    {
+      "name": "Muse-Video-Bridge-0.4.1-dependency-sources.tar.gz",
+      "bytes": 78053493,
+      "sha256": "02b4b5cb0bbb25644c5e7c852bcd4462cc6e4d931edaf24935547848c03d3ad5"
+    }
+  ],
+  "evidence_storage": "Raw USB/benchmark logs, backups and identifying device data remain private/ignored. Public evidence contains aggregates and log SHA-256 values.",
+  "private_log_sha256": {
+    "usb-batch-throughput-qualified.jsonl": "1f440ad2488c357f13432d683ec3629dfdae1805fb5e890554d99246b59ca4b6",
+    "usb-batch-hardware-long-payload.jsonl": "f32357cd37d91f7e3ad531c38cdb18aad98f11b68bdb6d0a150e91d7950a2ecf",
+    "usb-batch-hardware-new-payload.jsonl": "80350c1311d04896728e4fdce9bb5e62a3ac1f07a6b8a59f420efe83c250adb5",
+    "usb-batch-performance-verified.jsonl": "d1a2d6beeec993e23a9af5fbd746f4c460473f34a3729398a8cd7c8245e6d204",
+    "usb-batch-performance-readback.jsonl": "f9eea25fc526ab89895239cd0c3d7365a94f26a4c2815da0bd0600916d3fde2a",
+    "usb-batch-rust-final-qualified.log": "896b7b96e5e2e00a35176f312cd0ea1aa6c3680146c20a18d17b7155ed54a213",
+    "usb-batch-python-final-qualified.log": "db04708635238962bb0df38d72d8f77f27f0c3e0c89f7daaf8a8a497edd620be"
+  }
+}

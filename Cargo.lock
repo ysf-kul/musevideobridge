@@ -1909,7 +1909,7 @@ dependencies = [
 
 [[package]]
 name = "muse-video-bridge"
-version = "0.4.0"
+version = "0.4.1"
 dependencies = [
  "muse-video-core",
  "muse-video-desktop",
@@ -1945,7 +1945,7 @@ dependencies = [
 
 [[package]]
 name = "muse-video-desktop"
-version = "0.4.0"
+version = "0.4.1"
 dependencies = [
  "muse-video-core",
  "serde",

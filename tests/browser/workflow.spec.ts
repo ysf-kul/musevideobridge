@@ -4,6 +4,7 @@ const evidence = process.env.MVB_BROWSER_EVIDENCE_DIR ?? ".verification/phase3";
 test("real backend workflow, localization, transforms, reconnect and accessible themes", async ({
   page,
 }) => {
+  test.setTimeout(120000);
   const errors: string[] = [];
   page.on("pageerror", (e) => errors.push(e.message));
   await page.addInitScript(() => {
@@ -305,6 +306,82 @@ test("real backend workflow, localization, transforms, reconnect and accessible 
   await expect(page.getByRole("alert")).toBeVisible();
   await page.getByRole("button", { name: "Connect", exact: true }).click();
   await expect(mode).toBeEnabled();
-  await expect(mode).toHaveValue("play_once");
+  await expect(mode).toHaveValue(confirmedMode);
+  // Batch selection uses the real native backend and prepares both sources.
+  await page.getByRole("button", { name: "Add videos", exact: true }).click();
+  await expect(page.locator(".source-list li")).toHaveCount(2);
+  await page
+    .getByRole("button", {
+      name: "Prepare all selected videos (2)",
+      exact: true,
+    })
+    .click();
+  await expect(
+    page.getByRole("button", {
+      name: "Prepare all selected videos (2)",
+      exact: true,
+    }),
+  ).toBeEnabled({ timeout: 40000 });
+  const batchIds = await page.evaluate(async () => {
+    const snapshot = await window.__MVB_TEST_BRIDGE__!.call<{
+      sources: { artifact: { sha256: string } }[];
+    }>("snapshot");
+    return snapshot.sources.map((m) => m.artifact.sha256);
+  });
+  await page
+    .getByRole("button", { name: "Clear selection", exact: true })
+    .click();
+  for (const id of batchIds)
+    await page.locator(`.prepared-videos input[value="${id}"]`).check();
+  await page
+    .getByRole("button", { name: "Send selected over USB", exact: true })
+    .click();
+  await expect(
+    page.getByText("Transfer verified by the device.", { exact: true }),
+  ).toBeVisible({ timeout: 40000 });
+  await page
+    .getByRole("button", { name: "Prepare SD card", exact: true })
+    .click();
+  await page
+    .getByRole("button", {
+      name: "Write selected videos to SD card",
+      exact: true,
+    })
+    .click();
+  await expect(
+    page.getByText(
+      "Video written and verified. Eject the card safely, then insert it into the ESP32.",
+      { exact: true },
+    ),
+  ).toBeVisible({ timeout: 40000 });
+  await page.reload();
+  await expect(page.locator(".prepared-videos li")).toHaveCount(3);
+  for (const id of batchIds)
+    await expect(
+      page.locator(`.prepared-videos input[value="${id}"]`),
+    ).toBeVisible();
+  // A genuine rejected native command shows its error code without disclosure.
+  await page.evaluate(async () => {
+    const bridge = window.__MVB_TEST_BRIDGE__!;
+    const original = bridge.call.bind(bridge);
+    bridge.call = async <T>(
+      command: string,
+      args?: Record<string, unknown>,
+    ) => {
+      if (command === "command") {
+        bridge.call = original;
+        return original<T>("command", {
+          value: { method: "unsupported_error_fixture" },
+        });
+      }
+      return original<T>(command, args);
+    };
+  });
+  await page
+    .getByRole("combobox", { name: "Playback mode", exact: true })
+    .selectOption("loop_current");
+  await expect(page.getByRole("alert").locator(".error-code")).toContainText(
+    "unsupported_command",
+  );
   expect(errors).toEqual([]);
 });

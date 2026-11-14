@@ -44,6 +44,7 @@ public:
 class Storage : public mvb::Storage {
   MemoryFile file_, writer_;
   bool upload_enabled_;
+  bool catalog_enabled_ = false;
 public:
   Storage(Clock &clock, const std::vector<uint8_t> &bytes, bool upload = false)
       : file_(clock, bytes), writer_(clock, {}), upload_enabled_(upload) {}
@@ -53,7 +54,11 @@ public:
   uint64_t free_bytes() override { return upload_enabled_ ? 1048576 : 0; }
   mvb::File *read_file(const char *) override { file_.seek(0); return &file_; }
   mvb::File *write_file(const char *, bool) override { return upload_enabled_ ? &writer_ : nullptr; }
-  bool exists(const char *name) override { return std::strncmp(name, "/muse-video/.upload", 19) != 0; }
+  bool exists(const char *name) override {
+    if (catalog_enabled_) return std::strncmp(name, "/muse-video/.upload", 19) != 0;
+    return std::string(name) == "/muse-video/" + std::string(64, 'a') + ".mvb";
+  }
+  void enable_test_catalog() { catalog_enabled_ = true; }
   bool rename_new(const char *, const char *) override { return false; }
   bool remove_owned(const char *) override { return false; }
   bool mkdir_library() override { return upload_enabled_; }
@@ -243,6 +248,7 @@ void touchscreen(const std::vector<uint8_t> &bytes) {
   engine.touch(160, 208); engine.tick(); // Hidden: reveal, still paused.
   assert(requests.command("{\"method\":\"get_status\"}")["result"]["state"] == "paused");
   JsonDocument queue, state = requests.command("{\"method\":\"get_playback_state\"}");
+  storage.enable_test_catalog(); // Only this case advertises twelve fixture files.
   queue["method"] = "set_queue";
   queue["expected_queue_revision"] = state["result"]["queue_revision"];
   auto ids = queue["ids"].to<JsonArray>();

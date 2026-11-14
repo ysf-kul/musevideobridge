@@ -2,6 +2,7 @@
 #include "frame_prefetch.hpp"
 #include "new_jpeg.hpp"
 #include "playlist.hpp"
+#include "queue_record.hpp"
 #include "render.hpp"
 #include "rom_jpeg.hpp"
 #include "timing.hpp"
@@ -31,6 +32,10 @@ public:
   virtual bool checkpoint_file(const char *, const uint8_t *, size_t,
                                bool append) = 0;
   virtual bool select(const char *digest) = 0;
+  virtual bool queue_store_available() const { return false; }
+  virtual bool read_queue(unsigned, uint8_t *, size_t) { return false; }
+  virtual bool write_queue(unsigned, const uint8_t *, size_t) { return false; }
+  virtual size_t video_ids(char (*)[65], size_t) { return 0; }
   virtual bool configure_clock(uint32_t) { return false; }
 };
 class Runtime : public ProfileClock {
@@ -221,6 +226,56 @@ class Engine {
   bool finalizing_ = false;
   Playlist playlist_;
   bool queue_initialized_ = false, load_autoplay_ = true;
+  uint32_t queue_generation_ = 0;
+  const char *queue_error_ = nullptr;
+  bool save_queue(const Playlist &queue, int selected_position = -2) {
+    if (!storage_.queue_store_available()) return true;
+    if (queue_generation_ == UINT32_MAX) { queue_error_ = "queue_save_failed"; return false; }
+    // Bounded temporary storage at queue changes only. FAT calls share the
+    // Arduino task stack with command parsing; leave that stack room for the SDK.
+    std::unique_ptr<uint8_t[]> record(new (std::nothrow) uint8_t[QueueRecordBytes]);
+    if (!record) { queue_error_ = "queue_save_failed"; return false; }
+    uint8_t *bytes = record.get();
+    encode_queue(bytes, queue, queue_generation_ + 1);
+    if (selected_position != -2) {
+      // Stage a position change without copying the 800-byte playlist onto the
+      // caller's stack. Commit the in-memory position only after the SD write.
+      put32(bytes + 16, uint32_t(selected_position));
+      put32(bytes + 804, crc32(bytes, 804));
+    }
+    if (!storage_.write_queue((queue_generation_ + 1) % 2, bytes, QueueRecordBytes)) {
+      queue_error_ = "queue_save_failed"; return false;
+    }
+    ++queue_generation_; queue_error_ = nullptr; return true;
+  }
+  void restore_queue() {
+    if (!storage_.mounted()) return;
+    uint8_t bytes[QueueRecordBytes];
+    for (unsigned slot = 0; slot < 2; ++slot) {
+      Playlist candidate; uint32_t generation = 0;
+      if (storage_.read_queue(slot, bytes, sizeof(bytes)) && decode_queue(bytes, candidate, generation) && generation > queue_generation_) {
+        playlist_ = candidate; queue_generation_ = generation;
+      }
+    }
+    if (queue_generation_) {
+      // Preserve a deliberate empty queue. Missing media is skipped by navigation.
+      queue_initialized_ = true;
+      return;
+    }
+    char ids[Playlist::Capacity][65]{};
+    size_t count = storage_.video_ids(ids, Playlist::Capacity);
+    // Keep the legacy active selection in a full discovered library. Otherwise
+    // loading it could leave the playhead outside the twelve discovered IDs.
+    char active[96];
+    if (storage_.first_video(active, sizeof(active), "")) {
+      const char *name = std::strrchr(active, '/'); name = name ? name + 1 : active;
+      if (std::strlen(name) == 68 && !std::strcmp(name + 64, ".mvb")) {
+        char id[65]; std::memcpy(id, name, 64); id[64] = 0;
+        if (digest_valid(id)) playlist_.append(id);
+      }
+    }
+    for (size_t i = 0; i < count; ++i) if (digest_valid(ids[i])) playlist_.append(ids[i]);
+  }
   bool controls_visible_ = false, controls_dirty_ = false;
   uint64_t controls_until_ = 0, last_state_event_ = 0, last_preparation_draw_ = 0;
   uint32_t sent_revision_ = UINT32_MAX, sent_queue_revision_ = UINT32_MAX;
@@ -276,6 +331,8 @@ class Engine {
     return -1;
   }
   void queue_status(JsonObject r, bool order) {
+    r["queue_persistent"] = storage_.queue_store_available();
+    r["queue_error"] = queue_error_;
     r["queue_revision"] = playlist_.revision;
     r["queue_position"] = playlist_.position;
     r["loop_mode"] = loop_name(playlist_.mode);
@@ -308,12 +365,14 @@ class Engine {
     r["position_us"] = timeline_.position(runtime_.now());
     preparation_status(r["preparation"].to<JsonObject>());
   }
-  bool select_queue(int position, bool autoplay) {
+  bool select_queue(int position, bool autoplay, bool persist = true) {
     if (position < 0 || position >= int(playlist_.count) || transfer_active())
       return false;
     char path[96];
     std::snprintf(path, sizeof(path), "/muse-video/%s.mvb", playlist_.ids[position]);
     if (!storage_.exists(path)) return false;
+    if (persist && (position != playlist_.position || !queue_generation_) &&
+        !save_queue(playlist_, position)) return false;
     playlist_.position = position;
     load_autoplay_ = autoplay;
     return begin_load(path);
@@ -870,6 +929,8 @@ class Engine {
     json_frame(3, 0, d);
   }
   void status(JsonObject r) {
+    r["queue_persistent"] = storage_.queue_store_available();
+    r["queue_error"] = queue_error_;
     r["state"] = state_;
     // Order is sent separately so full hardware telemetry stays bounded.
     r["queue_revision"] = playlist_.revision;
@@ -1174,6 +1235,19 @@ class Engine {
           std::snprintf(journal_, sizeof(journal_), "/muse-video/.upload.meta");
       }
     }
+    char existing[96];
+    std::snprintf(existing, sizeof(existing), "/muse-video/%s.mvb", hash);
+    if (storage_.exists(existing)) {
+      file_ = storage_.read_file(existing);
+      if (!file_ || file_->size() != upload_size_ || !runtime_.hash_begin())
+        return fail("digest_mismatch");
+      // A matching SD file is verified and loaded, rather than retransmitted.
+      // The existing journal was validated above before cleanup ownership.
+      upload_owned_ = recovery;
+      accepted_ = checkpointed_ = uint32_t(upload_size_);
+      upload_state_ = "verifying"; work_offset_ = 0; work_ = Work::ExistingHash;
+      return true;
+    }
     if (recovery) {
       upload_owned_ = true;
       checkpointed_ = get32(b + 80);
@@ -1296,7 +1370,12 @@ class Engine {
     output_.send(ack);
   }
   void work_step() {
-    uint8_t buffer[4096];
+    // Hashing runs after close_file has joined prefetch and invalidated compressed
+    // records. Reuse that owned slot instead of keeping 4 KiB on the loop stack
+    // while publication calls the FAT queue writer. No playback buffer is added.
+    uint8_t *buffer = jpeg_bytes_;
+    constexpr size_t HashBlockBytes = 4096;
+    static_assert(sizeof(jpeg_bytes_) >= HashBlockBytes, "Hash scratch capacity");
     if (work_ == Work::LoadHash || work_ == Work::UploadHash ||
         work_ == Work::ExistingHash) {
       uint64_t size = file_ ? file_->size() : 0;
@@ -1309,7 +1388,7 @@ class Engine {
       }
       if (work_offset_ < size) {
         size_t n =
-            size_t(std::min(uint64_t(sizeof(buffer)), size - work_offset_));
+            size_t(std::min(uint64_t(HashBlockBytes), size - work_offset_));
         if (!exact(*file_, buffer, n)) {
           if (work_ == Work::LoadHash)
             failure("sd_read_failed");
@@ -1373,7 +1452,7 @@ class Engine {
     }
     if (work_ == Work::ResumeHash) {
       if (work_offset_ < checkpointed_) {
-        size_t n = size_t(std::min(uint64_t(sizeof(buffer)),
+        size_t n = size_t(std::min(uint64_t(HashBlockBytes),
                                    uint64_t(checkpointed_) - work_offset_));
         if (!file_ || !exact(*file_, buffer, n)) {
           upload_failure("sd_read_failed");
@@ -1467,13 +1546,14 @@ class Engine {
     finalizing_ = false;
     // Only app-owned journal is removed; unrelated media and old selections are
     // retained.
-    if (existing && !storage_.remove_owned(partial_))
+    if (upload_owned_ && existing && !storage_.remove_owned(partial_))
       upload_error_ = "checkpoint_cleanup_failed";
-    if (!storage_.remove_owned(journal_)) {
+    if (upload_owned_ && !storage_.remove_owned(journal_)) {
       upload_error_ = "checkpoint_cleanup_failed";
     }
     playlist_.append(upload_digest_);
     playlist_.position = playlist_.find(upload_digest_);
+    if (!save_queue(playlist_)) { failure("queue_save_failed"); return; }
     load_autoplay_ = true;
     begin_load(final);
   }
@@ -1784,6 +1864,21 @@ public:
     }
 #endif
     storage_.mount();
+    restore_queue();
+    if (queue_generation_ && playlist_.count) {
+      char path[96];
+      std::snprintf(path, sizeof(path), "/muse-video/%s.mvb", playlist_.ids[playlist_.position]);
+      if (storage_.exists(path)) begin_load(path);
+      else {
+        int next = -1;
+        for (size_t i = 0; i < playlist_.count; ++i) {
+          std::snprintf(path, sizeof(path), "/muse-video/%s.mvb", playlist_.ids[i]);
+          if (storage_.exists(path)) { next = int(i); break; }
+        }
+        if (next >= 0) select_queue(next, true);
+        else queue_error_ = "video_unavailable";
+      }
+    }
     painter_.waiting(storage_.mounted(), false, nullptr);
     last_poll_ = runtime_.now() - 2000000;
   }
@@ -1804,6 +1899,11 @@ public:
       reject(f.sequence, "invalid_command");
       return;
     }
+    command_json(f);
+  }
+  // JSON queue editing needs a larger stack frame. Binary upload chunks must
+  // reach checkpoint/SD writes without carrying that unused JSON frame as well.
+  __attribute__((noinline)) void command_json(const Frame &f) {
     JsonDocument cmd;
     auto parse = deserializeJson(cmd, f.payload, f.length,
                                  DeserializationOption::NestingLimit(4));
@@ -1914,7 +2014,7 @@ public:
         reject(f.sequence, "unsupported_version");
         return;
       }
-      result["firmware_version"] = "0.4.0";
+      result["firmware_version"] = "0.4.1";
       result["protocol_major"] = 1;
       result["container_version"] = 1;
       result["configured_board"] = "ESP32-2432S028R-one-USB";
@@ -2472,8 +2572,11 @@ public:
                     std::strcmp(mode, "loop_queue"))) {
         reject(f.sequence, "invalid_parameter"); return;
       }
-      playlist_.mode = !std::strcmp(mode, "loop_current") ? LoopMode::Current
+      Playlist candidate = playlist_;
+      candidate.mode = !std::strcmp(mode, "loop_current") ? LoopMode::Current
                        : !std::strcmp(mode, "loop_queue") ? LoopMode::Queue : LoopMode::Once;
+      if (!save_queue(candidate)) { reject(f.sequence, "queue_save_failed"); return; }
+      playlist_ = candidate;
       ++playlist_.revision; ++revision_;
       controls_dirty_ = controls_visible_;
       result["state_revision"] = revision_;
@@ -2506,12 +2609,15 @@ public:
       bool autoplay = timeline_.running();
       int previous_position = playlist_.position;
       candidate.position = candidate.find(active);
+      if (candidate.position < 0 && candidate.count) candidate.position = std::min(std::max(0, previous_position), int(candidate.count) - 1);
       candidate.revision = playlist_.revision + 1;
+      if (!save_queue(candidate)) { reject(f.sequence, "queue_save_failed"); return; }
+      bool removed_active = candidate.find(active) < 0;
       playlist_ = candidate;
       queue_initialized_ = true;
-      if (playlist_.position < 0) {
+      if (removed_active) {
         if (playlist_.count) {
-          if (!select_queue(std::min(std::max(0, previous_position), int(playlist_.count)-1), autoplay))
+          if (!select_queue(std::min(std::max(0, previous_position), int(playlist_.count)-1), autoplay, false))
             failure("video_unavailable");
         } else {
           close_file(); timeline_.stop(); state_ = "idle"; digest_[0] = 0;
@@ -2852,7 +2958,9 @@ public:
   }
   void tick() {
     uint64_t now = runtime_.now();
-    if (connected_ && now - last_contact_ > 6000000) {
+    // A 3-attempt host ACK exchange can take nine seconds. Do not expire the
+    // SD owner midway through retries or a slow FAT checkpoint.
+    if (connected_ && now - last_contact_ > (transfer_active() ? 30000000ULL : 6000000ULL)) {
       connected_ = false;
       if (!std::strcmp(upload_state_, "receiving") ||
           !std::strcmp(upload_state_, "resuming") ||

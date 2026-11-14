@@ -351,6 +351,56 @@ public:
   bool mkdir_library() override {
     return SD.exists("/muse-video") || SD.mkdir("/muse-video");
   }
+  bool queue_store_available() const override { return true; }
+  bool read_queue(unsigned slot, uint8_t *bytes, size_t n) override {
+    if (slot > 1 || !mounted_) return false;
+    char path[40]; std::snprintf(path, sizeof(path), "/muse-video/queue.%u.bin", slot);
+    SdFile f;
+    bool ok = f.open(path, "rb") && f.size() == n && f.read(bytes, n) == n;
+    f.close(); return ok;
+  }
+  __attribute__((noinline)) bool recognized_queue_slot(unsigned slot) {
+    // Release the validation stack before opening/writing the replacement file.
+    std::unique_ptr<uint8_t[]> old(new (std::nothrow) uint8_t[mvb::QueueRecordBytes]);
+    if (!old) return false;
+    mvb::Playlist queue; uint32_t generation;
+    return read_queue(slot, old.get(), mvb::QueueRecordBytes) && mvb::decode_queue(old.get(), queue, generation);
+  }
+  bool write_queue(unsigned slot, const uint8_t *bytes, size_t n) override {
+    if (slot > 1 || n != mvb::QueueRecordBytes || !mkdir_library()) return false;
+    char path[40]; std::snprintf(path, sizeof(path), "/muse-video/queue.%u.bin", slot);
+    if (SD.exists(path)) {
+      if (!recognized_queue_slot(slot)) {
+        char backup[96];
+        std::snprintf(backup, sizeof(backup), "/muse-video/queue.unrecognized-%llu.bin", static_cast<unsigned long long>(esp_timer_get_time()));
+        if (!rename_new(path, backup)) return false;
+      } else if (!SD.remove(path)) return false;
+    }
+    // Only the inactive generation is replaced. Never use the shared playback reader.
+    SdFile f;
+    bool ok = f.open(path, "w+b", true) && f.write(bytes, n) == n;
+    ok = f.flush() && ok; f.close(); return ok;
+  }
+  size_t video_ids(char (*ids)[65], size_t capacity) override {
+    ::File dir = SD.open("/muse-video"); if (!dir || !dir.isDirectory()) return 0;
+    size_t count = 0; ::File item;
+    while ((item = dir.openNextFile())) {
+      const char *name = item.name(), *slash = std::strrchr(name, '/'); if (slash) name = slash + 1;
+      if (!item.isDirectory() && std::strlen(name) == 68 && !std::strcmp(name + 64, ".mvb")) {
+        char id[65]; std::memcpy(id, name, 64); id[64] = 0;
+        if (mvb::digest_valid(id)) {
+          size_t at = 0; while (at < count && std::strcmp(ids[at], id) < 0) ++at;
+          if (at < capacity) {
+            size_t end = std::min(count, capacity - 1);
+            for (size_t i = end; i > at; --i) std::memcpy(ids[i], ids[i - 1], 65);
+            std::memcpy(ids[at], id, 65); count = std::min(count + 1, capacity);
+          }
+        }
+      }
+      item.close();
+    }
+    dir.close(); return count;
+  }
   bool first_video(char *out, size_t n, const char *ignored) override {
     ::File active = SD.open("/muse-video/active.json");
     if (active && active.size() <= 512) {
@@ -1520,6 +1570,8 @@ public:
     }
 
     r["uptime_us"] = now();
+    r["reset_reason"] = unsigned(esp_reset_reason());
+    r["loop_task_stack_free_min_bytes"] = uxTaskGetStackHighWaterMark(nullptr);
     if (storage.mounted()) {
       if (!space_at_ || now() - space_at_ > 10000000) {
         sd_total_ = storage.capacity();

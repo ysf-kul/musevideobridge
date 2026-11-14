@@ -11,7 +11,7 @@ Mandatory Muse instruction files are unchanged.
 Video IDs are the SHA-256 of validated `.mvb` files. The device holds up to 12
 unique IDs, their order, current position, and loop mode. Upload publication adds
 the validated video and starts its real playback preparation. Removing an entry
-does not delete its SD file. Conversion selection and the session's prepared
+does not delete its SD file. Conversion selection and the locally saved prepared
 preview library are separate from the device's current video.
 
 `get_playback_state` returns queue order/revision, current/next/previous IDs,
@@ -48,11 +48,20 @@ only the identified upload's incomplete files.
 - Navigation skips missing SD files and reports failed preparation. Loading a
   hash-named file verifies its content identity before playback.
 
-Queue order and mode are session state. A device restart starts from its recognized
-SD selection/discovery with Play Once, and the desktop adopts that state. This is
-not persistent playlist storage. Prepared titles and cached preview registrations
-are also session-local; unknown device media remains controllable and is identified
-by its hash, without pretending a local preview matches it.
+Firmware 0.4.1 saves queue order, selected position and loop mode to two alternating
+CRC-protected records on SD. Restart restores the newest valid generation, falling
+back to the previous generation after an interrupted write. Missing media is skipped;
+a deliberate empty queue stays empty. Without a record, existing hash-named SD videos
+are discovered in hash order after the legacy active selection. Playback resumes from the saved selection's beginning;
+paused state and seek position are not persisted. Reconnection adopts device state.
+Prepared titles and cache-relative registrations survive desktop restart. Unknown
+media remains controllable by its hash without claiming a matching local preview.
+
+Use **Add videos** for multiple MP4s, **Prepare all selected videos**, then choose
+prepared entries for **Send selected over USB** or **Write selected videos to SD card**.
+A completed USB batch selects its first item. Mounted-card export appends to the same
+SD queue record, retains existing videos and mode, and preserves the current selection.
+See [the batch and USB repair report](USB_BATCH_TRANSFER_REPORT.md).
 
 ## Measured progress
 
@@ -138,8 +147,8 @@ and never flashes, formats, or deletes media. Run only against the intended CYD:
 cargo run --locked -p muse-video-desktop --example queue_hardware -- /dev/ttyUSB0 red.mp4 blue.mp4 new-acceptance.jsonl
 ```
 
-Use fixtures lasting at least six seconds for hardware acceptance. A two-second
-clip can finish before the host observes its playing state after a serial retry;
+Use fixtures lasting at least 24 seconds for hardware acceptance. A short
+clip can finish before the host observes its playing state after serial retries;
 that timing race must not be mistaken for a failed playback transition.
 The runner records each command/reply and waits for the acknowledged state
 revision before checking playback, so an earlier matching video/state cannot

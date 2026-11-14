@@ -2,11 +2,11 @@
 
 Download desktop packages and SHA256SUMS.txt from the
 [GitHub Releases page](https://github.com/ysf-kul/musevideobridge/releases).
-Version 0.4.0 is an unsigned queue and playback update. Compare the downloaded archive's
+Version 0.4.1 is an unsigned queue and playback update. Compare the downloaded archive's
 SHA-256 with SHA256SUMS.txt before extracting/installing it. Source is MIT licensed;
 third-party notices and corresponding dependency sources are supplied separately.
 
-Version 0.4.0 is a **pre-release**. Physical touch-button actions, calibration and
+Version 0.4.1 is a **pre-release**. Physical touch-button actions, calibration and
 display appearance have not been fully verified. The owner confirmed tapping
 during contact-affected diagnostics; those clips are excluded from idle qualification.
 
@@ -18,15 +18,15 @@ normal XDG configuration/cache directories under `dev.muse.videobridge`, outside
 the read-only AppImage. Download and compare SHA-256, then run:
 
 ```sh
-chmod +x Muse-Video-Bridge-0.4.0-Linux-x86_64.AppImage
-./Muse-Video-Bridge-0.4.0-Linux-x86_64.AppImage
+chmod +x Muse-Video-Bridge-0.4.1-Linux-x86_64.AppImage
+./Muse-Video-Bridge-0.4.1-Linux-x86_64.AppImage
 ```
 
 If the host does not allow FUSE mounts through `/dev/fuse`, use the runtime's
 extraction fallback (extracts to a temporary directory, then starts the app):
 
 ```sh
-./Muse-Video-Bridge-0.4.0-Linux-x86_64.AppImage --appimage-extract-and-run
+./Muse-Video-Bridge-0.4.1-Linux-x86_64.AppImage --appimage-extract-and-run
 ```
 
 The AppImage runtime's original licenses, exact corresponding sources, patches
@@ -49,8 +49,8 @@ build from source rather than treating this package as compatible.
 
 ```sh
 sha256sum -c SHA256SUMS.txt --ignore-missing
-tar -xzf Muse-Video-Bridge-0.4.0-Linux-x86_64.tar.gz
-cd Muse-Video-Bridge-0.4.0-Linux-x86_64
+tar -xzf Muse-Video-Bridge-0.4.1-Linux-x86_64.tar.gz
+cd Muse-Video-Bridge-0.4.1-Linux-x86_64
 ./Start-App.sh
 ```
 
@@ -75,12 +75,12 @@ these are troubleshooting options, not general requirements.
 Windows 10/11 x64 and the official
 [Microsoft WebView2 Evergreen Runtime](https://developer.microsoft.com/en-us/microsoft-edge/webview2/)
 are required. The optimized MSVC cross-build and packaged resources are verified. The published
-ZIP passed native window creation and bundled conversion/decode on a Windows Server
+v0.4.0 ZIP passed native window creation and bundled conversion/decode on a Windows Server
 2025 AMD64 runner. **Windows 10/11 interactive use, rendered UI, settings persistence
 and physical USB are not yet verified**. See
 [the Windows audit](RELEASE_AUDIT_WINDOWS.md) for the narrower runner scope.
 
-1. Compare SHA-256 with PowerShell: `Get-FileHash .\Muse-Video-Bridge-0.4.0-Windows-x64-portable.zip -Algorithm SHA256`.
+1. Compare SHA-256 with PowerShell: `Get-FileHash .\Muse-Video-Bridge-0.4.1-Windows-x64-portable.zip -Algorithm SHA256`.
 2. Extract the complete ZIP to a writable folder.
 3. Run `Start-App.cmd` or `Muse Video Bridge.exe`.
 4. Keep `tools`, its FFmpeg DLLs, and `portable-mode.json` beside the application.
@@ -102,11 +102,12 @@ no universal compatibility with every CYD revision is claimed.
 The release supplies firmware **source**, not a prebuilt firmware/flashing kit.
 Install the pinned PlatformIO environment following [BUILD_AND_RUN.md](BUILD_AND_RUN.md).
 The selected production environment is `cyd_optimized_input_aligned`, firmware
-version 0.4.0. Preserve the device's existing firmware with a complete verified
+version 0.4.1 in current source. Preserve the device's existing firmware with a complete verified
 4 MB backup before writing any image. Then use the documented PlatformIO/esptool
 build/upload procedure and verify the installed image. Do not erase the whole chip
 or overwrite a known-good backup. Version 0.4.0 was built, application-only flashed
-and hash-verified on the reference CYD. Its real USB and playback checks are in
+and hash-verified on the reference CYD; the 0.4.1 repair results are recorded in
+[USB_BATCH_TRANSFER_REPORT.md](USB_BATCH_TRANSFER_REPORT.md). Its real USB and playback checks are in
 [QUEUE_VERIFICATION_REPORT.md](QUEUE_VERIFICATION_REPORT.md); physical touch-button
 and visual acceptance remain unverified.
 
@@ -148,16 +149,17 @@ through USB transfer and playback.**
 3. Close other serial monitors, select the CYD's actual port in Muse Video Bridge,
    and click **Connect**. Refresh ports if needed. Do not select unrelated devices.
 4. Select MP4, set qscale/encoding FPS, and **Convert**. Defaults are qscale 8 / 25 FPS.
-5. Click **Send over USB** and wait for acknowledged progress and full device size/
-   SHA-256 verification. 115200-baud transfer is roughly 9.9 kB/s in prior testing,
-   followed by verification time. Transfer pauses playback while writing.
+5. Select prepared videos and choose **Send selected over USB**, or send the current
+   video. Wait for acknowledged progress and full device size/SHA-256 verification.
+   Matching 0.4.1 firmware uses 921600 baud. Old firmware remains at 115200 baud
+   (roughly 9.9 kB/s in prior testing) until updated. Transfer pauses playback while writing.
 6. Wait through measured transfer/hash progress and indeterminate playback setup
    until the device confirms readiness. Manage up to 12 videos in the queue;
    select, reorder, remove, and use next/previous. Choose Play Once, Loop Current,
-   or Loop Queue. Queue order/mode reset on device restart; reconnect reads real state.
+   or Loop Queue. Firmware 0.4.1 saves queue order/mode on SD; reconnect reads real state.
 7. Tap the CYD to show Previous, Play/Pause, and Next for four seconds. Physical
-   touch calibration and display appearance remain unverified. The new queue and
-   touch controls require firmware from v0.4.0; use that tag's firmware source.
+   touch calibration and display appearance remain unverified. Use matching 0.4.1 firmware for faster transfer and persistent queues;
+   the desktop cannot change old firmware's UART rate.
 8. Use play/pause/resume/stop/restart/seek and position/scale/quarter-turn rotation
    controls. Target FPS differs from actual FPS.
 9. Explicit **Cancel** removes only that acknowledged upload's incomplete files.
@@ -168,3 +170,5 @@ Desktop preview uses local prepared JPEGs and reported frame position. Unknown
 video hashes require matching local conversion; unavailable telemetry is labeled.
 There is no audio playback, arbitrary-angle rotation, or calibrated ESP32 temperature.
 See [feature and release verification](QUEUE_VERIFICATION_REPORT.md) for the precise tested scope.
+The [0.4.1 repair report](USB_BATCH_TRANSFER_REPORT.md) covers batch selection,
+mounted-card queue export and the firmware update needed for faster USB.

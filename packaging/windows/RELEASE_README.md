@@ -1,8 +1,8 @@
 # Muse Video Bridge — Windows x64 portable
 
-Version 0.4.0 is a pre-release. Physical touch-button actions, calibration and
-display acceptance are incomplete. The owner confirmed tapping during diagnostics;
-the clips with registered contacts are excluded from idle qualification.
+Version 0.4.1 is a pre-release. Reference-device Linux USB transfer and queue
+acceptance passed. Physical touch-button actions, calibration and visual acceptance
+remain unverified; Windows physical USB still needs acceptance on that platform.
 
 Extract the complete ZIP into a writable folder and open `Start-App.cmd` or
 `Muse Video Bridge.exe`. Windows 10/11 x64 and Microsoft Edge WebView2 Runtime
@@ -17,7 +17,8 @@ on Windows.
 The application starts in Turkish. Select English and light/dark/system theme in
 the application. Settings are saved beside the executable in `Data/config`,
 converted files and previews in `Data/cache`, and the WebView2 profile in
-`Data/cache/webview`. Keep the entire folder together when moving it. Do not run
+`Data/cache/webview`. Preserve the existing `Data` folder when upgrading and copy
+it beside the new executable. Keep the entire folder together when moving it. Do not run
 from inside the ZIP or a read-only folder.
 
 FFmpeg and FFprobe are included in `tools/`, together with their replaceable shared
@@ -39,14 +40,18 @@ tools; select trusted compatible FFmpeg/FFprobe paths in settings if needed.
    and preserve-aspect scaling. Lower qscale increases quality and file size.
    Source MP4 files remain unchanged. The `.mvb` output contains video only.
 4. Choose **Send over USB** and wait for acknowledged progress plus final
-   size/SHA-256 verification. At 115200 baud, large files take time. Upload pauses
+   size/SHA-256 verification. Matching 0.4.1 firmware uses 921600 baud; old firmware
+   remains at 115200 until updated. Upload pauses
    playback while using the card. Cancellation removes the confirmed upload's
    incomplete files; interrupted transfers retain a checkpoint for retrying the
    same converted file. Neither the desktop nor the firmware formats the card.
 5. Manage up to 12 prepared videos in the device queue: select, reorder, remove,
    and navigate next/previous. Choose Play Once, Loop Current, or Loop Queue.
-   Reconnection refreshes actual device state; queue order and mode reset after
-   device restart. The new controls require firmware from v0.4.0.
+   Use Add videos and Prepare all selected videos for a batch, then select prepared
+   items and send them together or write them to a mounted FAT32 SD card.
+   Reconnection refreshes actual device state. Firmware 0.4.1 saves queue order and
+   mode on SD and uses 921600 baud. Updating only the desktop leaves 0.4.0 firmware
+   at 115200 baud. The old rate remains available as a compatibility firmware build.
 6. Tap the CYD to reveal Previous, Play/Pause, and Next controls for four seconds.
    Physical touch calibration and display appearance remain unverified.
 7. Play, pause, resume, stop, restart and seek. Position, size, scale, quarter-turn
@@ -63,6 +68,12 @@ over 228 active seconds across 19 full-screen clips on the reference device,
 excluding the initial overlay-affected clip. All 20 separate full-region readback
 checks passed with zero mismatches and DMA ownership errors. This does not qualify
 physical touch-button actions or display appearance.
+The 0.4.1 firmware was application-only flashed and hash-verified on the reference
+CYD. A 1,539,876-byte USB transfer confirmed approximately 28.8 kB/s, with measured
+verification and readiness, on Linux. Earlier 115200 tests were roughly 9.9 kB/s;
+these different-file measurements are not a Windows throughput guarantee. The
+current FPS regression and its scope are in the 0.4.1 repair report. The arithmetic
+baud increase is not a measured eightfold transfer-speed guarantee.
 
 Documentation and source: https://github.com/ysf-kul/musevideobridge .
 Downloads: https://github.com/ysf-kul/musevideobridge/releases .

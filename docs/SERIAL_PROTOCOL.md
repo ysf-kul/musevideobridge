@@ -1,6 +1,6 @@
 # USB Serial protocol — implemented version 1
 
-The queue firmware extension (firmware 0.3.0) retains v1 framing and adds a
+The queue firmware extension (introduced in firmware 0.4.0) retains v1 framing and adds a
 `playback_queue` HELLO capability and `queue_capacity`. Clients must refresh device
 state after HELLO rather than replay previous queue or loop settings. Details and
 progress measurements are in [QUEUE_AND_PLAYBACK.md](QUEUE_AND_PLAYBACK.md).
@@ -69,6 +69,22 @@ documents the divisor formula/range (source SHA-256
 `f1cc643917dc56b37dfd6714c6df2c6f4fa7469f1c5efe902850b5292e820a0e`).
 This source/divisor evidence does not establish the connected bridge's oscillator
 accuracy, VM scheduling reliability or stable large-file throughput.
+
+## Firmware 0.4.1 transfer and queue storage
+
+The standard production application rate is 921600 baud; the `_115200`
+compatibility environment retains the old rate. ROM flashing remains 115200.
+Discovery negotiates on the selected handle; it does not switch firmware baud.
+`queue_persistent` and `queue_error` accompany playback/status snapshots. SD stores
+order, selected position and mode in alternating 808-byte generation/CRC records,
+shared with mounted-card export; details are in [QUEUE_AND_PLAYBACK.md](QUEUE_AND_PLAYBACK.md).
+
+Transfer inactivity expires after 30 seconds, allowing the host's three 3-second
+ACK attempts to finish. Bounded host recovery performs HELLO and revalidates the
+actual checkpoint on the same handle. A stored matching digest is reread, hashed
+and loaded without retransmitting payload bytes. User queue commands are never
+replayed blindly after a new session. See [the repair report](USB_BATCH_TRANSFER_REPORT.md)
+for the measured physical rate and current qualification limits.
 
 ## Binary framing
 

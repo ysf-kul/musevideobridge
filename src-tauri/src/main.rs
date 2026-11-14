@@ -83,6 +83,45 @@ async fn select_card(
     .await
 }
 #[tauri::command]
+async fn select_videos(
+    handle: tauri::AppHandle,
+    app: tauri::State<'_, App>,
+) -> Result<Option<Vec<Media>>> {
+    let app = app.inner().clone();
+    blocking(move || {
+        let Some(paths) = handle
+            .dialog()
+            .file()
+            .add_filter("MP4", &["mp4"])
+            .blocking_pick_files()
+        else {
+            return Ok(None);
+        };
+        let paths = paths
+            .into_iter()
+            .map(|p| p.into_path().map_err(|e| Error::new("unsafe_path", e)))
+            .collect::<Result<Vec<_>>>()?;
+        app.select_many(&paths).map(Some)
+    })
+    .await
+}
+#[tauri::command]
+fn convert_videos(app: tauri::State<App>, options: Options) -> Result<()> {
+    app.convert_many(options)
+}
+#[tauri::command]
+fn upload_videos(app: tauri::State<App>, video_ids: Vec<String>) -> Result<()> {
+    app.upload_many(video_ids)
+}
+#[tauri::command]
+fn export_videos(
+    app: tauri::State<App>,
+    destination: String,
+    video_ids: Vec<String>,
+) -> Result<()> {
+    app.export_many(destination.into(), video_ids, false)
+}
+#[tauri::command]
 fn estimate(app: tauri::State<App>, options: Options) -> Result<Estimate> {
     app.estimate(&options)
 }
@@ -161,6 +200,10 @@ fn main() {
             snapshot,
             save_settings,
             select_video,
+            select_videos,
+            convert_videos,
+            upload_videos,
+            export_videos,
             select_card,
             estimate,
             convert,

@@ -65,6 +65,113 @@ fn job(app: &App) -> Value {
         thread::sleep(Duration::from_millis(10));
     }
 }
+fn other_input(root: &Path, source: &Path) -> std::path::PathBuf {
+    let other = root.join("other.mp4");
+    assert!(Command::new("ffmpeg")
+        .args(["-hide_banner", "-loglevel", "error", "-i"])
+        .arg(source)
+        .args(["-vf", "hue=h=90", "-c:v", "libx264", "-threads", "1"])
+        .arg(&other)
+        .status()
+        .unwrap()
+        .success());
+    other
+}
+#[test]
+fn batch_preparation_export_and_local_library_restart() {
+    let root = tempfile::tempdir().unwrap();
+    let source = input(root.path());
+    let other = other_input(root.path(), &source);
+    let app = app(root.path(), false);
+    app.select_many(&[source.clone(), other]).unwrap();
+    assert_eq!(app.snapshot().sources.len(), 2);
+    app.convert_many(Options::default()).unwrap();
+    assert_eq!(job(&app)["stage"], "complete");
+    let prepared = app.snapshot().prepared;
+    assert_eq!(prepared.len(), 2);
+    let ids = prepared
+        .iter()
+        .map(|m| m.artifact.as_ref().unwrap().sha256.clone())
+        .collect::<Vec<_>>();
+    assert_ne!(ids[0], ids[1]);
+    assert_eq!(
+        app.upload_many(vec![ids[0].clone(), ids[0].clone()])
+            .unwrap_err()
+            .code,
+        "invalid_parameter"
+    );
+    let card = root.path().join("batch-card");
+    fs::create_dir(&card).unwrap();
+    app.destination(&card).unwrap();
+    app.export_many(card.clone(), ids.clone(), true).unwrap();
+    assert_eq!(job(&app)["stage"], "complete");
+    let queue = muse_video_core::storage::queue::load(&card.join("muse-video")).unwrap();
+    assert_eq!(queue.ids, ids);
+    assert_eq!(queue.position, Some(0));
+    for id in &ids {
+        assert!(card.join(format!("muse-video/{id}.mvb")).is_file());
+    }
+    app.shutdown();
+    let restored = App::new(
+        root.path().join("config"),
+        root.path().join("cache"),
+        Arc::new(|_, _| {}),
+        None,
+    )
+    .unwrap();
+    assert_eq!(restored.snapshot().prepared.len(), 2);
+    assert!(restored.frame(0, &ids[0]).unwrap().starts_with(&[255, 216]));
+    restored.shutdown();
+}
+#[test]
+#[ignore = "requires separately built native simulator"]
+fn batch_usb_queue_and_mode_survive_device_restart() {
+    let root = tempfile::tempdir().unwrap();
+    let source = input(root.path());
+    let other = other_input(root.path(), &source);
+    fs::create_dir(root.path().join("card")).unwrap();
+    let app = app(root.path(), true);
+    app.select_many(&[source, other]).unwrap();
+    app.convert_many(Options::default()).unwrap();
+    assert_eq!(job(&app)["stage"], "complete");
+    let ids = app
+        .snapshot()
+        .prepared
+        .iter()
+        .map(|m| m.artifact.as_ref().unwrap().sha256.clone())
+        .collect::<Vec<_>>();
+    app.device.connect("host-test-simulator".into()).unwrap();
+    let started = Instant::now();
+    while app.snapshot().device["connection"] != "connected" {
+        assert!(started.elapsed() < Duration::from_secs(10));
+        thread::sleep(Duration::from_millis(20));
+    }
+    app.upload_many(ids.clone()).unwrap();
+    assert_eq!(job(&app)["stage"], "complete");
+    app.command(json!({"method":"pause"})).unwrap();
+    let state = app.command(json!({"method":"get_playback_state"})).unwrap();
+    assert_eq!(state["queue"], json!(ids));
+    assert_eq!(state["current_video_id"], ids[0]);
+    assert_eq!(state["queue_persistent"], true);
+    app.command(json!({"method":"set_loop_mode","mode":"loop_queue"}))
+        .unwrap();
+    app.device.disconnect().unwrap();
+    thread::sleep(Duration::from_millis(400));
+    app.device.connect("host-test-simulator".into()).unwrap();
+    thread::sleep(Duration::from_millis(800));
+    let restored = app.command(json!({"method":"get_playback_state"})).unwrap();
+    assert_eq!(restored["queue"], json!(ids));
+    assert_eq!(restored["loop_mode"], "loop_queue");
+    // Already stored media is hashed/loaded, without retransmitting video bytes.
+    app.upload_video(Some(ids[0].clone())).unwrap();
+    let result = job(&app);
+    assert_eq!(result["stage"], "complete");
+    assert_eq!(
+        result["result"]["videos"][0]["host_transfer"]["newly_confirmed_bytes"],
+        0
+    );
+    app.shutdown();
+}
 #[test]
 fn real_conversion_preview_guard_and_safe_export() {
     let root = tempfile::tempdir().unwrap();
