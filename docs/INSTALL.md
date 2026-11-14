@@ -8,6 +8,29 @@ third-party notices and corresponding dependency sources are supplied separately
 
 ## Linux x86-64
 
+The AppImage uses the same system runtime dependencies listed below. Install
+GTK3, WebKitGTK 4.1, libudev and FFmpeg/FFprobe 8+ before launching it. It uses
+normal XDG configuration/cache directories under `dev.muse.videobridge`, outside
+the read-only AppImage. Download and compare SHA-256, then run:
+
+```sh
+chmod +x Muse-Video-Bridge-0.3.0-Linux-x86_64.AppImage
+./Muse-Video-Bridge-0.3.0-Linux-x86_64.AppImage
+```
+
+If the host does not allow FUSE mounts through `/dev/fuse`, use the runtime's
+extraction fallback (extracts to a temporary directory, then starts the app):
+
+```sh
+./Muse-Video-Bridge-0.3.0-Linux-x86_64.AppImage --appimage-extract-and-run
+```
+
+The AppImage runtime's original licenses, exact corresponding sources, patches
+and rebuild recipe accompany the release as `AppImage-runtime-sources.tar.gz`.
+The application uses installed system GUI libraries and does not auto-download
+FFmpeg. Distribution/runtime qualification is listed in
+[RELEASE_VERIFICATION.md](RELEASE_VERIFICATION.md).
+
 The portable tarball is runtime-tested on CachyOS (Arch-based Linux, GTK3 and
 WebKitGTK 4.1). Other distributions are unverified. It contains an optimized native
 executable, embedded frontend/fonts, desktop entry, icon, notices, and a launcher.

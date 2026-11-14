@@ -45,10 +45,29 @@ Check package contents, `ldd`, ELF symbol versions, and actual launch/close from
 extracted archive outside the checkout. Clean target-distribution installation
 must be tested separately before claiming support.
 
-AppImage bundling was investigated and built, but it is not distributed in v0.3.0:
-the generated image contains many system GUI/media libraries whose corresponding
-source/redistribution review is outside the qualified native-package boundary.
-Do not publish it as an audited artifact merely because the bundler succeeded.
+## AppImage
+
+The published AppImage wraps the optimized, embedded-asset Linux executable and
+uses system GTK3/WebKitGTK/libudev/FFmpeg. It has no portable marker inside the
+read-only mounted image; settings/cache use normal XDG directories. This avoids
+redistributing installed system GUI/media libraries. Original desktop and runtime
+notices are included. Runtime correspondence is supplied as a separate release asset.
+
+Use the verified `AppImage/type2-runtime` x86-64 runtime at commit
+`fedfad51acc2860b2916a1eef32ba4a500ff31ef`, SHA-256
+`617aa77314d57c8b8e4fae9c3f0b35af7b30d5529cb69e98f64f92510ed98a46`.
+Download its original notices and complete source/rebuild bundle for statically
+linked runtime dependencies. Check hashes and supply notices before packaging:
+
+```sh
+python3 packaging/build_appimage.py --runtime /path/runtime-x86_64 --runtime-notices /path/runtime-notices --dependency-notices release-artifacts/dependency-notices --mksquashfs /path/mksquashfs
+```
+
+Test both direct FUSE launch and `--appimage-extract-and-run` from outside the
+checkout with isolated XDG paths. Verify native window creation/normal close and
+that configuration is outside the read-only mount. Attach the actual AppImage,
+runtime corresponding source, and updated SHA256SUMS.txt to the existing release.
+Do not replace earlier desktop artifacts or move the existing version tag.
 
 ## Windows x64
 

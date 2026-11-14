@@ -1,0 +1,45 @@
+{
+  "audit_date": "2026-11-14",
+  "asset": "Muse-Video-Bridge-0.3.0-Linux-x86_64.AppImage",
+  "sha256": "a4db8ae3291cf80bab893981a094402b67f581de24b3068c66458b2c3e510132",
+  "size": 4307448,
+  "contents_verified": true,
+  "no_dev_or_user_data": true,
+  "system_libraries": "GTK3, WebKitGTK 4.1, libudev, FFmpeg/FFprobe 8+",
+  "runtime_source_asset": "AppImage-runtime-sources.tar.gz",
+  "runtime_source_sha256": "ec0f443cff7b32c619e3585321c866601f31ec31a5110a788b364ce76180438e",
+  "smoke_runs": [
+    {
+      "mode": "direct",
+      "artifact": "Muse-Video-Bridge-0.3.0-Linux-x86_64.AppImage",
+      "sha256": "a4db8ae3291cf80bab893981a094402b67f581de24b3068c66458b2c3e510132",
+      "new_native_launch": true,
+      "window_render_screenshot": true,
+      "close_exit_code": 0,
+      "xdg_config_created_outside_image": true,
+      "xdg_cache_created_outside_image": true,
+      "theme": "dark",
+      "cwd": "/tmp",
+      "platform": "CachyOS Linux x86_64",
+      "graphics": "X11 software rendering in VM",
+      "physical_usb_tested": false
+    },
+    {
+      "mode": "extract",
+      "artifact": "Muse-Video-Bridge-0.3.0-Linux-x86_64.AppImage",
+      "sha256": "a4db8ae3291cf80bab893981a094402b67f581de24b3068c66458b2c3e510132",
+      "new_native_launch": true,
+      "window_render_screenshot": true,
+      "close_exit_code": 0,
+      "xdg_config_created_outside_image": true,
+      "xdg_cache_created_outside_image": true,
+      "theme": "light",
+      "cwd": "/tmp",
+      "platform": "CachyOS Linux x86_64",
+      "graphics": "X11 software rendering in VM",
+      "physical_usb_tested": false
+    }
+  ],
+  "runtime_rebuild_performed": false,
+  "physical_usb_tested": false
+}

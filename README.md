@@ -17,7 +17,7 @@ See [installation and USB setup](docs/INSTALL.md),
 [source build instructions](docs/BUILD_AND_RUN.md), and
 [release verification](docs/RELEASE_VERIFICATION.md).
 
-- **Linux x86-64:** portable `.tar.gz`, `.deb`, and `.rpm`. The optimized native
+- **Linux x86-64:** AppImage, portable `.tar.gz`, `.deb`, and `.rpm`. The optimized native
   application is runtime-tested on CachyOS; Debian/RPM packaging is build-verified,
   not installation-tested on those distributions. GTK3, WebKitGTK 4.1, libudev,
   and FFmpeg/FFprobe 8+ with scale `reset_sar` support are required.

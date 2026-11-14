@@ -20,6 +20,7 @@ locked dependencies, tests, documentation, and production packages.
 | Gitleaks public-source scan | No leaks detected; generated/private files excluded |
 | Optimized Linux Tauri build | Passed, embedded frontend/fonts; all linked runtime libraries found on CachyOS |
 | Linux extracted portable archive native smoke | Passed: launched outside checkout from `/tmp`, actual titled desktop window, portable English/light settings retained, normal window close exited 0; no Vite/source/runtime development files |
+| AppImage | Direct FUSE and extraction fallback passed native launch/render/normal close 0 on CachyOS x86-64; XDG settings/cache outside image verified, licenses/corresponding runtime source included |
 | Debian and RPM | Built; package metadata/runtime dependencies, desktop icon/entry, licenses/setup and absence of development/user data checked. No installation/runtime on Debian/Fedora claimed |
 | Windows optimized MSVC x64 cross-build | Passed, embedded frontend; replaceable minimal LGPL FFmpeg tools separately cross-built. Package PE/DLL/resource/internal-checksum checks passed. Published ZIP checksums, bundled probe/conversion/decode (320×240, ten frames), and native HWND creation/5-second survival passed on Windows Server 2025 AMD64; rendered UI/interactive use/USB unverified |
 | Firmware production build | Passed for `cyd_optimized_input_aligned`; fresh image build-verified only |
@@ -48,7 +49,7 @@ remain historical, not new physical release tests. See
 
 ## Distribution and remaining qualification
 
-Production downloads: Linux x86-64 portable tarball, Debian package, RPM package,
+Production downloads: Linux x86-64 AppImage, portable tarball, Debian package, RPM package,
 Windows x64 portable ZIP, and SHA-256 checksums. Locked Rust dependency and exact
 bundled FFmpeg sources accompany the downloads as separate assets. License texts,
 attribution, corresponding-source links and rebuild instructions are supplied.
@@ -63,9 +64,13 @@ the narrower Windows Server 2025 runner smoke is recorded in
 [its audit](RELEASE_AUDIT_WINDOWS.md) and
 [sanitized evidence](evidence/windows-release-runtime-smoke.json).
 
-AppImage built after an initial linuxdeploy failure and a verbose retry. It is not
-uploaded because bundling many system libraries requires a separate corresponding-
-source/redistribution qualification. Debian/RPM do not bundle those system libraries.
+An initial Tauri AppImage bundling attempt failed and a retry built a large image
+containing system GUI/media libraries. That image was not published. On the owner's
+request, the release instead supplies an AppImage using system GTK3/WebKitGTK/
+libudev/FFmpeg, with original runtime notices and exact corresponding runtime source/
+patches/rebuild recipe as a separate asset. The same optimized app/frontend is used;
+no playback implementation changed. AppImage smoke results are recorded in
+[evidence/appimage-release-smoke.json](evidence/appimage-release-smoke.json).
 The packaging-only Tauri rerun emitted a bundle-type/updater warning; no updater is
 implemented, so runtime does not depend on this marker. Existing firmware dependency
 warnings and Windows SDK/FFmpeg compiler warnings are retained in the detailed audits.
